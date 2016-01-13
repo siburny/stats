@@ -36,7 +36,12 @@ class Migration_Install_ion_auth extends CI_Migration {
 			),
 			array(
 				'id' => '2',
-				'name' => 'members',
+				'name' => 'manager',
+				'description' => 'Managing User'
+			),
+			array(
+				'id' => '3',
+				'name' => 'user',
 				'description' => 'General User'
 			)
 		);
