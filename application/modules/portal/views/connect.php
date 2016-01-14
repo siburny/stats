@@ -1,7 +1,7 @@
 {{> templates/header}}
 
 <h2>Status</h2>
-<p>{{status}}</p>
+<p>{{{status}}}</p>
 {{#hasTokens}}
 <ul>
 {{#token}}<li>{{{.}}}</li>{{/token}}

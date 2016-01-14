@@ -19,6 +19,8 @@ class Portal extends CI_Controller {
 
 	function index()
 	{
+		$this->load->model("Company_model", "company");
+
 		$data = array(
 			"page_title" => "Welcome!",
 			"is_admin" => FALSE
@@ -29,7 +31,14 @@ class Portal extends CI_Controller {
 		{
 			$data["is_admin"] = TRUE;
 		}
-			
+
+		if(!isset($_SESSION["token"]) || !isset($_SESSION["view_id"]))
+		{
+			$company = $this->company->get($user->company);
+			$_SESSION['token'] = $company->ga_token;
+			$_SESSION['view_id'] = $company->view_id;
+		}
+		
 		$this->parser->parse("portal/home", $data);
 	}
 	
@@ -52,7 +61,7 @@ class Portal extends CI_Controller {
 		
 		$user = $this->ion_auth->user()->row();
 		$company = $this->company->get($user->company);
-		if(is_null($company) || !$company->ga_token)
+		if(is_null($company) || is_null($company->ga_token))
 		{
 			$data["status"] = "Not connected [<a href='/portal/oauth2/'>CONNECT</a>]";
 		}
@@ -167,17 +176,26 @@ class Portal extends CI_Controller {
 		$analytics = new Google_Service_Analytics($client);
 
 		$res = $analytics->data_ga->get(
-      'ga:' . $_SESSION['view_id'],
-      '7daysAgo',
-      'today',
-      'ga:totalEvents',
+			'ga:' . $_SESSION['view_id'],
+			'7daysAgo',
+			'today',
+			'ga:totalEvents',
 			array(
-				'dimensions' => 'ga:eventCategory,ga:eventAction',
-				'max-results' => '25'
+				'dimensions' => 'ga:date',
+				'sort' => 'ga:date',
+				'max-results' => '25',
+				'filters' => 'ga:eventCategory==Author'
 			));
 
 		$rows = $res->getRows();
-		print_r($rows);
-
+		
+		array_unshift($rows, ['x', 'Views']);
+		
+		if($this->ion_auth->in_group("manager"))
+		{
+		}
+			
+		$data = array('chart_data' => json_encode($rows));
+		$this->parser->parse('portal/reports', $data);
 	}
 }
