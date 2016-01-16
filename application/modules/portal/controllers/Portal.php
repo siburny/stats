@@ -4,6 +4,9 @@ class Portal extends CI_Controller {
 	const CLIENT_ID = "701858312707-oi2kec5fosja28icldg70c77t1qogakd.apps.googleusercontent.com";
 	const CLIENT_SECRET = "tCfJLKGakV7ezgEsAYQ7TWvZ";
 
+	private $user = null;
+	private $user_company = null;
+
 	function __construct()
 	{
 		parent::__construct();
@@ -12,40 +15,71 @@ class Portal extends CI_Controller {
 		$this->load->helper(array('url','language'));
 
 		$this->lang->load('auth');
+		$this->load->model("Company_model", "company");
 
 		if(!$this->ion_auth->logged_in())
 			redirect("/auth/");
+
+		$this->user = $this->ion_auth->user()->row();
+		$this->user_company = $this->company->get($this->user->company);
+		if(!isset($_SESSION["token"]) && !is_null($this->user_company->ga_token))
+		{
+			$_SESSION['token'] = $this->user_company->ga_token;
+		}
+		if(!isset($_SESSION["view_id"]) && !is_null($this->user_company->ga_token))
+		{
+			$_SESSION['view_id'] = $this->user_company->view_id;
+		}
 	}
 
 	function index()
 	{
-		$this->load->model("Company_model", "company");
-
 		$data = array(
 			"page_title" => "Welcome!",
 			"is_admin" => FALSE
 		);
 		
-		$user = $this->ion_auth->user()->row();
+		$this->user = $this->ion_auth->user()->row();
 		if($this->ion_auth->in_group("manager"))
 		{
 			$data["is_admin"] = TRUE;
 		}
 
-		if(!isset($_SESSION["token"]) || !isset($_SESSION["view_id"]))
+		if(isset($_SESSION["token"]) && isset($_SESSION["view_id"]))
 		{
-			$company = $this->company->get($user->company);
-			$_SESSION['token'] = $company->ga_token;
-			$_SESSION['view_id'] = $company->view_id;
-		}
+			$this->load->library("google_api_php_client");
+			$client = new Google_Client();
+			$client->setClientId(Portal::CLIENT_ID);
+			$client->setClientSecret(Portal::CLIENT_SECRET);
+			$client->setRedirectUri("http://stats.local.com/portal/oauth2/");
+			$client->setAccessType("offline");
+			$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);
+			$client->setAccessToken($_SESSION["token"]);
+
+			$analytics = new Google_Service_Analytics($client);
+
+			$res = $analytics->data_ga->get(
+				'ga:' . $_SESSION['view_id'],
+				'30daysAgo',
+				'today',
+				'ga:totalEvents',
+				array(
+					'dimensions' => 'ga:date',
+					'sort' => 'ga:date',
+					'max-results' => '25',
+					'filters' => 'ga:eventCategory==Author'
+				));
+
+			$rows = $res->getRows();
+			array_unshift($rows, ['x', 'Views']);
 		
+			$data['chart_data'] = json_encode($rows);
+		}
 		$this->parser->parse("portal/home", $data);
 	}
 	
 	function connect($account = null, $property = null, $view = null)
 	{
-		$this->load->model("Company_model", "company");
-		
 		$data = array(
 			"page_title" => "Connect to Google Analytics!",
 			"token" => array()
@@ -59,13 +93,11 @@ class Portal extends CI_Controller {
 		$client->setAccessType("offline");
 		$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);
 		
-		$user = $this->ion_auth->user()->row();
-		$company = $this->company->get($user->company);
-		if(is_null($company) || is_null($company->ga_token))
+		if(is_null($this->user_company->ga_token))
 		{
 			$data["status"] = "Not connected [<a href='/portal/oauth2/'>CONNECT</a>]";
 		}
-		elseif(!is_null($company->view_id))
+		elseif(!is_null($this->user_company->view_id))
 		{
 			$data["status"] = "Connected!";
 		}
@@ -73,7 +105,7 @@ class Portal extends CI_Controller {
 		{
 			if(!isset($_SESSION["token"]))
 			{
-				$_SESSION['token'] = $company->ga_token;
+				$_SESSION['token'] = $this->user_company->ga_token;
 			}
 			
 			$client->setAccessToken($_SESSION["token"]);
@@ -121,8 +153,8 @@ class Portal extends CI_Controller {
 			else
 			{
 				$_SESSION['view_id'] = $view;
-				$company->view_id = $view;
-				$this->company->update($company->company_id, array("view_id" => $view));
+				$this->user_company->view_id = $view;
+				$this->company->update($this->user_company->company_id, array("view_id" => $view));
 				$data['done'] = TRUE;
 			}
 			
@@ -135,7 +167,6 @@ class Portal extends CI_Controller {
 	function oauth2()
 	{
 		$this->load->library("google_api_php_client");
-		$this->load->model("Company_model", "company");
 		
 		$client = new Google_Client();
 		$client->setClientId(Portal::CLIENT_ID);
@@ -152,50 +183,16 @@ class Portal extends CI_Controller {
 			$client->authenticate($this->input->get('code'));
 			$_SESSION["token"] = $client->getAccessToken();
 			
-			$user = $this->ion_auth->user()->row();
-			$this->company->update($user->company, array("ga_token" => $_SESSION["token"]));
+			$this->company->update($this->user_company->company_id, array("ga_token" => $_SESSION["token"]));
 			
 			redirect('/portal/connect/');
 		}
 	}
-	
-	function reports()
+
+	function ga_code()
 	{
-		if(!isset($_SESSION["token"]) || !isset($_SESSION["view_id"]))
-			redirect("/portal/");
-			
-		$this->load->library("google_api_php_client");
-		$client = new Google_Client();
-		$client->setClientId(Portal::CLIENT_ID);
-		$client->setClientSecret(Portal::CLIENT_SECRET);
-		$client->setRedirectUri("http://stats.local.com/portal/oauth2/");
-		$client->setAccessType("offline");
-		$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);
-		$client->setAccessToken($_SESSION["token"]);
+		$data = array('page_title' => 'GA Code Generation');
 
-		$analytics = new Google_Service_Analytics($client);
-
-		$res = $analytics->data_ga->get(
-			'ga:' . $_SESSION['view_id'],
-			'7daysAgo',
-			'today',
-			'ga:totalEvents',
-			array(
-				'dimensions' => 'ga:date',
-				'sort' => 'ga:date',
-				'max-results' => '25',
-				'filters' => 'ga:eventCategory==Author'
-			));
-
-		$rows = $res->getRows();
-		
-		array_unshift($rows, ['x', 'Views']);
-		
-		if($this->ion_auth->in_group("manager"))
-		{
-		}
-			
-		$data = array('chart_data' => json_encode($rows));
-		$this->parser->parse('portal/reports', $data);
+		$this->parser->parse("portal/ga_code", $data);
 	}
 }
