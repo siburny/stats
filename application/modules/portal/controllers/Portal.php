@@ -8,8 +8,6 @@ class Portal extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->database();
-		$this->load->library(array('ion_auth','form_validation'));
-		$this->load->helper(array('url','language'));
 
 		$this->lang->load('auth');
 		$this->load->model("Company_model", "company");

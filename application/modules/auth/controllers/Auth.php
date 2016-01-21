@@ -14,33 +14,16 @@ class Auth extends CI_Controller {
 		$this->lang->load('auth');
 	}
 
-	// redirect if needed, otherwise display the user list
 	function index()
 	{
 
 		if (!$this->ion_auth->logged_in())
 		{
-			// redirect them to the login page
-			redirect('auth/login', 'refresh');
-		}
-		elseif (!$this->ion_auth->is_admin()) // remove this elseif if you want to enable this for non-admins
-		{
-			// redirect them to the home page because they must be an administrator to view this
-			return show_error('You must be an administrator to view this page.');
+			redirect('auth/login');
 		}
 		else
 		{
-			// set the flash data error message if there is one
-			$this->data['message'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('message');
-
-			//list the users
-			$this->data['users'] = $this->ion_auth->users()->result();
-			foreach ($this->data['users'] as $k => $user)
-			{
-				$this->data['users'][$k]->groups = $this->ion_auth->get_users_groups($user->id)->result();
-			}
-
-			$this->_render_page('auth/index', $this->data);
+			redirect('/');
 		}
 	}
 
@@ -806,14 +789,14 @@ class Auth extends CI_Controller {
 		}
 	}
 
-	function _render_page($view, $data=null, $returnhtml=false)//I think this makes more sense
+	function _render_page($view, $data=null, $returnhtml=false)
 	{
 
 		$this->viewdata = (empty($data)) ? $this->data: $data;
 
 		$view_html = $this->load->view($view, $this->viewdata, $returnhtml);
 
-		if ($returnhtml) return $view_html;//This will return html on 3rd argument being true
+		if ($returnhtml) return $view_html;
 	}
 
 }

@@ -7,7 +7,9 @@
 <script src="/js/c3.min.js"></script>
 
 <h2>All views</h2>
-<div id="chart"></div>
+<div id="chart" style="height:200px;border:1px solid #ccc;border-radius:5px;">
+	<div style="color:#ccc;font-size:40px;line-height:100%;margin-top:80px;text-align:center;">Loading chart ...</div>
+</div>
 <p>&nbsp;</p>
 
 <script>
@@ -17,15 +19,19 @@ var chart1 = c3.generate({
 		x: 'x',
 		type: 'bar',
 		xFormat: '%Y%m%d',
-		rows: {{{chart_data}}}
+		url: '/ajax/get_graph_data'
 	},
 	axis: {
 		x: {
 			type: 'timeseries'
 		}
-	}
-});
+	},
+	legend: {
+		show: false
+	},
+	tooltip: {
+		show: false
+}});
 </script>
-
 
 {{> templates/footer}}

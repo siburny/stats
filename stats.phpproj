@@ -40,10 +40,12 @@
     <Folder Include="application\migrations\" />
     <Folder Include="application\models\" />
     <Folder Include="application\modules\" />
+    <Folder Include="application\modules\ajax\controllers\" />
     <Folder Include="application\modules\auth\" />
     <Folder Include="application\modules\auth\controllers\" />
     <Folder Include="application\modules\auth\views\" />
     <Folder Include="application\modules\auth\views\email\" />
+    <Folder Include="application\modules\ajax\" />
     <Folder Include="application\modules\website\" />
     <Folder Include="application\modules\portal\" />
     <Folder Include="application\modules\portal\controllers\" />
@@ -138,14 +140,14 @@
     <Compile Include="application\config\smileys.php" />
     <Compile Include="application\config\testing\google_client.php" />
     <Compile Include="application\config\user_agents.php" />
-    <Compile Include="application\modules\portal\controllers\Ajax.php" />
+    <Compile Include="application\modules\ajax\controllers\Ajax.php" />
     <Compile Include="application\modules\website\controllers\Main.php" />
     <Compile Include="application\core\MY_Loader.php" />
     <Compile Include="application\core\MY_Router.php" />
     <Compile Include="application\language\english\auth_lang.php" />
     <Compile Include="application\language\english\ion_auth_lang.php" />
     <Compile Include="application\libraries\Bcrypt.php" />
-    <Compile Include="application\libraries\Google_api_php_client.php" />
+    <Compile Include="application\libraries\Google_php_client.php" />
     <Compile Include="application\libraries\Ion_auth.php" />
     <Compile Include="application\libraries\MY_Parser.php" />
     <Compile Include="application\migrations\001_install_ion_auth.php" />
@@ -166,7 +168,6 @@
     <Compile Include="application\modules\auth\views\email\forgot_password.tpl.php" />
     <Compile Include="application\modules\auth\views\email\new_password.tpl.php" />
     <Compile Include="application\modules\auth\views\forgot_password.php" />
-    <Compile Include="application\modules\auth\views\index.php" />
     <Compile Include="application\modules\auth\views\login.php" />
     <Compile Include="application\modules\auth\views\reset_password.php" />
     <Compile Include="application\modules\portal\controllers\Portal.php" />

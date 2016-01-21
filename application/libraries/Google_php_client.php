@@ -15,7 +15,7 @@ class Google_php_client
 		$this->config = $this->ci->config->item("google_client");
 	}
 
-	public function GetClient($token = null)
+	public function get_client($token = null)
 	{
 		$client = new Google_Client();
 		$client->setClientId($this->config['CLIENT_ID']);
