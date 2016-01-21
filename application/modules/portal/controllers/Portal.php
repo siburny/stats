@@ -1,9 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Portal extends CI_Controller {
-	const CLIENT_ID = "701858312707-oi2kec5fosja28icldg70c77t1qogakd.apps.googleusercontent.com";
-	const CLIENT_SECRET = "tCfJLKGakV7ezgEsAYQ7TWvZ";
-
 	private $user = null;
 	private $user_company = null;
 
@@ -45,36 +42,6 @@ class Portal extends CI_Controller {
 			$data["is_admin"] = TRUE;
 		}
 
-		if(isset($_SESSION["token"]) && isset($_SESSION["view_id"]))
-		{
-			$this->load->library("google_api_php_client");
-			$client = new Google_Client();
-			$client->setClientId(Portal::CLIENT_ID);
-			$client->setClientSecret(Portal::CLIENT_SECRET);
-			$client->setRedirectUri("http://stats.local.com/portal/oauth2/");
-			$client->setAccessType("offline");
-			$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);
-			$client->setAccessToken($_SESSION["token"]);
-
-			$analytics = new Google_Service_Analytics($client);
-
-			$res = $analytics->data_ga->get(
-				'ga:' . $_SESSION['view_id'],
-				'30daysAgo',
-				'today',
-				'ga:totalEvents',
-				array(
-					'dimensions' => 'ga:date',
-					'sort' => 'ga:date',
-					'max-results' => '25',
-					'filters' => 'ga:eventCategory==Author'
-				));
-
-			$rows = $res->getRows();
-			array_unshift($rows, ['x', 'Views']);
-		
-			$data['chart_data'] = json_encode($rows);
-		}
 		$this->parser->parse("portal/home", $data);
 	}
 	
@@ -85,14 +52,8 @@ class Portal extends CI_Controller {
 			"token" => array()
 		);
 
-		$this->load->library("google_api_php_client");
-		$client = new Google_Client();
-		$client->setClientId(Portal::CLIENT_ID);
-		$client->setClientSecret(Portal::CLIENT_SECRET);
-		$client->setRedirectUri("http://stats.local.com/portal/oauth2/");
-		$client->setAccessType("offline");
-		$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);
-		
+		$this->load->library("google_php_client");
+			
 		if(is_null($this->user_company->ga_token))
 		{
 			$data["status"] = "Not connected [<a href='/portal/oauth2/'>CONNECT</a>]";
@@ -108,7 +69,7 @@ class Portal extends CI_Controller {
 				$_SESSION['token'] = $this->user_company->ga_token;
 			}
 			
-			$client->setAccessToken($_SESSION["token"]);
+			$client = $this->google_php_client->get_client($_SESSION["token"]);
 			$analytics = new Google_Service_Analytics($client);
 
 			if(is_null($account))
@@ -166,14 +127,8 @@ class Portal extends CI_Controller {
 	
 	function oauth2()
 	{
-		$this->load->library("google_api_php_client");
-		
-		$client = new Google_Client();
-		$client->setClientId(Portal::CLIENT_ID);
-		$client->setClientSecret(Portal::CLIENT_SECRET);
-		$client->setRedirectUri("http://stats.local.com/portal/oauth2/");
-		$client->setAccessType("offline");
-		$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);
+		$this->load->library("google_php_client");
+		$client = $this->google_php_client->get_client();
 		
 		$code = $this->input->get('code');
 		if (is_null($code)) {

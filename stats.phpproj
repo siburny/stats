@@ -9,6 +9,14 @@
     <!-- important to be opened by PHP Tools, when also Phalanger Tools are installed -->
     <ProjectTypeGuids>{A0786B88-2ADB-4C21-ABE8-AA2D79766269}</ProjectTypeGuids>
     <AssemblyName>stats</AssemblyName>
+    <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+    <Server>Custom</Server>
+    <PublishEvent>None</PublishEvent>
+    <PHPDevAutoPort>True</PHPDevAutoPort>
+    <PHPDevPort>13259</PHPDevPort>
+    <PHPDevHostName>localhost</PHPDevHostName>
+    <IISProjectUrl>http://localhost:13259/</IISProjectUrl>
+    <CustomServerUrl>http://stats.local.com/</CustomServerUrl>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <IncludeDebugInformation>true</IncludeDebugInformation>
@@ -20,6 +28,7 @@
     <Folder Include="application\" />
     <Folder Include="application\cache\" />
     <Folder Include="application\config\" />
+    <Folder Include="application\config\testing\" />
     <Folder Include="application\controllers\" />
     <Folder Include="application\core\" />
     <Folder Include="application\helpers\" />
@@ -35,9 +44,12 @@
     <Folder Include="application\modules\auth\controllers\" />
     <Folder Include="application\modules\auth\views\" />
     <Folder Include="application\modules\auth\views\email\" />
+    <Folder Include="application\modules\website\" />
     <Folder Include="application\modules\portal\" />
     <Folder Include="application\modules\portal\controllers\" />
     <Folder Include="application\modules\portal\views\" />
+    <Folder Include="application\modules\website\controllers\" />
+    <Folder Include="application\modules\website\views\" />
     <Folder Include="application\third_party\" />
     <Folder Include="application\third_party\google-api-php-client-1.1.6\" />
     <Folder Include="application\third_party\google-api-php-client-1.1.6\examples\" />
@@ -114,22 +126,26 @@
     <Compile Include="application\config\database.php" />
     <Compile Include="application\config\doctypes.php" />
     <Compile Include="application\config\foreign_chars.php" />
+    <Compile Include="application\config\google_client.php" />
     <Compile Include="application\config\hooks.php" />
     <Compile Include="application\config\ion_auth.php" />
     <Compile Include="application\config\memcached.php" />
     <Compile Include="application\config\migration.php" />
     <Compile Include="application\config\mimes.php" />
+    <Compile Include="application\config\testing\config.php" />
     <Compile Include="application\config\profiler.php" />
     <Compile Include="application\config\routes.php" />
     <Compile Include="application\config\smileys.php" />
+    <Compile Include="application\config\testing\google_client.php" />
     <Compile Include="application\config\user_agents.php" />
-    <Compile Include="application\controllers\Welcome.php" />
+    <Compile Include="application\modules\portal\controllers\Ajax.php" />
+    <Compile Include="application\modules\website\controllers\Main.php" />
     <Compile Include="application\core\MY_Loader.php" />
     <Compile Include="application\core\MY_Router.php" />
     <Compile Include="application\language\english\auth_lang.php" />
     <Compile Include="application\language\english\ion_auth_lang.php" />
     <Compile Include="application\libraries\Bcrypt.php" />
-    <Compile Include="application\libraries\google_api_php_client.php" />
+    <Compile Include="application\libraries\Google_api_php_client.php" />
     <Compile Include="application\libraries\Ion_auth.php" />
     <Compile Include="application\libraries\MY_Parser.php" />
     <Compile Include="application\migrations\001_install_ion_auth.php" />
@@ -384,8 +400,9 @@
     <Compile Include="application\views\errors\html\error_php.php" />
     <Compile Include="application\views\templates\footer.php" />
     <Compile Include="application\views\templates\header.php" />
-    <Compile Include="application\views\welcome_message.php" />
+    <Compile Include="application\modules\website\views\index.php" />
     <Compile Include="public\index.php" />
+    <Compile Include="public\.htaccess" />
     <Compile Include="system\core\Benchmark.php" />
     <Compile Include="system\core\CodeIgniter.php" />
     <Compile Include="system\core\Common.php" />
