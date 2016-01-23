@@ -1,6 +1,9 @@
 {{> templates/header}}
 
-{{#is_admin}}<p><a href="/portal/connect/">Check status of Google Analytics</a></p>{{/is_admin}}
+{{#is_admin}}
+<p><a href="/portal/connect/">Check status of Google Analytics</a></p>
+<p><a href="/portal/ga_code/">Get the Code</a></p>
+{{/is_admin}}
 
 <link href="/css/c3.css" rel="stylesheet" type="text/css">
 <script src="/js/d3.min.js" charset="utf-8"></script>

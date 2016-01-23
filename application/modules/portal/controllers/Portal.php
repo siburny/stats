@@ -30,8 +30,7 @@ class Portal extends CI_Controller {
 	function index()
 	{
 		$data = array(
-			"page_title" => "Welcome!",
-			"is_admin" => FALSE
+			"page_title" => "Welcome!"
 		);
 		
 		$this->user = $this->ion_auth->user()->row();

@@ -92,6 +92,8 @@
     <Folder Include="application\views\errors\html\" />
     <Folder Include="application\views\templates\" />
     <Folder Include="public\" />
+    <Folder Include="public\css\" />
+    <Folder Include="public\js\" />
     <Folder Include="system\" />
     <Folder Include="system\core\" />
     <Folder Include="system\core\compat\" />
@@ -618,6 +620,10 @@
     <Content Include="application\views\errors\index.html" />
     <Content Include="application\views\index.html" />
     <Content Include="license.txt" />
+    <Content Include="public\css\c3.css" />
+    <Content Include="public\js\c3.min.js" />
+    <Content Include="public\js\d3.min.js" />
+    <Content Include="public\js\jquery-2.2.0.min.js" />
     <Content Include="public\web.config" />
     <Content Include="system\.htaccess" />
     <Content Include="system\core\compat\index.html" />

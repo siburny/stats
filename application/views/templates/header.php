@@ -63,6 +63,8 @@
 	}
 	</style>
 	<script src="/js/jquery-2.2.0.min.js"></script>
+	<script src="/js/spin.min.js"></script>
+	<script src="/js/jquery.spin.js"></script>
 </head>
 <body>
 
