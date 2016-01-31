@@ -40,8 +40,10 @@
 </div>
 
 <script type="text/javascript">
-	var base1 = "<" + "script type='text/javascript'>\r\n  ga('send', 'event', 'Author', !question1!, !question2!);\r\n</" + "script>";
-	var base2 = "<" + "script type='text/javascript'>\r\n  _gaq.push(['_trackEvent', 'Author', !question1!, !question2!]);\r\n</" + "script>";
+	var base1 = "ga('send', 'event', 'Author', !question1!, !question2!);";
+	var base2 = "_gaq.push(['_trackEvent', 'Author', !question1!, !question2!]);";
+	var base_start = "<" + "script type='text/javascript'>\r\nfunction r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}\r\nr(function() { ",
+		base_end = "})\r\n</" + "script>";
 
 	function step2() {
 		if ($('.url').val() != "") {
@@ -92,10 +94,10 @@
 		switch($("input.question0[type='radio']:checked").val())
 		{
 			case "1":
-				$("#code").val(base1.replace('!question1!', question1).replace('!question2!', question2));
+				$("#code").val(base_start + base1.replace('!question1!', question1).replace('!question2!', question2) + base_end);
 				break;
 			case "2":
-				$("#code").val(base2.replace('!question1!', question1).replace('!question2!', question2));
+				$("#code").val(base_start + base2.replace('!question1!', question1).replace('!question2!', question2) + base_end);
 				break;
 			default:
 				$("#code").val("Please selected options above.");
