@@ -38,7 +38,6 @@ class Ajax extends CI_Controller {
 				array(
 					'dimensions' => 'ga:date',
 					'sort' => 'ga:date',
-					'max-results' => '25',
 					'filters' => 'ga:eventCategory==Author'
 				));
 
