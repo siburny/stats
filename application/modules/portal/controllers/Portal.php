@@ -23,6 +23,8 @@ class Portal extends CI_Controller {
 
 	function index()
 	{
+		$this->load->model("Cache_model", "cache");
+		
 		$data = array(
 			"page_title" => "Welcome!"
 		);
@@ -34,18 +36,42 @@ class Portal extends CI_Controller {
 		}
 
 		$rows = $this->google_php_client->get_posts($this->user_company);
-		//print_r($rows);
+		$urls = array_column($rows, 1);
 
+		$cache_db = $this->cache->get_many_by('url', $urls);
+		$cache = array();
+		foreach($cache_db as $value)
+		{
+			$cache[$value->url] = $value;
+		}
+		
 		$data['rows'] = array();
 		foreach($rows as $index => $row)
 		{
-			$data['rows'][] = array(
-				"n" => $index + 1,
-				"picture" => '/images/ajax-loader.gif',
-				"title" => $row[1],
-				"views" => $row[2],
-				"up_down" => 0
-			);
+			if(array_key_exists($row[1], $cache))
+			{
+				$data['rows'][] = array(
+					"n" => $index + 1,
+					"image" => $cache[$row[1]]->image,
+					"url" => $row[1],
+					"title" => $cache[$row[1]]->title,
+					"views" => $row[2],
+					"up_down" => 0,
+					"class" => ""
+				);
+			}
+			else
+			{
+				$data['rows'][] = array(
+					"n" => $index + 1,
+					"image" => '/images/ajax-loader.gif',
+					"url" => $row[1],
+					"title" => $row[1],
+					"views" => $row[2],
+					"up_down" => 0,
+					"class" => "loading"
+				);
+			}
 		}
 
 		$this->parser->parse("portal/home", $data);

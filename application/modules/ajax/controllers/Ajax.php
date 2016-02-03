@@ -14,7 +14,7 @@ class Ajax extends CI_Controller {
 		$this->load->model("Company_model", "company");
 
 		if(!$this->ion_auth->logged_in())
-			redirect("/auth/");
+			return;
 
 		$this->user = $this->ion_auth->user()->row();
 		$this->user_company = $this->company->get($this->user->company);
@@ -22,6 +22,12 @@ class Ajax extends CI_Controller {
 
 	function get_graph_data()
 	{
+		if(!isset($this->user) || !isset($this->user_company))
+		{
+			set_status_header(401);
+			return;
+		}
+		
 		$data = "Can't connect to Google";
 
 		if($this->user_company->ga_token && $this->user_company->view_id)
@@ -52,8 +58,14 @@ class Ajax extends CI_Controller {
 		$this->output->set_output($data);
 	}
 
-	public function get_url_suggestions()
+	function get_url_suggestions()
 	{
+		if(!isset($this->user) || !isset($this->user_company))
+		{
+			set_status_header(401);
+			return;
+		}
+		
 		require_once(APPPATH.'third_party/querypath-3.0.4/src/qp.php');
 
 		$data = [];
@@ -142,6 +154,107 @@ class Ajax extends CI_Controller {
 		{
 			$data["error"] = "We couldn't retrieve the page.";
 		}
+
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($data));
+	}
+	
+	function get_post_cache()
+	{
+		if(!($url = $this->input->get('url')))
+			return;
+		
+		$this->load->model('Cache_model', 'cache');
+		
+		$cache = $this->cache->get_by('url', $url);
+		if(!is_null($cache))
+		{
+			unset($cache->cache_id);
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode($cache));
+			return;
+		}
+		
+		// NO CACHE FOUND
+		
+		require_once(APPPATH.'third_party/querypath-3.0.4/src/qp.php');
+		$qp = htmlqp($url);
+		$data = array('url' => $url);
+		
+		//title
+		$title = $qp->find("meta[property='og:title']");
+		if($title->count())
+		{
+			$data['title'] = $title->attr('content');
+		}
+		else
+		{
+			$title = $qp->find("meta[property='twitter:title']");
+			if($title->count())
+			{
+				$data['title'] = $title->attr('content');
+			}
+			else
+			{
+				$data['title'] = $qp->find("title")->text();
+			}
+		}
+			
+		//image
+		$image = $qp->find("meta[property='og:image']");
+		if($image->count())
+		{
+			$data['image'] = $image->attr('content');
+		}
+		else
+		{
+			$image = $qp->find("meta[property='twitter:image:src']");
+			if($image->count())
+			{
+				$data['image'] = $image->attr('content');
+			}
+		}
+		
+		//save images
+		if($data['image'])
+		{
+			$original_url = $data['image'];
+			$md5 = substr(md5($original_url.mt_rand()), 0, 12);
+				
+			$local_dir = substr($md5, 0, 2).DIRECTORY_SEPARATOR.substr($md5, 2, 2).DIRECTORY_SEPARATOR;
+			$local = $local_dir.substr($md5, 4);
+			$url = '/'.substr($md5, 0, 2).'/'.substr($md5, 2, 2).'/'.substr($md5, 4);
+			
+			$path = $original_url;
+			$qpos = strpos($path, "?"); 
+			if ($qpos!==false) $path = substr($path, 0, $qpos); 
+			$extension = pathinfo($path, PATHINFO_EXTENSION);
+			if($extension != "")
+			{
+				$local .= ".".$extension;
+				$url .= ".".$extension;
+			}
+
+			$local = FCPATH."images".DIRECTORY_SEPARATOR ."cache".DIRECTORY_SEPARATOR.$local;
+			$local_dir = FCPATH."images".DIRECTORY_SEPARATOR ."cache".DIRECTORY_SEPARATOR.$local_dir;
+			$url = "/images/cache/".$url;
+			
+			mkdir($local_dir, 0777, TRUE);
+			
+			copy($original_url, $local);
+			if(file_exists($local))
+			{
+				$data['image'] = $url;
+			}
+			else
+			{
+				unset($data['image']);
+			}
+		}
+			
+		$this->cache->insert($data);
 
 		$this->output
 			->set_content_type('application/json')

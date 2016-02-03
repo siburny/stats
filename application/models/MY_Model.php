@@ -361,7 +361,7 @@ class MY_Model extends CI_Model
     public function get_many_by()
     {
         $where = func_get_args();
-        $this->_set_where($where);
+        $this->_database->where_in($where[0], $where[1]);
 
         return $this->get_all();
     }

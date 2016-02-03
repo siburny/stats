@@ -8,6 +8,7 @@
 <link href="/css/c3.css" rel="stylesheet" type="text/css">
 <script src="/js/d3.min.js" charset="utf-8"></script>
 <script src="/js/c3.min.js"></script>
+<script src="/js/ajaxq.js"></script>
 
 <h2>All views</h2>
 <div id="chart" style="height:200px;border:1px solid #ccc;border-radius:5px;">
@@ -30,7 +31,12 @@
 	}
 	#posts td:nth-child(2) {
 		width:50px;
+		text-align:center;
 	}
+		#posts td:nth-child(2) img {
+			max-width:100px;
+			max-height:50px;
+		}
 	#posts td:nth-child(4) {
 		width:50px;
 	}
@@ -42,16 +48,16 @@
 	}
 </style>
 <table style="" id="posts">
-{{#rows}}
-	<tr>
+{{# rows }}
+	<tr class="{{ class }}" data-url="{{url}}">
 		<td>{{n}}</td>
-		<td><img src="{{picture}}" alt=""/></td>
-		<td>{{title}}</td>
+		<td class="image"><img src="{{image}}" alt=""/></td>
+		<td class="title">{{title}}</td>
 		<td>graph</td>
 		<td>{{views}}</td>
 		<td>{{up_down}}</td>
 	</tr>
-{{/rows}}
+{{/ rows }}
 </table>
 
 <script>
@@ -76,7 +82,16 @@ var chart1 = c3.generate({
 	},
 	tooltip: {
 		show: false
-}});
+	}
+});
+
+$("#posts tr.loading").each(function (index, item) {
+	var $item = $(item);
+	$.getq("posts", '/ajax/get_post_cache?url=' + encodeURIComponent($(item).data("url")), function (data) {
+		$item.find(".image img").attr('src', data.image);
+		$item.find(".title").html(data.title);
+	}, 'json');
+});
 </script>
 
 {{> templates/footer}}

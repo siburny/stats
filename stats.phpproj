@@ -112,7 +112,9 @@
     <Folder Include="application\views\templates\" />
     <Folder Include="public\" />
     <Folder Include="public\css\" />
+    <Folder Include="public\images\" />
     <Folder Include="public\js\" />
+    <Folder Include="public\opcache\" />
     <Folder Include="system\" />
     <Folder Include="system\core\" />
     <Folder Include="system\core\compat\" />
@@ -161,6 +163,8 @@
     <Compile Include="application\config\smileys.php" />
     <Compile Include="application\config\testing\google_client.php" />
     <Compile Include="application\config\user_agents.php" />
+    <Compile Include="application\migrations\005_add_cache_table.php" />
+    <Compile Include="application\models\Cache_model.php" />
     <Compile Include="application\modules\ajax\controllers\Ajax.php" />
     <Compile Include="application\modules\portal\views\connect_view.php" />
     <Compile Include="application\modules\website\controllers\Main.php" />
@@ -495,6 +499,7 @@
     <Compile Include="application\modules\website\views\index.php" />
     <Compile Include="public\index.php" />
     <Compile Include="public\.htaccess" />
+    <Compile Include="public\opcache\index.php" />
     <Compile Include="system\core\Benchmark.php" />
     <Compile Include="system\core\CodeIgniter.php" />
     <Compile Include="system\core\Common.php" />
@@ -756,6 +761,8 @@
     <Content Include="application\views\index.html" />
     <Content Include="license.txt" />
     <Content Include="public\css\c3.css" />
+    <Content Include="public\images\ajax-loader.gif" />
+    <Content Include="public\js\ajaxq.js" />
     <Content Include="public\js\c3.min.js" />
     <Content Include="public\js\d3.min.js" />
     <Content Include="public\js\jquery-2.2.0.min.js" />
