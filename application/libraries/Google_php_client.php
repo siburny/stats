@@ -29,4 +29,23 @@ class Google_php_client
 		}
 		return $client;
 	}
+
+	public function get_posts($user_company)
+	{
+		$client = $this->get_client($user_company->ga_token);
+		$analytics = new Google_Service_Analytics($client);
+
+		$res = $analytics->data_ga->get(
+			'ga:' . $user_company->view_id,
+			'30daysAgo',
+			'today',
+			'ga:totalEvents',
+			array(
+				'dimensions' => 'ga:eventAction,ga:eventLabel',
+				'sort' => '-ga:totalEvents',
+				'max-results' => 25
+			));
+
+		return $res->getRows();
+	}
 }

@@ -17,14 +17,8 @@ class Portal extends CI_Controller {
 
 		$this->user = $this->ion_auth->user()->row();
 		$this->user_company = $this->company->get($this->user->company);
-		if(!isset($_SESSION["token"]) && !is_null($this->user_company->ga_token))
-		{
-			$_SESSION['token'] = $this->user_company->ga_token;
-		}
-		if(!isset($_SESSION["view_id"]) && !is_null($this->user_company->ga_token))
-		{
-			$_SESSION['view_id'] = $this->user_company->view_id;
-		}
+
+		$this->load->library("google_php_client");
 	}
 
 	function index()
@@ -39,92 +33,112 @@ class Portal extends CI_Controller {
 			$data["is_admin"] = TRUE;
 		}
 
+		$rows = $this->google_php_client->get_posts($this->user_company);
+		//print_r($rows);
+
+		$data['rows'] = array();
+		foreach($rows as $index => $row)
+		{
+			$data['rows'][] = array(
+				"n" => $index + 1,
+				"picture" => '/images/ajax-loader.gif',
+				"title" => $row[1],
+				"views" => $row[2],
+				"up_down" => 0
+			);
+		}
+
 		$this->parser->parse("portal/home", $data);
 	}
 	
-	function connect($account = null, $property = null, $view = null)
+	function connect()
 	{
 		$data = array(
-			"page_title" => "Connect to Google Analytics!",
-			"token" => array()
+			"page_title" => "Connect to Google Analytics!"
 		);
 
-		$this->load->library("google_php_client");
-			
 		if(is_null($this->user_company->ga_token))
 		{
 			$data["status"] = "Not connected [<a href='/portal/oauth2/'>CONNECT</a>]";
 		}
 		elseif(!is_null($this->user_company->view_id))
 		{
-			$data["status"] = "Connected!";
+			$data["status"] = "Connected! [<a href='/portal/connect_view/'>Change GA View</a>]";
 		}
 		else
 		{
-			if(!isset($_SESSION["token"]))
-			{
-				$_SESSION['token'] = $this->user_company->ga_token;
-			}
-			
-			$client = $this->google_php_client->get_client($_SESSION["token"]);
-			$analytics = new Google_Service_Analytics($client);
-
-			if(is_null($account))
-			{
-				$accounts = $analytics->management_accounts->listManagementAccounts();
-				if (count($accounts->getItems()) > 0) {
-					$items = $accounts->getItems();
-					foreach($items as $item) {
-						$data["token"][] = "<a href='/portal/connect/".$item->getId()."/'>".$item->name."</a>";
-					}
-					
-				} else {
-					$data["error"] = 'No accounts found for this user.';
-				}
-			}
-			elseif(is_null($property))
-			{
-				$properties = $analytics->management_webproperties->listManagementWebproperties($account);
-				if (count($properties->getItems()) > 0) {
-					$items = $properties->getItems();
-					foreach($items as $item) {
-						$data["token"][] = "<a href='/portal/connect/".$account."/".$item->getId()."/'>".$item->name."</a>";
-					}
-					
-				} else {
-					$data["error"] = 'No properties found for this account.';
-				}
-			}
-			elseif(is_null($view))
-			{
-				$views = $analytics->management_profiles->listManagementProfiles($account, $property);
-				if (count($views->getItems()) > 0) {
-					$items = $views->getItems();
-					foreach($items as $item) {
-						$data["token"][] = "<a href='/portal/connect/".$account."/".$property."/".$item->getId()."/'>".$item->name."</a>";
-					}
-					
-				} else {
-					$data["error"] = 'No views found for this property.';
-				}
-			}
-			else
-			{
-				$_SESSION['view_id'] = $view;
-				$this->user_company->view_id = $view;
-				$this->company->update($this->user_company->company_id, array("view_id" => $view));
-				$data['done'] = TRUE;
-			}
-			
-			$data["hasTokens"] = count($data['token']) > 0;
+			redirect('/portal/connect_view/');
 		}
 			
 		$this->parser->parse("portal/connect", $data);
 	}
+
+	function connect_view($account = null, $property = null, $view = null)
+	{
+		$data = array(
+			"page_title" => "Connect to Google Analytics!",
+			'token' => array()
+		);
+		$token = $this->user_company->ga_token;
+		
+		$client = $this->google_php_client->get_client($token);
+		$analytics = new Google_Service_Analytics($client);
+
+		if(is_null($account))
+		{
+			$data['selection'] = 'Account';
+			$accounts = $analytics->management_accounts->listManagementAccounts();
+			if (count($accounts->getItems()) > 0) {
+				$items = $accounts->getItems();
+				foreach($items as $item) {
+					$data["token"][] = "<a href='/portal/connect_view/".$item->getId()."/'>".$item->name."</a>";
+				}
+				
+			} else {
+				$data["error"] = 'No accounts found for this user.';
+			}
+		}
+		elseif(is_null($property))
+		{
+			$data['selection'] = 'Property';
+			$properties = $analytics->management_webproperties->listManagementWebproperties($account);
+			if (count($properties->getItems()) > 0) {
+				$items = $properties->getItems();
+				foreach($items as $item) {
+					$data["token"][] = "<a href='/portal/connect_view/".$account."/".$item->getId()."/'>".$item->name."</a>";
+				}
+				
+			} else {
+				$data["error"] = 'No properties found for this account.';
+			}
+		}
+		elseif(is_null($view))
+		{
+			$data['selection'] = 'View';
+			$views = $analytics->management_profiles->listManagementProfiles($account, $property);
+			if (count($views->getItems()) > 0) {
+				$items = $views->getItems();
+				foreach($items as $item) {
+					$data["token"][] = "<a href='/portal/connect_view/".$account."/".$property."/".$item->getId()."/'>".$item->name."</a>";
+				}
+				
+			} else {
+				$data["error"] = 'No views found for this property.';
+			}
+		}
+		else
+		{
+			$this->user_company->view_id = $view;
+			$this->company->update($this->user_company->company_id, array("view_id" => $view));
+			$data['done'] = TRUE;
+		}
+		
+		$data["hasTokens"] = count($data['token']) > 0;
+		$this->parser->parse("portal/connect_view", $data);
+	}
 	
 	function oauth2()
 	{
-		$this->load->library("google_php_client");
 		$client = $this->google_php_client->get_client();
 		
 		$code = $this->input->get('code');
@@ -133,9 +147,8 @@ class Portal extends CI_Controller {
 			redirect($auth_url);
 		} else {
 			$client->authenticate($this->input->get('code'));
-			$_SESSION["token"] = $client->getAccessToken();
-			
-			$this->company->update($this->user_company->company_id, array("ga_token" => $_SESSION["token"]));
+			$token = $client->getAccessToken();
+			$this->company->update($this->user_company->company_id, array("ga_token" => $token));
 			
 			redirect('/portal/connect/');
 		}
