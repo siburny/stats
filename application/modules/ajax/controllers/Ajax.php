@@ -32,19 +32,59 @@ class Ajax extends CI_Controller {
 
 		if($this->user_company->ga_token && $this->user_company->view_id)
 		{
-			$this->load->library("google_php_client");
-			$client = $this->google_php_client->get_client($this->user_company->ga_token);
+			$this->load->library("google_php_client", $this->user_company);
+			$rows = $this->google_php_client->get_post_data();
+			$data = 'x,Views'.PHP_EOL;
+			foreach($rows as $row)
+			{
+				$data .= implode(",", $row).PHP_EOL;
+			}
+		}
+		
+		$this->output->set_output($data);
+	}
+
+	function get_post_graph_data()
+	{
+		if(!isset($this->user) || !isset($this->user_company))
+		{
+			set_status_header(401);
+			return;
+		}
+		
+		$data = "Can't connect to Google";
+		$url = $this->input->get("url");
+		$update = FALSE;
+
+		$this->load->model("Cache_stats_model", 'cache_stats');
+		$cache = $this->cache_stats->get_by('url', $url);
+		if($cache !== null)
+		{
+			$date = (new DateTime($cache->cached_time))->modify("+30 minutes");
+			$now = new DateTime();
+			if($date >= $now)
+			{
+				$this->output->set_output($cache->stats);
+				return;
+			}
+			$update = TRUE;
+		}
+
+		if($this->user_company->ga_token && $this->user_company->view_id && $url)
+		{
+			$this->load->library("google_php_client", $this->user_company);
+			$client = $this->google_php_client->get_client();
 			$analytics = new Google_Service_Analytics($client);
 
 			$res = $analytics->data_ga->get(
 				'ga:' . $this->user_company->view_id,
-				'30daysAgo',
+				'7daysAgo',
 				'today',
-				'ga:totalEvents',
+				'ga:sessions',
 				array(
 					'dimensions' => 'ga:date',
 					'sort' => 'ga:date',
-					'filters' => 'ga:eventCategory==Author'
+					'filters' => 'ga:eventCategory==Author;ga:eventLabel=='.$url
 				));
 
 			$data = 'x,Views'.PHP_EOL;
@@ -52,6 +92,21 @@ class Ajax extends CI_Controller {
 			foreach($rows as $row)
 			{
 				$data .= implode(",", $row).PHP_EOL;
+			}
+
+			$obj = array(
+				'url' => $url,
+				'stats' => $data,
+				'cached_time' => (new DateTime())->format(DateTime::ISO8601)
+			);
+			if($update)
+			{
+				unset($obj['url']);
+				$this->cache_stats->update_by('url', $url, $obj);
+			}
+			else
+			{
+				$this->cache_stats->insert($obj);
 			}
 		}
 		
@@ -165,21 +220,16 @@ class Ajax extends CI_Controller {
 		if(!($url = $this->input->get('url')))
 			return;
 		
-		$this->load->model('Cache_model', 'cache');
-		
-		$cache = $this->cache->get_by('url', $url);
-		if(!is_null($cache))
+		if(!isset($this->user) || !isset($this->user_company))
 		{
-			unset($cache->cache_id);
-			$this->output
-				->set_content_type('application/json')
-				->set_output(json_encode($cache));
+			set_status_header(401);
 			return;
 		}
-		
-		// NO CACHE FOUND
+
+		$this->load->model('Cache_model', 'cache');
 		
 		require_once(APPPATH.'third_party/querypath-3.0.4/src/qp.php');
+		libxml_use_internal_errors(true);
 		$qp = htmlqp($url);
 		$data = array('url' => $url);
 		
@@ -225,7 +275,7 @@ class Ajax extends CI_Controller {
 				
 			$local_dir = substr($md5, 0, 2).DIRECTORY_SEPARATOR.substr($md5, 2, 2).DIRECTORY_SEPARATOR;
 			$local = $local_dir.substr($md5, 4);
-			$url = '/'.substr($md5, 0, 2).'/'.substr($md5, 2, 2).'/'.substr($md5, 4);
+			$url = substr($md5, 0, 2).'/'.substr($md5, 2, 2).'/'.substr($md5, 4);
 			
 			$path = $original_url;
 			$qpos = strpos($path, "?"); 
@@ -253,8 +303,82 @@ class Ajax extends CI_Controller {
 				unset($data['image']);
 			}
 		}
-			
+
+		//Date
+		$date = $qp->find("meta[property='article:published_time']");
+		if($date->count() > 1)
+		{
+			$data['date_published'] = $date->attr('content');
+		}
+		else
+		{
+			$date = $qp->find('time');
+			if($date->count() == 1)
+			{
+				if($date->attr('datetime'))
+				{
+					$data['date_published'] = $date->attr('datetime');
+				}
+				else
+				{
+					$data['date_published'] = $date->text();
+				}
+			}
+			else
+			{
+				$date = $qp->find('article time');
+				if($date->count() == 1)
+				{
+					if($date->attr('datetime'))
+					{
+						$data['date_published'] = $date->attr('datetime');
+					}
+					else
+					{
+						$data['date_published'] = $date->text();
+					}
+				}
+				else
+				{
+					$date = $qp->find('article header time');
+					if($date->count() == 1)
+					{
+						if($date->attr('datetime'))
+						{
+							$data['date_published'] = $date->attr('datetime');
+						}
+						else
+						{
+							$data['date_published'] = $date->text();
+						}
+					}
+					else
+					{
+					}
+				}
+			}
+			//jQuery('article header time')
+		}
+
+		// Add DB entry
 		$this->cache->insert($data);
+
+		if($data['date_published'])
+		{
+			$time = strtotime($data['date_published']);
+			if($time !== FALSE)
+			{
+				$data['date_published'] = date('M j, Y', $time);
+			}
+			else
+			{
+				$data['date_published'] = null;
+			}
+		}
+		else
+		{
+			$data['date_published'] = null;
+		}
 
 		$this->output
 			->set_content_type('application/json')

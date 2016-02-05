@@ -18,7 +18,7 @@ class Portal extends CI_Controller {
 		$this->user = $this->ion_auth->user()->row();
 		$this->user_company = $this->company->get($this->user->company);
 
-		$this->load->library("google_php_client");
+		$this->load->library("google_php_client", $this->user_company);
 	}
 
 	function index()
@@ -35,7 +35,8 @@ class Portal extends CI_Controller {
 			$data["is_admin"] = TRUE;
 		}
 
-		$rows = $this->google_php_client->get_posts($this->user_company);
+		$today = new DateTime();
+		$rows = $this->google_php_client->get_posts($today->format('Y-m-d'), '5daysAgo');
 		$urls = array_column($rows, 1);
 
 		$cache_db = $this->cache->get_many_by('url', $urls);
@@ -44,21 +45,37 @@ class Portal extends CI_Controller {
 		{
 			$cache[$value->url] = $value;
 		}
+
+		$rows_prev = $this->google_php_client->get_posts($today->modify('-5 days')->format('Y-m-d'), '5daysAgo');
+		$cache_prev = array_column($rows_prev, 2, 1);
 		
 		$data['rows'] = array();
 		foreach($rows as $index => $row)
 		{
 			if(array_key_exists($row[1], $cache))
 			{
-				$data['rows'][] = array(
+				$prev = isset($cache_prev[$row[1]]) ? $cache_prev[$row[1]] : 0;
+
+				$ar = array(
 					"n" => $index + 1,
 					"image" => $cache[$row[1]]->image,
 					"url" => $row[1],
 					"title" => $cache[$row[1]]->title,
 					"views" => $row[2],
-					"up_down" => 0,
-					"class" => ""
+					"class" => "",
+					"date_published" => date('M j, Y', strtotime($cache[$row[1]]->date_published)),
+					"up_down_text" => $prev && ($row[2] - $prev) ? round(100*($row[2] - $prev)/$prev, 1)."%" : ""
 				);
+
+				if($prev && (($row[2] - $prev) > 0))
+				{
+					$ar["up_arrow"] = TRUE;
+				}
+				elseif($prev && (($row[2] - $prev) < 0))
+				{
+					$ar["down_arrow"] = TRUE;
+				}
+				$data['rows'][] = $ar;
 			}
 			else
 			{
@@ -68,8 +85,8 @@ class Portal extends CI_Controller {
 					"url" => $row[1],
 					"title" => $row[1],
 					"views" => $row[2],
-					"up_down" => 0,
-					"class" => "loading"
+					"class" => "loading",
+					"date_published" => ""
 				);
 			}
 		}
@@ -105,9 +122,8 @@ class Portal extends CI_Controller {
 			"page_title" => "Connect to Google Analytics!",
 			'token' => array()
 		);
-		$token = $this->user_company->ga_token;
 		
-		$client = $this->google_php_client->get_client($token);
+		$client = $this->google_php_client->get_client();
 		$analytics = new Google_Service_Analytics($client);
 
 		if(is_null($account))

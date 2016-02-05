@@ -164,6 +164,10 @@
     <Compile Include="application\config\testing\google_client.php" />
     <Compile Include="application\config\user_agents.php" />
     <Compile Include="application\migrations\005_add_cache_table.php" />
+    <Compile Include="application\migrations\008_add_stats_cache.php" />
+    <Compile Include="application\migrations\007_add_author_field_to_cache.php" />
+    <Compile Include="application\migrations\006_add_date_field_to_cache.php" />
+    <Compile Include="application\models\Cache_stats_model.php" />
     <Compile Include="application\models\Cache_model.php" />
     <Compile Include="application\modules\ajax\controllers\Ajax.php" />
     <Compile Include="application\modules\portal\views\connect_view.php" />
@@ -762,10 +766,13 @@
     <Content Include="license.txt" />
     <Content Include="public\css\c3.css" />
     <Content Include="public\images\ajax-loader.gif" />
+    <Content Include="public\images\arrow_down_red.png" />
+    <Content Include="public\images\arrow_up_green.png" />
     <Content Include="public\js\ajaxq.js" />
     <Content Include="public\js\c3.min.js" />
     <Content Include="public\js\d3.min.js" />
     <Content Include="public\js\jquery-2.2.0.min.js" />
+    <Content Include="public\js\jquery.ajaxMultiQueue.js" />
     <Content Include="public\js\jquery.spin.js" />
     <Content Include="public\js\spin.min.js" />
     <Content Include="public\web.config" />
