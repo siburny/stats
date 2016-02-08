@@ -1,0 +1,3 @@
+[submodule "public/admin/apcu-admin"]
+	path = public/admin/apcu-admin
+	url = https://github.com/siburny/apcu-admin
