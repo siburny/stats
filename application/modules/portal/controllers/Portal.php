@@ -23,7 +23,7 @@ class Portal extends CI_Controller {
 
 	function index()
 	{
-		$this->load->model("Cache_model", "cache");
+		$this->load->model("Post_cache_model", "post_cache");
 		
 		$data = array(
 			"page_title" => "Welcome!"
@@ -35,59 +35,61 @@ class Portal extends CI_Controller {
 			$data["is_admin"] = TRUE;
 		}
 
-		$today = new DateTime();
-		$rows = $this->google_php_client->get_posts($today->format('Y-m-d'), '5daysAgo');
-		$urls = array_column($rows, 1);
-
-		$cache_db = $this->cache->get_many_by('url', $urls);
-		$cache = array();
-		foreach($cache_db as $value)
+		if($this->user_company->ga_token && $this->user_company->view_id)
 		{
-			$cache[$value->url] = $value;
-		}
+			$today = new DateTime();
+			$rows = $this->google_php_client->get_posts($today->format('Y-m-d'), $today->modify("-6 days")->format('Y-m-d'));
+			$urls = array_column($rows, 1);
 
-		$rows_prev = $this->google_php_client->get_posts($today->modify('-5 days')->format('Y-m-d'), '5daysAgo');
-		$cache_prev = array_column($rows_prev, 2, 1);
-		
-		$data['rows'] = array();
-		foreach($rows as $index => $row)
-		{
-			if(array_key_exists($row[1], $cache))
+			$cache_db = $this->post_cache->get_many_by('url', $urls);
+			$cache = array();
+			foreach($cache_db as $value)
 			{
-				$prev = isset($cache_prev[$row[1]]) ? $cache_prev[$row[1]] : 0;
-
-				$ar = array(
-					"n" => $index + 1,
-					"image" => $cache[$row[1]]->image,
-					"url" => $row[1],
-					"title" => $cache[$row[1]]->title,
-					"views" => $row[2],
-					"class" => "",
-					"date_published" => date('M j, Y', strtotime($cache[$row[1]]->date_published)),
-					"up_down_text" => $prev && ($row[2] - $prev) ? round(100*($row[2] - $prev)/$prev, 1)."%" : ""
-				);
-
-				if($prev && (($row[2] - $prev) > 0))
-				{
-					$ar["up_arrow"] = TRUE;
-				}
-				elseif($prev && (($row[2] - $prev) < 0))
-				{
-					$ar["down_arrow"] = TRUE;
-				}
-				$data['rows'][] = $ar;
+				$cache[$value->url] = $value;
 			}
-			else
+
+			$rows_prev = $this->google_php_client->get_posts($today->modify('-1 days')->format('Y-m-d'), $today->modify('-6 days')->format('Y-m-d'));
+			$cache_prev = array_column($rows_prev, 2, 1);
+
+			$data['rows'] = array();
+			foreach($rows as $index => $row)
 			{
-				$data['rows'][] = array(
-					"n" => $index + 1,
-					"image" => '/images/ajax-loader.gif',
-					"url" => $row[1],
-					"title" => $row[1],
-					"views" => $row[2],
-					"class" => "loading",
-					"date_published" => ""
-				);
+				if(array_key_exists($row[1], $cache))
+				{
+					$prev = isset($cache_prev[$row[1]]) ? $cache_prev[$row[1]] : 0;
+
+					$ar = array(
+						"n" => $index + 1,
+						"image" => $cache[$row[1]]->image,
+						"url" => $row[1],
+						"title" => $cache[$row[1]]->title,
+						"views" => $row[2],
+						"date_published" => date('M j, Y', strtotime($cache[$row[1]]->date_published)),
+						"up_down_text" => $prev && ($row[2] - $prev) ? round(100*($row[2] - $prev)/$prev, 1)."%" : "",
+						'author' => $row[0]
+					);
+
+					if($prev && (($row[2] - $prev) > 0))
+					{
+						$ar["up_arrow"] = TRUE;
+					}
+					elseif($prev && (($row[2] - $prev) < 0))
+					{
+						$ar["down_arrow"] = TRUE;
+					}
+					$data['rows'][] = $ar;
+				}
+				else
+				{
+					$data['rows'][] = array(
+						"n" => $index + 1,
+						"image" => '/images/ajax-loader.gif',
+						"url" => $row[1],
+						"title" => $row[1],
+						"views" => $row[2],
+						"class" => "loading",
+					);
+				}
 			}
 		}
 

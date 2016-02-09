@@ -32,12 +32,21 @@ class Ajax extends CI_Controller {
 
 		if($this->user_company->ga_token && $this->user_company->view_id)
 		{
-			$this->load->library("google_php_client", $this->user_company);
-			$rows = $this->google_php_client->get_post_data();
-			$data = 'x,Views'.PHP_EOL;
-			foreach($rows as $row)
+			$key = "viewstats_".$this->user_company->view_id;
+			if(($val = $this->cache->get($key)) !== FALSE)
 			{
-				$data .= implode(",", $row).PHP_EOL;
+				$data = $val;
+			}
+			else
+			{
+				$this->load->library("google_php_client", $this->user_company);
+				$rows = $this->google_php_client->get_post_data();
+				$data = 'x,Views'.PHP_EOL;
+				foreach($rows as $row)
+				{
+					$data .= implode(",", $row).PHP_EOL;
+				}
+				$this->cache->save($key, $data, 1800);
 			}
 		}
 		
@@ -51,27 +60,20 @@ class Ajax extends CI_Controller {
 			set_status_header(401);
 			return;
 		}
-		
+
 		$data = "Can't connect to Google";
 		$url = $this->input->get("url");
-		$update = FALSE;
-
-		$this->load->model("Cache_stats_model", 'cache_stats');
-		$cache = $this->cache_stats->get_by('url', $url);
-		if($cache !== null)
-		{
-			$date = (new DateTime($cache->cached_time))->modify("+30 minutes");
-			$now = new DateTime();
-			if($date >= $now)
-			{
-				$this->output->set_output($cache->stats);
-				return;
-			}
-			$update = TRUE;
-		}
 
 		if($this->user_company->ga_token && $this->user_company->view_id && $url)
 		{
+			$key = "viewstats_".$this->user_company->view_id."_".$url;
+
+			if(($val = $this->cache->get($key)) !== FALSE)
+			{
+				$this->output->set_output($val);
+				return;
+			}
+
 			$this->load->library("google_php_client", $this->user_company);
 			$client = $this->google_php_client->get_client();
 			$analytics = new Google_Service_Analytics($client);
@@ -94,20 +96,7 @@ class Ajax extends CI_Controller {
 				$data .= implode(",", $row).PHP_EOL;
 			}
 
-			$obj = array(
-				'url' => $url,
-				'stats' => $data,
-				'cached_time' => (new DateTime())->format(DateTime::ISO8601)
-			);
-			if($update)
-			{
-				unset($obj['url']);
-				$this->cache_stats->update_by('url', $url, $obj);
-			}
-			else
-			{
-				$this->cache_stats->insert($obj);
-			}
+			$this->cache->save($key, $data, 1800);
 		}
 		
 		$this->output->set_output($data);
@@ -226,7 +215,7 @@ class Ajax extends CI_Controller {
 			return;
 		}
 
-		$this->load->model('Cache_model', 'cache');
+		$this->load->model('Post_cache_model', 'post_cache');
 		
 		require_once(APPPATH.'third_party/querypath-3.0.4/src/qp.php');
 		libxml_use_internal_errors(true);
@@ -357,11 +346,10 @@ class Ajax extends CI_Controller {
 					}
 				}
 			}
-			//jQuery('article header time')
 		}
 
 		// Add DB entry
-		$this->cache->insert($data);
+		$this->post_cache->insert($data);
 
 		if($data['date_published'])
 		{

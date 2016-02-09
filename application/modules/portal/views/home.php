@@ -59,7 +59,7 @@
 		<td>
 			<div class="title" style="clear:both;font-weight:bold;font-size:125%;margin-bottom:5px;">{{title}}</div>
 			<div style="font-size:90%;">
-				<div class="date_published">{{date_published}}</div>
+				<div class="date_published">{{date_published}}{{#author}} by {{.}}{{/author}}</div>
 			</div>
 		</td>
 		<td>
@@ -69,7 +69,7 @@
 		<td>
 			{{#up_arrow}}<img src="/images/arrow_up_green.png" alt="UP" />{{/up_arrow}}
 			{{#down_arrow}}<img src="/images/arrow_down_red.png" alt="UP" />{{/down_arrow}}
-			{{up_down_text}}
+			<span style="color:{{#up_arrow}}green{{/up_arrow}}{{#down_arrow}}red{{/down_arrow}}">{{up_down_text}}</span>
 		</td>
 	</tr>
 {{/rows}}

@@ -73,7 +73,7 @@ $autoload['libraries'] = array('migration', 'database', 'session', 'form_validat
 |
 |	$autoload['drivers'] = array('cache');
 */
-$autoload['drivers'] = array();
+$autoload['drivers'] = array('cache');
 
 /*
 | -------------------------------------------------------------------

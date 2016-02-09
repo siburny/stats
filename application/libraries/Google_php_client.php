@@ -26,7 +26,7 @@ class Google_php_client
 		$client->setAccessType("offline");
 		$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);
 		
-		if(!is_null($this->user_company))
+		if(!is_null($this->user_company) && !is_null($this->user_company->ga_token))
 		{
 			$client->setAccessToken($this->user_company->ga_token);
 		}
