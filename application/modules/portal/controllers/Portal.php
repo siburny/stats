@@ -18,12 +18,12 @@ class Portal extends CI_Controller {
 		$this->user = $this->ion_auth->user()->row();
 		$this->user_company = $this->company->get($this->user->company);
 
-		$this->load->library("google_php_client", $this->user_company);
+		//$this->load->library("google_php_client", $this->user_company);
 	}
 
 	function index()
 	{
-		$this->load->model("Post_cache_model", "post_cache");
+		$this->load->model("Post_model", "post");
 		
 		$data = array(
 			"page_title" => "Welcome!"
@@ -35,63 +35,40 @@ class Portal extends CI_Controller {
 			$data["is_admin"] = TRUE;
 		}
 
-		if($this->user_company->ga_token && $this->user_company->view_id)
-		{
-			$today = new DateTime();
-			$rows = $this->google_php_client->get_posts($today->format('Y-m-d'), $today->modify("-6 days")->format('Y-m-d'));
-			$urls = array_column($rows, 1);
-
-			$cache_db = $this->post_cache->get_many_by('url', $urls);
-			$cache = array();
-			foreach($cache_db as $value)
-			{
-				$cache[$value->url] = $value;
-			}
-
-			$rows_prev = $this->google_php_client->get_posts($today->modify('-1 days')->format('Y-m-d'), $today->modify('-6 days')->format('Y-m-d'));
-			$cache_prev = array_column($rows_prev, 2, 1);
+		$rows = Post_model::get_posts($this->user_company->company_id, NULL, 6);
+		$rows_prev = Post_model::get_posts($this->user_company->company_id, (new DateTime)->modify('-7 days')->format('Y-m-d'), 6, FALSE);
+		$rows_prev = array_column((array)$rows_prev, 'total_sessions', 'url');
 
 			$data['rows'] = array();
 			foreach($rows as $index => $row)
 			{
-				if(array_key_exists($row[1], $cache))
+				$prev = isset($rows_prev[$row->url]) ? $rows_prev[$row->url] : 0;
+				if($prev && $row->total_sessions - $prev)
 				{
-					$prev = isset($cache_prev[$row[1]]) ? $cache_prev[$row[1]] : 0;
-
-					$ar = array(
-						"n" => $index + 1,
-						"image" => $cache[$row[1]]->image,
-						"url" => $row[1],
-						"title" => $cache[$row[1]]->title,
-						"views" => $row[2],
-						"date_published" => date('M j, Y', strtotime($cache[$row[1]]->date_published)),
-						"up_down_text" => $prev && ($row[2] - $prev) ? round(100*($row[2] - $prev)/$prev, 1)."%" : "",
-						'author' => $row[0]
-					);
-
-					if($prev && (($row[2] - $prev) > 0))
-					{
-						$ar["up_arrow"] = TRUE;
-					}
-					elseif($prev && (($row[2] - $prev) < 0))
-					{
-						$ar["down_arrow"] = TRUE;
-					}
-					$data['rows'][] = $ar;
+					$prev = round(100*($row->total_sessions - $prev)/$prev, 1);
 				}
-				else
+
+				$ar = array(
+					"n" => $index + 1,
+					"image" => $row->image,
+					"url" => $row->url,
+					"title" => $row->title,
+					"sessions" => $row->total_sessions,
+					"date_published" => date('M j, Y', strtotime($row->date_published)),
+					"up_down_text" => $prev ? $prev."%" : "",
+					'author' => $row->author
+				);
+
+				if($prev && $prev > 0)
 				{
-					$data['rows'][] = array(
-						"n" => $index + 1,
-						"image" => '/images/ajax-loader.gif',
-						"url" => $row[1],
-						"title" => $row[1],
-						"views" => $row[2],
-						"class" => "loading",
-					);
+					$ar["up_arrow"] = TRUE;
 				}
+				elseif($prev && $prev < 0)
+				{
+					$ar["down_arrow"] = TRUE;
+				}
+				$data['rows'][] = $ar;
 			}
-		}
 
 		$this->parser->parse("portal/home", $data);
 	}

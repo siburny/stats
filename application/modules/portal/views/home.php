@@ -101,7 +101,7 @@ var chart = c3.generate({
 });
 
 $(function () {
-	var q = $.ajaxMultiQueue(3);
+	/*var q = $.ajaxMultiQueue(3);
 	$("#posts tr.loading").each(function (index, item) {
 		var $item = $(item);
 		q.queue({
@@ -115,7 +115,7 @@ $(function () {
 				}
 			}
 		});
-	});
+	});*/
 
 	for (var i = 1; i <= 10; i++) {
 		$chart = $('#chart' + i);

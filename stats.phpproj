@@ -47,6 +47,8 @@
     <Folder Include="application\modules\auth\views\" />
     <Folder Include="application\modules\auth\views\email\" />
     <Folder Include="application\modules\ajax\" />
+    <Folder Include="application\modules\cron\" />
+    <Folder Include="application\modules\cron\controllers\" />
     <Folder Include="application\modules\website\" />
     <Folder Include="application\modules\portal\" />
     <Folder Include="application\modules\portal\controllers\" />
@@ -171,14 +173,13 @@
     <Compile Include="application\config\testing\google_client.php" />
     <Compile Include="application\config\user_agents.php" />
     <Compile Include="application\libraries\Cache\MY_Cache.php" />
-    <Compile Include="application\migrations\005_add_cache_table.php" />
-    <Compile Include="application\migrations\009_rename_cache_table.php" />
-    <Compile Include="application\migrations\008_add_stats_cache.php" />
-    <Compile Include="application\migrations\007_add_author_field_to_cache.php" />
-    <Compile Include="application\migrations\006_add_date_field_to_cache.php" />
-    <Compile Include="application\models\Cache_stats_model.php" />
-    <Compile Include="application\models\Post_cache_model.php" />
+    <Compile Include="application\migrations\007_add_post_stats_table.php" />
+    <Compile Include="application\migrations\006_add_domain_to_company.php" />
+    <Compile Include="application\migrations\005_add_post_table.php" />
+    <Compile Include="application\models\Post_stats_model.php" />
+    <Compile Include="application\models\Post_model.php" />
     <Compile Include="application\modules\ajax\controllers\Ajax.php" />
+    <Compile Include="application\modules\cron\controllers\Cron.php" />
     <Compile Include="application\modules\portal\views\connect_view.php" />
     <Compile Include="application\modules\website\controllers\Main.php" />
     <Compile Include="application\core\MY_Loader.php" />
@@ -696,7 +697,6 @@
     <Compile Include="system\libraries\Zip.php" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include=".gitignore" />
     <Content Include="application\.htaccess" />
     <Content Include="application\cache\.htaccess" />
     <Content Include="application\cache\index.html" />
@@ -781,7 +781,6 @@
     <Content Include="application\views\errors\html\index.html" />
     <Content Include="application\views\errors\index.html" />
     <Content Include="application\views\index.html" />
-    <Content Include="license.txt" />
     <Content Include="public\admin\apcu-admin\.git" />
     <Content Include="public\admin\apcu-admin\css\bootstrap-theme.css" />
     <Content Include="public\admin\apcu-admin\css\bootstrap-theme.css.map" />

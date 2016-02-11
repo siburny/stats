@@ -17,6 +17,11 @@ class Google_php_client
 		$this->user_company = $user_company;
 	}
 
+	public function set_user_company($user_company)
+	{
+		$this->user_company = $user_company;
+	}
+
 	public function get_client()
 	{
 		$client = new Google_Client();
@@ -42,12 +47,33 @@ class Google_php_client
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
-			'ga:sessions',
+			'ga:totalEvents',
 			array(
-				'dimensions' => 'ga:eventAction,ga:eventLabel',
-				'sort' => '-ga:sessions',
-				'max-results' => 10
+				'dimensions' => 'ga:eventLabel',
+				'sort' => '-ga:totalEvents',
+				'filters' => 'ga:eventCategory==Author',
+				'max-results' => 25
 			));
+
+		return $res->getRows();
+	}
+
+	public function get_post_stats($url, $date_start = 'today', $date_end = '30daysAgo')
+	{
+		$client = $this->get_client();
+		$analytics = new Google_Service_Analytics($client);
+
+		$res = $analytics->data_ga->get(
+			'ga:' . $this->user_company->view_id,
+			$date_end,
+			$date_start,
+			'ga:uniqueEvents,ga:totalEvents',
+			array(
+				'dimensions' => 'ga:date',
+				'sort' => 'ga:date',
+				'filters' => 'ga:eventCategory==Author;ga:eventLabel=='.$url
+			)
+		);
 
 		return $res->getRows();
 	}
