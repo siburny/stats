@@ -14,7 +14,7 @@ class Cron extends CI_Controller
 		$this->load->model("Post_model", "post");
 	}
 
-	function get_latest_posts($debug = FALSE)
+	function get_history_posts($debug = FALSE)
 	{
 		$this->load->library("google_php_client");
 		$companies = $this->company->get_all();
@@ -24,8 +24,9 @@ class Cron extends CI_Controller
 			if($company->ga_token && $company->view_id)
 			{
 				$this->google_php_client->set_user_company($company);
-				$rows = $this->google_php_client->get_posts();
+				$rows = $this->google_php_client->get_posts(NULL, NULL, FALSE);
 				
+				$i = 0; $count = count($rows);
 				foreach($rows as $row)
 				{
 					$url = $row[0];
@@ -40,7 +41,7 @@ class Cron extends CI_Controller
 							
 							if($debug)
 							{
-								echo "Added URL ".$url.PHP_EOL;
+								echo "[".$i."/".$count."] Added URL ".$url.PHP_EOL;
 							}
 						}
 						elseif($debug)
@@ -52,6 +53,7 @@ class Cron extends CI_Controller
 					{
 						echo "Skipping URL ".$url." - not our domain".PHP_EOL;
 					}
+					$i++;
 				}
 			}
 			elseif($debug)
@@ -61,13 +63,13 @@ class Cron extends CI_Controller
 		}
 	}
 
-	function get_latest_stats($debug = FALSE)
+	function get_history_stats($debug = FALSE)
 	{
 		$this->load->library("google_php_client");
 
 		$today = new DateTime();
 		$start_date = $today->format('Y-m-d');
-		$end_date = $today->modify("-6 days")->format('Y-m-d');
+		$end_date = $today->modify("-30 days")->format('Y-m-d');
 
 		$companies = $this->company->get_all();
 		foreach($companies as $company)
@@ -101,7 +103,7 @@ class Cron extends CI_Controller
 							}
 						}
 
-						for($week=1;$week<=4;$week++)
+						/*for($week=1;$week<=4;$week++)
 						{
 							$week_date = new DateTime();
 							$week_start = $week_date->modify("-".(7*$week)." days")->format("Y-m-d");
@@ -124,7 +126,7 @@ class Cron extends CI_Controller
 								}
 								usleep(500000);
 							}
-						}
+						}*/
 
 						usleep(500000);
 					}

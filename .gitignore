@@ -29,3 +29,4 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 /*.user
 /Properties/PublishProfiles/*.user
 /public/images/cache
+/.vs

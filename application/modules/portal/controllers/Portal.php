@@ -1,8 +1,8 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Portal extends CI_Controller {
-	private $user = null;
-	private $user_company = null;
+	private $user = NULL;
+	private $user_company = NULL;
 
 	function __construct()
 	{
@@ -17,17 +17,75 @@ class Portal extends CI_Controller {
 
 		$this->user = $this->ion_auth->user()->row();
 		$this->user_company = $this->company->get($this->user->company);
-
-		//$this->load->library("google_php_client", $this->user_company);
 	}
 
-	function index()
+	function _remap()
 	{
-		$this->load->model("Post_model", "post");
-		
+		$method = func_get_arg(0);
+		if (method_exists($this, $method))
+		{
+			call_user_func_array(array($this, $method), func_get_arg(1));
+		}
+		else
+		{
+			$args = array_merge(array($method), func_get_arg(1));
+			call_user_func_array(array($this, 'index'), $args);
+		}
+	}
+
+	function index($page = "page1", $date_from = NULL, $date_to = NULL)
+	{
 		$data = array(
 			"page_title" => "Welcome!"
 		);
+
+		if(preg_match('/^page[0-9]+$/i', $page))
+		{
+			$page = str_replace("page", "", strtolower($page));
+			$page--;
+		}
+		else
+			$page = 0;
+		
+		if($date_from != NULL)
+		{
+			$date_from = strtolower($date_from);
+			switch($date_from)
+			{
+				case "today":
+				case "yesterday":
+					$data['date_selected'] = $date_from;
+					$date_to = new DateTime($date_from);
+					$date_from = clone $date_to;
+					break;
+				case "7days":
+					$data['date_selected'] = $date_from;
+					$date_to = new DateTime("yesterday");
+					$date_from = clone $date_to;
+					$date_from->modify('-6 days');
+					break;
+				case "30days":
+					$data['date_selected'] = $date_from;
+					$date_to = new DateTime("yesterday");
+					$date_from = clone $date_to;
+					$date_from->modify('-29 days');
+					break;
+				default:
+					$data['date_selected'] = "";
+					$date_to = NULL;
+					break;
+			}
+		}
+		if($date_to == NULL)
+		{
+			$date_to = (new DateTime());
+			$date_from = clone $date_to;
+			$date_from->modify('-29 days');
+		}
+		$data['date_from'] = $date_from->format("M j, Y");
+		$data['date_to'] = $date_to->format("M j, Y");
+
+		$this->load->model("Post_model", "post");
 		
 		$this->user = $this->ion_auth->user()->row();
 		if($this->ion_auth->in_group("manager"))
@@ -35,17 +93,18 @@ class Portal extends CI_Controller {
 			$data["is_admin"] = TRUE;
 		}
 
-		$rows = Post_model::get_posts($this->user_company->company_id, NULL, 6);
-		$rows_prev = Post_model::get_posts($this->user_company->company_id, (new DateTime)->modify('-7 days')->format('Y-m-d'), 6, FALSE);
-		$rows_prev = array_column((array)$rows_prev, 'total_sessions', 'url');
+		$rows = Post_model::get_posts($this->user_company->company_id, $date_to, $date_from);
+		$day_diff = $date_to->diff($date_from)->days;
+		$rows_prev = Post_model::get_posts($this->user_company->company_id, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
+		$rows_prev = array_column((array)$rows_prev, 'total_pageviews', 'url');
 
 			$data['rows'] = array();
 			foreach($rows as $index => $row)
 			{
 				$prev = isset($rows_prev[$row->url]) ? $rows_prev[$row->url] : 0;
-				if($prev && $row->total_sessions - $prev)
+				if($prev && $row->total_pageviews - $prev)
 				{
-					$prev = round(100*($row->total_sessions - $prev)/$prev, 1);
+					$prev = round(100*($row->total_pageviews - $prev)/$prev, 1);
 				}
 
 				$ar = array(
@@ -53,17 +112,17 @@ class Portal extends CI_Controller {
 					"image" => $row->image,
 					"url" => $row->url,
 					"title" => $row->title,
-					"sessions" => $row->total_sessions,
+					"sessions" => $row->total_pageviews,
 					"date_published" => date('M j, Y', strtotime($row->date_published)),
 					"up_down_text" => $prev ? $prev."%" : "",
 					'author' => $row->author
 				);
 
-				if($prev && $prev > 0)
+				if($prev > 0)
 				{
 					$ar["up_arrow"] = TRUE;
 				}
-				elseif($prev && $prev < 0)
+				elseif($prev < 0)
 				{
 					$ar["down_arrow"] = TRUE;
 				}
@@ -95,13 +154,14 @@ class Portal extends CI_Controller {
 		$this->parser->parse("portal/connect", $data);
 	}
 
-	function connect_view($account = null, $property = null, $view = null)
+	function connect_view($account = NULL, $property = NULL, $view = NULL)
 	{
 		$data = array(
 			"page_title" => "Connect to Google Analytics!",
 			'token' => array()
 		);
 		
+		$this->load->library("google_php_client", $this->user_company);
 		$client = $this->google_php_client->get_client();
 		$analytics = new Google_Service_Analytics($client);
 
@@ -160,6 +220,7 @@ class Portal extends CI_Controller {
 	
 	function oauth2()
 	{
+		$this->load->library("google_php_client", $this->user_company);
 		$client = $this->google_php_client->get_client();
 		
 		$code = $this->input->get('code');

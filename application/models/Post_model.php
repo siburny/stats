@@ -181,7 +181,7 @@ class Post_model extends MY_Model
 		return $data;
 	}
 
-	static function get_posts($company_id, $start = null, $end = null, $objects = TRUE)
+	static function get_posts($company_id, $start = null, $end = null, $objects = TRUE, $limit = TRUE)
 	{
 		$ci = &get_instance();
 		if($start == null)
@@ -191,7 +191,15 @@ class Post_model extends MY_Model
 		}
 		else
 		{
-			$today = new DateTime($start);
+			if($start instanceof DateTime)
+			{
+				$today = $start;
+				$start = $today->format('Y-m-d');
+			}
+			else
+			{
+				$today = new DateTime($start);
+			}
 		}
 		if($end == null)
 		{
@@ -200,6 +208,18 @@ class Post_model extends MY_Model
 		elseif(is_numeric($end))
 		{
 			$end = $today->modify('-'.$end.' days')->format('Y-m-d');
+		}
+		elseif($end instanceof DateTime)
+		{
+			$end = $end->format('Y-m-d');
+		}
+		if($limit)
+		{
+			$limit = "LIMIT 0, 10";
+		}
+		else
+		{
+			$limit = "";
 		}
 
 		$res = $ci->db->query("
@@ -210,8 +230,8 @@ WHERE `posts`.`company_id` = ?
 AND `date` >= ?
 AND `date` <= ?
 GROUP BY posts.post_id
-ORDER BY total_sessions DESC
-LIMIT 0, 10
+ORDER BY total_pageviews DESC
+$limit
 		", array($company_id, $end, $start));
 
 		if($objects)

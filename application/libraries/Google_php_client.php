@@ -38,8 +38,17 @@ class Google_php_client
 		return $client;
 	}
 
-	public function get_posts($date_start = 'today', $date_end = '30daysAgo')
+	public function get_posts($date_start = NULL, $date_end = NULL, $limit = TRUE)
 	{
+		if($date_start == NULL)
+		{
+			$date_start = 'today';
+		}
+		if($date_end == NULL)
+		{
+			$date_end = '30daysAgo';
+		}
+
 		$client = $this->get_client();
 		$analytics = new Google_Service_Analytics($client);
 
@@ -52,7 +61,7 @@ class Google_php_client
 				'dimensions' => 'ga:eventLabel',
 				'sort' => '-ga:totalEvents',
 				'filters' => 'ga:eventCategory==Author',
-				'max-results' => 25
+				'max-results' => $limit ? 25 : 10000
 			));
 
 		return $res->getRows();

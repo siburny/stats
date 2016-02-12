@@ -1,6 +1,6 @@
 	</div>
 
-	<p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds. CodeIgniter Version <strong>CI_VERSION</strong></p>
+	<p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds.</p>
 </div>
 
 </body>

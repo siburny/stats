@@ -75,28 +75,12 @@ class Ajax extends CI_Controller {
 				return;
 			}
 
-			$this->load->library("google_php_client", $this->user_company);
-			$client = $this->google_php_client->get_client();
-			$analytics = new Google_Service_Analytics($client);
-
-			$res = $analytics->data_ga->get(
-				'ga:' . $this->user_company->view_id,
-				'7daysAgo',
-				'today',
-				'ga:sessions',
-				array(
-					'dimensions' => 'ga:date',
-					'sort' => 'ga:date',
-					'filters' => 'ga:eventCategory==Author;ga:eventLabel=='.$url
-				));
-
 			$data = 'x,Views'.PHP_EOL;
-			$rows = $res->getRows();
+			$rows = Post_stats_model::get_post_graph_data($this->user_company->company_id, $url);
 			foreach($rows as $row)
 			{
 				$data .= implode(",", $row).PHP_EOL;
 			}
-
 			$this->cache->save($key, $data, 1800);
 		}
 		

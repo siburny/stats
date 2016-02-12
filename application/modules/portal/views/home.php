@@ -50,7 +50,52 @@
 			width: 80px;
 			text-align:right;
 		}
+		#action #date_selector {
+			width: 200px;
+		}
 </style>
+
+<div id="action">
+	<select name="date_selector" id="date_selector">
+		<option value="today">Today</option>
+		<option value="yesterday">Yesterday</option>
+		<option value="7days">Last 7 days</option>
+		<option value="30days" selected="selected">Last 30 days</option>
+		<option value="custom">Custom</option>
+	</select>
+</div>
+
+<script>
+	$item = $("#action #date_selector").find("*[value='{{date_selected}}']");
+	if ($item) {
+		$item.attr('selected', 'selected');
+	}
+
+	$("#action #date_selector").selectmenu({
+		change: function (event, ui) {
+			switch (ui.item.value) {
+				case "today":
+					window.location = '/portal/page1/today/';
+					break;
+				case "yesterday":
+					window.location = '/portal/page1/yesterday/';
+					break;
+				case "7days":
+					window.location = '/portal/page1/7days/';
+					break;
+				case "30days":
+					window.location = '/portal/page1/30days/';
+					break;
+				case "custom":
+					break;
+			}
+		}
+	});
+</script>
+
+<br />
+
+Showing {{date_from}} to {{date_to}}
 <table style="" id="posts">
 {{#rows}}
 	<tr class="{{class}}" data-url="{{url}}">
@@ -76,31 +121,17 @@
 </table>
 
 <script>
-var chart = c3.generate({
-	bindto: '#chart',
-	data: {
-		x: 'x',
-		type: 'bar',
-		//xFormat: '%Y%m%d',
-		url: '/ajax/get_graph_data'
-	},
-	axis: {
-		x: {
-			type: 'timeseries'
-		}
-	},
-	legend: {
-		show: false
-	},
-	transition: {
-		duration: 1000
-	},
-	tooltip: {
-		show: false
-	}
-});
 
 $(function () {
+	var chart = c3.generate({
+		bindto: '#chart',
+		data: { x: 'x', type: 'bar', url: '/ajax/get_graph_data' },
+		axis: { x: { type: 'timeseries' } },
+		legend: { show: false },
+		transition: { duration: 1000 },
+		tooltip: { show: false }
+	});
+
 	/*var q = $.ajaxMultiQueue(3);
 	$("#posts tr.loading").each(function (index, item) {
 		var $item = $(item);
@@ -124,7 +155,6 @@ $(function () {
 			data: {
 				x: 'x',
 				type: 'bar',
-				xFormat: '%Y%m%d',
 				url: '/ajax/get_post_graph_data?url=' + encodeURIComponent($chart.data("url"))
 			},
 			axis: { x: { type: 'timeseries', show: false }, y: { show: false } },
