@@ -12,6 +12,7 @@ class Ajax extends CI_Controller {
 		$this->load->database();
 
 		$this->load->model("Company_model", "company");
+		$this->load->model("Post_stats_model", "post_stats");
 
 		if(!$this->ion_auth->logged_in())
 			return;
@@ -39,14 +40,14 @@ class Ajax extends CI_Controller {
 			}
 			else
 			{
-				$this->load->library("google_php_client", $this->user_company);
-				$rows = $this->google_php_client->get_post_data();
 				$data = 'x,Views'.PHP_EOL;
+
+				$rows = Post_stats_model::get_total_graph_data($this->user_company->company_id);
 				foreach($rows as $row)
 				{
 					$data .= implode(",", $row).PHP_EOL;
 				}
-				$this->cache->save($key, $data, 1800);
+				//$this->cache->save($key, $data, 1800);
 			}
 		}
 		

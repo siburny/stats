@@ -65,7 +65,7 @@
 		<td>
 			<div id="chart{{n}}" data-url="{{url}}" style="width:100px;height:50px;"></div>
 		</td>
-		<td>{{views}}</td>
+		<td>{{sessions}}</td>
 		<td>
 			{{#up_arrow}}<img src="/images/arrow_up_green.png" alt="UP" />{{/up_arrow}}
 			{{#down_arrow}}<img src="/images/arrow_down_red.png" alt="UP" />{{/down_arrow}}
@@ -81,7 +81,7 @@ var chart = c3.generate({
 	data: {
 		x: 'x',
 		type: 'bar',
-		xFormat: '%Y%m%d',
+		//xFormat: '%Y%m%d',
 		url: '/ajax/get_graph_data'
 	},
 	axis: {

@@ -65,6 +65,9 @@
 	<script src="/js/jquery-2.2.0.min.js"></script>
 	<script src="/js/spin.min.js"></script>
 	<script src="/js/jquery.spin.js"></script>
+
+	<link href="/cssjquery-ui.min.css" rel="stylesheet"> 
+	<script src="/js/jquery-ui.min.js"></script>
 </head>
 <body>
 
