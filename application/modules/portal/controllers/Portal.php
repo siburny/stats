@@ -71,6 +71,15 @@ class Portal extends CI_Controller {
 					$date_from->modify('-29 days');
 					break;
 				default:
+					if($date_to != NULL)
+					{
+						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
+						{
+							$date_from = new DateTime($date_from);
+							$date_to = new DateTime($date_to);
+							break;
+						}
+					}
 					$data['date_selected'] = "";
 					$date_to = NULL;
 					break;

@@ -56,16 +56,32 @@
 </style>
 
 <div id="action">
-	<select name="date_selector" id="date_selector">
-		<option value="today">Today</option>
-		<option value="yesterday">Yesterday</option>
-		<option value="7days">Last 7 days</option>
-		<option value="30days" selected="selected">Last 30 days</option>
-		<option value="custom">Custom</option>
-	</select>
+	<div style="float:left">
+		<select name="date_selector" id="date_selector">
+			<option value="today">Today</option>
+			<option value="yesterday">Yesterday</option>
+			<option value="7days">Last 7 days</option>
+			<option value="30days" selected="selected">Last 30 days</option>
+			<option value="custom">Custom</option>
+		</select>
+	</div>
+
+	<div name="date_custom" id="date_custom" style="float:left;display:none;">
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="date_from" id="date_from" /> to <input name="date_to" id="date_to" />
+		<button id="go">GO</button>
+	</div>
+
+	<div style="clear:both"></div>
 </div>
 
 <script>
+	$("#date_custom #go").on('click', function () {
+		if ($("#date_from").val() && $("#date_to").val()) {
+
+			window.location = '/portal/page1/' + encodeURIComponent($("#date_from").val()) + '/' + encodeURIComponent($("#date_to").val()) + '/';
+		}
+	});
+
 	$item = $("#action #date_selector").find("*[value='{{date_selected}}']");
 	if ($item) {
 		$item.attr('selected', 'selected');
@@ -87,6 +103,20 @@
 					window.location = '/portal/page1/30days/';
 					break;
 				case "custom":
+					$("#date_custom").show();
+					$("#date_from").datepicker({
+						dateFormat: "mm-dd-yy",
+						numberOfMonths: 2,
+						onClose: function (date) {
+							if (date) {
+								$("#date_to").focus();
+							}
+						}
+					});
+					$("#date_to").datepicker({
+						dateFormat: "mm-dd-yy",
+						numberOfMonths: 2
+					});
 					break;
 			}
 		}
