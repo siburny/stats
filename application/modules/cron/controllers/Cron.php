@@ -143,4 +143,50 @@ class Cron extends CI_Controller
 			}
 		}
 	}
+
+	function get_latest_stats($debug = FALSE)
+	{
+		$this->load->library("google_php_client");
+
+		$today = new DateTime();
+		$start_date = $today->format('Y-m-d');
+		$end_date = $start_date;
+
+		$companies = $this->company->get_all();
+		foreach($companies as $company)
+		{
+			if($company->ga_token && $company->view_id)
+			{
+				$posts = $this->post->where('company_id', $company->company_id)->limit(2)->as_array()->get_all();
+				$posts = array_column($posts, 'post_id', 'url');
+
+				$this->google_php_client->set_user_company($company);
+				$rows = $this->google_php_client->get_posts_stats($start_date, $end_date);
+
+				foreach($rows as $row)
+				{
+					$url = $row[0];
+					if(array_key_exists($url, $posts))
+					{
+						/*$this->db->query("INSERT INTO post_stats VALUES (?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE sessions = ?, pageviews = ?, date_updated = NOW()",
+						array($post->post_id, $row[0], $row[1], $row[2], $row[1], $row[2]));
+						if($debug)
+						{
+						echo "Updated post_id #".$post->post_id." for ".$row[0]." (".$row[1].", ".$row[2].")".PHP_EOL;
+						}*/
+					}
+					elseif($debug)
+					{
+						echo "Post is not found: ".$url.PHP_EOL;
+					}
+				}
+
+				usleep(500000);
+			}
+			elseif($debug)
+			{
+				echo "Skipping company ID #".$company->company_id." - no GA data".PHP_EOL;
+			}
+		}
+	}
 }
