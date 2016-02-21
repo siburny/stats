@@ -77,8 +77,15 @@ class Ajax extends CI_Controller {
 
 			$data = 'x,Views'.PHP_EOL;
 			$rows = Post_stats_model::get_post_graph_data($this->user_company->company_id, $url);
+
+			$max = max(array_column($rows, 'total_pageviews'));
+
 			foreach($rows as $row)
 			{
+				if(!$row['total_pageviews'])
+				{
+					$row['total_pageviews'] = $max/50;
+				}
 				$data .= implode(",", $row).PHP_EOL;
 			}
 			$this->cache->save($key, $data, 1800);

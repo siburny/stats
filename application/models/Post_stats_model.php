@@ -66,7 +66,7 @@ ORDER BY date ASC
 				$start = new DateTime($start);
 			}
 			$end = clone $start;
-			$end->modify("-6 days");
+			$end->modify("-7 days");
 		}
 		elseif(is_numeric($end))
 		{

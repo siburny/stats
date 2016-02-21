@@ -181,7 +181,7 @@ class Post_model extends MY_Model
 		return $data;
 	}
 
-	static function get_posts($company_id, $start = null, $end = null, $objects = TRUE, $limit = TRUE)
+	static function get_posts($company_id, $start = null, $end = null, $objects = TRUE, $limit = TRUE, $page = 0)
 	{
 		$ci = &get_instance();
 		if($start == null)
@@ -215,7 +215,14 @@ class Post_model extends MY_Model
 		}
 		if($limit)
 		{
-			$limit = "LIMIT 0, 10";
+			if(is_numeric($page))
+			{
+				$limit = 'LIMIT '.($page*10).', 10';
+			}
+			else
+			{
+				$limit = "LIMIT 0, 10";
+			}
 		}
 		else
 		{
@@ -230,7 +237,7 @@ WHERE `posts`.`company_id` = ?
 AND `date` >= ?
 AND `date` <= ?
 GROUP BY posts.post_id
-ORDER BY total_pageviews DESC
+ORDER BY total_pageviews DESC, posts.post_id ASC
 $limit
 		", array($company_id, $end, $start));
 

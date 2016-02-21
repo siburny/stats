@@ -47,6 +47,7 @@ class Portal extends CI_Controller {
 		else
 			$page = 0;
 		
+		$date_link = "";
 		if($date_from != NULL)
 		{
 			$date_from = strtolower($date_from);
@@ -55,17 +56,20 @@ class Portal extends CI_Controller {
 				case "today":
 				case "yesterday":
 					$data['date_selected'] = $date_from;
+					$date_link = $date_from."/";
 					$date_to = new DateTime($date_from);
 					$date_from = clone $date_to;
 					break;
 				case "7days":
 					$data['date_selected'] = $date_from;
+					$date_link = $date_from."/";
 					$date_to = new DateTime("yesterday");
 					$date_from = clone $date_to;
 					$date_from->modify('-6 days');
 					break;
 				case "30days":
 					$data['date_selected'] = $date_from;
+					$date_link = $date_from."/";
 					$date_to = new DateTime("yesterday");
 					$date_from = clone $date_to;
 					$date_from->modify('-29 days');
@@ -75,8 +79,12 @@ class Portal extends CI_Controller {
 					{
 						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
 						{
-							$date_from = new DateTime($date_from);
-							$date_to = new DateTime($date_to);
+							$data['date_selected'] = "custom";
+							$data['date_from_input'] = $date_from;
+							$data['date_to_input'] = $date_to;
+							$date_link = $date_from.'/'.$date_to.'/';
+							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
+							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
 							break;
 						}
 					}
@@ -102,41 +110,44 @@ class Portal extends CI_Controller {
 			$data["is_admin"] = TRUE;
 		}
 
-		$rows = Post_model::get_posts($this->user_company->company_id, $date_to, $date_from);
+		$rows = Post_model::get_posts($this->user_company->company_id, $date_to, $date_from, TRUE, TRUE, $page);
 		$day_diff = $date_to->diff($date_from)->days;
 		$rows_prev = Post_model::get_posts($this->user_company->company_id, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
 		$rows_prev = array_column((array)$rows_prev, 'total_pageviews', 'url');
 
-			$data['rows'] = array();
-			foreach($rows as $index => $row)
+		$data['rows'] = array();
+		foreach($rows as $index => $row)
+		{
+			$prev = isset($rows_prev[$row->url]) ? $rows_prev[$row->url] : 0;
+			if($prev && $row->total_pageviews - $prev)
 			{
-				$prev = isset($rows_prev[$row->url]) ? $rows_prev[$row->url] : 0;
-				if($prev && $row->total_pageviews - $prev)
-				{
-					$prev = round(100*($row->total_pageviews - $prev)/$prev, 1);
-				}
-
-				$ar = array(
-					"n" => $index + 1,
-					"image" => $row->image,
-					"url" => $row->url,
-					"title" => $row->title,
-					"sessions" => $row->total_pageviews,
-					"date_published" => date('M j, Y', strtotime($row->date_published)),
-					"up_down_text" => $prev ? $prev."%" : "",
-					'author' => $row->author
-				);
-
-				if($prev > 0)
-				{
-					$ar["up_arrow"] = TRUE;
-				}
-				elseif($prev < 0)
-				{
-					$ar["down_arrow"] = TRUE;
-				}
-				$data['rows'][] = $ar;
+				$prev = round(100*($row->total_pageviews - $prev)/$prev, 1);
 			}
+
+			$ar = array(
+				"n" => $page*10 + $index + 1,
+				"image" => $row->image,
+				"url" => $row->url,
+				"title" => $row->title,
+				"sessions" => $row->total_pageviews,
+				"date_published" => date('M j, Y', strtotime($row->date_published)),
+				"up_down_text" => $prev ? $prev."%" : "",
+				'author' => $row->author
+			);
+
+			if($prev > 0)
+			{
+				$ar["up_arrow"] = TRUE;
+			}
+			elseif($prev < 0)
+			{
+				$ar["down_arrow"] = TRUE;
+			}
+			$data['rows'][] = $ar;
+		}
+
+		$data['prev_link'] = $page == 0 ? "" : "/portal/page".$page."/".$date_link;
+		$data['next_link'] = "/portal/page".($page+2)."/".$date_link;
 
 		$this->parser->parse("portal/home", $data);
 	}

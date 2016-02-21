@@ -67,7 +67,7 @@
 	</div>
 
 	<div name="date_custom" id="date_custom" style="float:left;display:none;">
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="date_from" id="date_from" /> to <input name="date_to" id="date_to" />
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="date_from" id="date_from" value="{{date_from_input}}" /> to <input name="date_to" id="date_to" value="{{date_to_input}}" />
 		<button id="go">GO</button>
 	</div>
 
@@ -89,50 +89,63 @@
 
 	$("#action #date_selector").selectmenu({
 		change: function (event, ui) {
-			switch (ui.item.value) {
-				case "today":
-					window.location = '/portal/page1/today/';
-					break;
-				case "yesterday":
-					window.location = '/portal/page1/yesterday/';
-					break;
-				case "7days":
-					window.location = '/portal/page1/7days/';
-					break;
-				case "30days":
-					window.location = '/portal/page1/30days/';
-					break;
-				case "custom":
-					$("#date_custom").show();
-					$("#date_from").datepicker({
-						dateFormat: "mm-dd-yy",
-						numberOfMonths: 2,
-						onClose: function (date) {
-							if (date) {
-								$("#date_to").focus();
-							}
-						}
-					});
-					$("#date_to").datepicker({
-						dateFormat: "mm-dd-yy",
-						numberOfMonths: 2
-					});
-					break;
-			}
+			$(this).trigger('change');
 		}
 	});
+
+	$("#action #date_selector").on("change", function (event, param) {
+		switch ($(this).val()) {
+			case "today":
+				window.location = '/portal/page1/today/';
+				break;
+			case "yesterday":
+				window.location = '/portal/page1/yesterday/';
+				break;
+			case "7days":
+				window.location = '/portal/page1/7days/';
+				break;
+			case "30days":
+				window.location = '/portal/page1/30days/';
+				break;
+			case "custom":
+				$("#date_custom").show();
+				$("#date_from").datepicker({
+					dateFormat: "mm-dd-yy",
+					numberOfMonths: 2,
+					onSelect: function (date) {
+						if (date) {
+							setTimeout(function() {
+								$("#date_to").focus();
+							}, 200);
+						}
+					}
+				});
+				$("#date_to").datepicker({
+					dateFormat: "mm-dd-yy",
+					numberOfMonths: 2
+				});
+				break;
+		}
+	});
+
+	{{#date_from_input}}
+	$("#action #date_selector").trigger("change");
+	{{/date_from_input}}
 </script>
 
 <br />
 
-Showing {{date_from}} to {{date_to}}
+<div style="float:right;">Showing {{date_from}} to {{date_to}}</div>
+{{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}&nbsp;&nbsp;&nbsp;<a href="{{next_link}}">NEXT&nbsp;&gt;</a>
 <table style="" id="posts">
 {{#rows}}
 	<tr class="{{class}}" data-url="{{url}}">
 		<td>{{n}}</td>
 		<td class="image"><img src="{{image}}" alt=""/></td>
 		<td>
-			<div class="title" style="clear:both;font-weight:bold;font-size:125%;margin-bottom:5px;">{{title}}</div>
+			<div class="title" style="clear:both;margin-bottom:5px;">
+				<a href="{{url}}" target="_blank" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}<img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
+			</div>
 			<div style="font-size:90%;">
 				<div class="date_published">{{date_published}}{{#author}} by {{.}}{{/author}}</div>
 			</div>
@@ -149,18 +162,20 @@ Showing {{date_from}} to {{date_to}}
 	</tr>
 {{/rows}}
 </table>
+{{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}&nbsp;&nbsp;&nbsp;<a href="{{next_link}}">NEXT&nbsp;&gt;</a>
 
 <script>
 
 $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
-		data: { x: 'x', type: 'bar', url: '/ajax/get_graph_data' },
+		data: { x: 'x', type: 'area-spline', url: '/ajax/get_graph_data' },
 		axis: { x: { type: 'timeseries' } },
 		legend: { show: false },
 		transition: { duration: 1000 },
-		tooltip: { show: false }
-	});
+		tooltip: { show: false },
+		point: { show: false }
+});
 
 	/*var q = $.ajaxMultiQueue(3);
 	$("#posts tr.loading").each(function (index, item) {
@@ -178,10 +193,10 @@ $(function () {
 		});
 	});*/
 
-	for (var i = 1; i <= 10; i++) {
-		$chart = $('#chart' + i);
+	$("#posts tr").each(function(index, value) {
+		$chart = $(value);
 		var chart = c3.generate({
-			bindto: '#chart'+i,
+			bindto: '#chart'+$chart.find("td:first-child").text(),
 			data: {
 				x: 'x',
 				type: 'bar',
@@ -190,9 +205,9 @@ $(function () {
 			axis: { x: { type: 'timeseries', show: false }, y: { show: false } },
 			legend: { show: false },
 			tooltip: { show: false },
-			bar: { width: { ratio: 0.9 } }
+			bar: { width: { ratio: 0.9 } },
 		});
-	}
+	});
 });
 </script>
 
