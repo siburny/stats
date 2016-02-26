@@ -519,6 +519,7 @@
     <Compile Include="public\admin\apcu-admin\fragmentation.php" />
     <Compile Include="public\admin\apcu-admin\index.php" />
     <Compile Include="public\admin\apcu-admin\init.php" />
+    <Compile Include="public\admin\APCu-Admin\opcode.php" />
     <Compile Include="public\admin\apcu-admin\status.php" />
     <Compile Include="public\admin\apcu-admin\user.php" />
     <Compile Include="public\admin\opcache\index.php" />
@@ -782,7 +783,6 @@
     <Content Include="application\views\errors\html\index.html" />
     <Content Include="application\views\errors\index.html" />
     <Content Include="application\views\index.html" />
-    <Content Include="public\admin\apcu-admin\.git" />
     <Content Include="public\admin\apcu-admin\css\bootstrap-theme.css" />
     <Content Include="public\admin\apcu-admin\css\bootstrap-theme.css.map" />
     <Content Include="public\admin\apcu-admin\css\bootstrap-theme.min.css" />

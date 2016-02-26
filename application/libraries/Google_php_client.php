@@ -6,6 +6,7 @@ class Google_php_client
 	private $ci;
 	private $config;
 	private $user_company;
+	public $queries = 0;
 
 	public function __construct($user_company = null)
 	{
@@ -35,6 +36,9 @@ class Google_php_client
 		{
 			$client->setAccessToken($this->user_company->ga_token);
 		}
+
+		$this->queries++;
+
 		return $client;
 	}
 
@@ -99,27 +103,26 @@ class Google_php_client
 			'ga:uniqueEvents,ga:totalEvents',
 			array(
 				'dimensions' => 'ga:eventLabel',
-				'filters' => 'ga:eventCategory==Author',
-				'max-results' => 20
+				'filters' => 'ga:eventCategory==Author'
 			)
 		);
 
 		return $res->getRows();
 	}
 
-	public function get_post_data()
+	public function get_profile_stats($date_start = 'today', $date_end = '30daysAgo')
 	{
 		$client = $this->get_client();
 		$analytics = new Google_Service_Analytics($client);
 
 		$res = $analytics->data_ga->get(
 			'ga:' . $this->user_company->view_id,
-			'30daysAgo',
-			'today',
-			'ga:sessions',
+			$date_end,
+			$date_start,
+			'ga:uniqueEvents,ga:avgSessionDuration,ga:totalEvents',
 			array(
-				'dimensions' => 'ga:date',
-				'sort' => 'ga:date',
+				//'dimensions' => '',
+				//'sort' => '',
 				'filters' => 'ga:eventCategory==Author'
 			)
 		);

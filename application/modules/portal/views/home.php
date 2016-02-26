@@ -11,9 +11,21 @@
 <script src="/js/jquery.ajaxMultiQueue.js"></script>
 
 <h2>All views</h2>
-<div id="chart" style="height:200px;border:1px solid #ccc;border-radius:5px;">
+<div style="float:right;width:350px;">
+	<div style="padding:10px 40px;font-size:1.5em;line-height:200%;">
+		{{#totals}}
+		Pageviews: {{pageviews}}<br />
+		Sessions: {{sessions}}<br />
+		Engaged Minutes: {{engaged_minutes}}<br />
+		Posts Published: {{posts}}<br />
+		Posts Total: {{all_posts}}
+		{{/totals}}
+	</div>
+</div>
+<div id="chart" style="margin-right:350px;height:200px;border:1px solid #ccc;border-radius:5px;">
 	<div style="color:#ccc;font-size:40px;line-height:100%;margin-top:80px;text-align:center;">Loading chart ...</div>
 </div>
+<div style="clear:both;"></div>
 <p>&nbsp;</p>
 
 <style>

@@ -63,7 +63,7 @@ class Cron extends CI_Controller
 		}
 	}
 
-	function get_history_stats($debug = FALSE)
+	function _get_history_stats($debug = FALSE)
 	{
 		$this->load->library("google_php_client");
 
@@ -103,31 +103,6 @@ class Cron extends CI_Controller
 							}
 						}
 
-						/*for($week=1;$week<=4;$week++)
-						{
-							$week_date = new DateTime();
-							$week_start = $week_date->modify("-".(7*$week)." days")->format("Y-m-d");
-							$week_end = $week_date->modify("-6 days")->format("Y-m-d");
-
-							$count = $this->db->from('post_stats')->where('post_id', $post->post_id)->where('date >=', $week_end)->where('date <=', $week_start)->count_all_results();
-
-							if(!$count)
-							{
-								$rows = $this->google_php_client->get_post_stats($post->url, $week_start, $week_end);
-
-								foreach($rows as $row)
-								{
-									$this->db->query("INSERT INTO post_stats VALUES (?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE sessions = ?, pageviews = ?, date_updated = NOW()",
-										array($post->post_id, $row[0], $row[1], $row[2], $row[1], $row[2]));
-									if($debug)
-									{
-										echo "Updated post_id #".$post->post_id." for ".$row[0]." (".$row[1].", ".$row[2].")".PHP_EOL;
-									}
-								}
-								usleep(500000);
-							}
-						}*/
-
 						usleep(500000);
 					}
 					elseif($debug)
@@ -150,11 +125,26 @@ class Cron extends CI_Controller
 		return $this->_get_latest($today->format('Y-m-d'), $debug);
 	}
 
+	function get_yesterday($debug = FALSE)
+	{
+		$today = new DateTime();
+		$today->modify("-1 days");
+		return $this->_get_latest($today->format('Y-m-d'), $debug);
+	}
+
+	function update($debug = FALSE)
+	{
+		$this->get_yesterday($debug);
+		$this->get_today($debug);
+	}
+
 	function _get_latest($start_date, $debug = FALSE)
 	{
 		$this->load->library("google_php_client");
 
 		$end_date = $start_date;
+
+		$start_time = microtime(TRUE);
 
 		$companies = $this->company->get_all();
 		foreach($companies as $company)
@@ -190,9 +180,7 @@ class Cron extends CI_Controller
 					if($debug)
 					{
 						echo "Updated post_id #".$post_id." for ".$start_date." (".$row[1].", ".$row[2].")".PHP_EOL;
-						echo $this->db->last_query();
 					}
-					return;
 				}
 
 				usleep(500000);
@@ -201,6 +189,10 @@ class Cron extends CI_Controller
 			{
 				echo "Skipping company ID #".$company->company_id." - no GA data".PHP_EOL;
 			}
+		}
+		if($debug)
+		{
+			echo 'Done: '.round(microtime(TRUE) - $start_time, 2)." secs, ".$this->google_php_client->queries." queries.".PHP_EOL.PHP_EOL;
 		}
 	}
 }

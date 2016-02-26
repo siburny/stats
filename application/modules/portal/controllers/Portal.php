@@ -101,6 +101,8 @@ class Portal extends CI_Controller {
 		}
 		$data['date_from'] = $date_from->format("M j, Y");
 		$data['date_to'] = $date_to->format("M j, Y");
+		$data['date_from_ymd'] = $date_from->format('Y-m-d');
+		$data['date_to_ymd'] = $date_to->format('Y-m-d');
 
 		$this->load->model("Post_model", "post");
 		
@@ -144,6 +146,26 @@ class Portal extends CI_Controller {
 				$ar["down_arrow"] = TRUE;
 			}
 			$data['rows'][] = $ar;
+		}
+
+		//Total Stats
+		$count = $this->db->from('posts')->
+			where('company_id', $this->user_company->company_id)->
+			where('date_published >=', $data['date_from_ymd'])->
+			where('date_published <=', $data['date_to_ymd'])->
+			count_all_results();
+		$count_all = $this->db->from('posts')->
+			where('company_id', $this->user_company->company_id)->
+			count_all_results();
+		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'engaged_minutes' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
+
+		$this->load->library("google_php_client", $this->user_company);
+		$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
+		if($rows)
+		{
+			$data['totals']['sessions'] = number_format($rows[0][0]);
+			$data['totals']['engaged_minutes'] = number_format($rows[0][0] * $rows[0][1] / 60);
+			$data['totals']['pageviews'] = number_format($rows[0][2]);
 		}
 
 		$data['prev_link'] = $page == 0 ? "" : "/portal/page".$page."/".$date_link;
