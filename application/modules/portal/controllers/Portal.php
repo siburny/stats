@@ -148,6 +148,10 @@ class Portal extends CI_Controller {
 			$data['rows'][] = $ar;
 		}
 
+		$rows = $this->db->from('post_stats')->
+			select_max('date_updated')->get()->result_array();
+		$data['last_updated'] = $rows[0]['date_updated'];
+		
 		//Total Stats
 		$count = $this->db->from('posts')->
 			where('company_id', $this->user_company->company_id)->
@@ -168,6 +172,7 @@ class Portal extends CI_Controller {
 			$data['totals']['pageviews'] = number_format($rows[0][2]);
 		}
 
+		$data['date_link'] = $date_link;
 		$data['prev_link'] = $page == 0 ? "" : "/portal/page".$page."/".$date_link;
 		$data['next_link'] = "/portal/page".($page+2)."/".$date_link;
 

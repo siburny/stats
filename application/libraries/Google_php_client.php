@@ -129,4 +129,24 @@ class Google_php_client
 
 		return $res->getRows();
 	}
+
+	public function get_posts_stats_by_hour($date_start = 'today')
+	{
+		$client = $this->get_client();
+		$analytics = new Google_Service_Analytics($client);
+
+		$res = $analytics->data_ga->get(
+			'ga:' . $this->user_company->view_id,
+			$date_start,
+			$date_start,
+			'ga:totalEvents',
+			array(
+				'dimensions' => 'ga:hour',
+				'sort' => 'ga:hour',
+				'filters' => 'ga:eventCategory==Author'
+			)
+		);
+
+		return $res->getRows();
+	}
 }

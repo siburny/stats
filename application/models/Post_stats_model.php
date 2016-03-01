@@ -6,8 +6,8 @@ class Post_stats_model extends MY_Model
 {
 	protected $primary_key = 'stats_id';
 	protected $_table = 'post_stats';
-	
-	static function get_total_graph_data($company_id, $start = null, $end = null)
+
+	static function get_manager_graph_data($company_id, $start = null, $end = null)
 	{
 		if($start == NULL || $end == NULL)
 		{
@@ -28,7 +28,7 @@ class Post_stats_model extends MY_Model
 			$t = clone $start;
 			$end = $t->modify("-".($end-1)." days");
 		}
-		
+
 		if($start instanceof DateTime)
 		{
 			$start = $start->format("Y-m-d");
@@ -37,11 +37,11 @@ class Post_stats_model extends MY_Model
 		{
 			$end = $end->format("Y-m-d");
 		}
-		
+
 		$ci = &get_instance();
-		
+
 		return $ci->db->query("
-SELECT date, /*sum(sessions) as total_sessions,*/ sum(pageviews) as total_pageviews FROM post_stats
+SELECT DATE_FORMAT(date, '%Y-%m-%d %H:%i'), /*sum(sessions) as total_sessions,*/ sum(pageviews) as total_pageviews FROM post_stats
 WHERE
 	date >= ? AND
 	date <= ? AND
@@ -51,6 +51,25 @@ WHERE
 GROUP BY date
 ORDER BY date ASC
 			", array($end, $start, $company_id))->result_array();
+	}
+
+	function get_manager_graph_data_hourly($user_company, $start = null)
+	{
+		if($start == NULL)
+		{
+			if($start == NULL)
+			{
+				$start = new DateTime();
+			}
+		}
+		
+		if($start instanceof DateTime)
+		{
+			$start = $start->format("Y-m-d");
+		}
+
+		$this->load->library("google_php_client", $user_company);
+		return $this->google_php_client->get_posts_stats_by_hour($start);
 	}
 
 	static function get_post_graph_data($company_id, $url, $start = null, $end = null)

@@ -21,19 +21,60 @@ class Ajax extends CI_Controller {
 		$this->user_company = $this->company->get($this->user->company);
 	}
 
-	function get_graph_data()
+	function get_graph_data($date_from = NULL, $date_to = NULL)
 	{
 		if(!isset($this->user) || !isset($this->user_company))
 		{
 			set_status_header(401);
 			return;
 		}
-		
+
+		if($date_from != NULL)
+		{
+			$date_from = strtolower($date_from);
+			switch($date_from)
+			{
+				case "today":
+				case "yesterday":
+					$date_to = new DateTime($date_from);
+					$date_from = clone $date_to;
+					break;
+				case "7days":
+					$date_to = new DateTime("yesterday");
+					$date_from = clone $date_to;
+					$date_from->modify('-6 days');
+					break;
+				case "30days":
+					$date_to = new DateTime("yesterday");
+					$date_from = clone $date_to;
+					$date_from->modify('-29 days');
+					break;
+				default:
+					if($date_to != NULL)
+					{
+						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
+						{
+							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
+							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
+							break;
+						}
+					}
+					$date_to = NULL;
+					break;
+			}
+		}
+		if($date_to == NULL)
+		{
+			$date_to = (new DateTime());
+			$date_from = clone $date_to;
+			$date_from->modify('-29 days');
+		}
+
 		$data = "Can't connect to Google";
 
 		if($this->user_company->ga_token && $this->user_company->view_id)
 		{
-			$key = "viewstats_".$this->user_company->view_id;
+			$key = "viewstats_".$this->user_company->view_id.'_'.$date_from->format('Ymd').'_'.$date_to->format('Ymd');
 			if(($val = $this->cache->get($key)) !== FALSE)
 			{
 				$data = $val;
@@ -42,12 +83,25 @@ class Ajax extends CI_Controller {
 			{
 				$data = 'x,Views'.PHP_EOL;
 
-				$rows = Post_stats_model::get_total_graph_data($this->user_company->company_id);
+				if($date_to == $date_from)
+				{
+					$rows = $this->post_stats->get_manager_graph_data_hourly($this->user_company, $date_to);
+					$date = $date_to->format('Y-m-d');
+					foreach($rows as $index => $row)
+					{
+						$rows[$index][0] = $date.' '.$row[0].':00';
+					}
+				}
+				else
+				{
+					$rows = Post_stats_model::get_manager_graph_data($this->user_company->company_id, $date_to, $date_from);
+				}
+
 				foreach($rows as $row)
 				{
 					$data .= implode(",", $row).PHP_EOL;
 				}
-				//$this->cache->save($key, $data, 1800);
+				$this->cache->save($key, $data, 300);
 			}
 		}
 		

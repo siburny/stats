@@ -11,18 +11,18 @@
 <script src="/js/jquery.ajaxMultiQueue.js"></script>
 
 <h2>All views</h2>
-<div style="float:right;width:350px;">
-	<div style="padding:10px 40px;font-size:1.5em;line-height:200%;">
+<div style="float:right;width:300px;">
+	<div style="padding:10px 10px 10px 30px;font-size:1.5em;line-height:200%;">
 		{{#totals}}
 		Pageviews: {{pageviews}}<br />
-		Sessions: {{sessions}}<br />
+		Visits: {{sessions}}<br />
 		Engaged Minutes: {{engaged_minutes}}<br />
 		Posts Published: {{posts}}<br />
 		Posts Total: {{all_posts}}
 		{{/totals}}
 	</div>
 </div>
-<div id="chart" style="margin-right:350px;height:200px;border:1px solid #ccc;border-radius:5px;">
+<div id="chart" style="margin-right:300px;height:200px;border:1px solid #ccc;border-radius:5px;">
 	<div style="color:#ccc;font-size:40px;line-height:100%;margin-top:80px;text-align:center;">Loading chart ...</div>
 </div>
 <div style="clear:both;"></div>
@@ -174,6 +174,7 @@
 	</tr>
 {{/rows}}
 </table>
+<div style="float:right;">GA last updated: {{last_updated}}</div>
 {{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}&nbsp;&nbsp;&nbsp;<a href="{{next_link}}">NEXT&nbsp;&gt;</a>
 
 <script>
@@ -181,13 +182,13 @@
 $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
-		data: { x: 'x', type: 'area-spline', url: '/ajax/get_graph_data' },
-		axis: { x: { type: 'timeseries' } },
+		data: { x: 'x', type: 'area-spline', url: '/ajax/get_graph_data/{{date_link}}', xFormat: '%Y-%m-%d %-H:%M' },
+		axis: { x: { type: 'timeseries' }, y: { padding: { top: 20 }, tick: { } }, },
+		grid: { y: { show: true } },
 		legend: { show: false },
 		transition: { duration: 1000 },
-		tooltip: { show: false },
-		point: { show: false }
-});
+		tooltip: { show: false }
+	});
 
 	/*var q = $.ajaxMultiQueue(3);
 	$("#posts tr.loading").each(function (index, item) {
