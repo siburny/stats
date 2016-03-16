@@ -3,6 +3,7 @@
 {{#is_admin}}
 <p><a href="/portal/connect/">Google Analytics Account</a></p>
 <p><a href="/portal/ga_code/">Get the Code</a></p>
+<p><a href="/portal/invite/">Invite Users</a></p>
 {{/is_admin}}
 
 <link href="/css/c3.css" rel="stylesheet" type="text/css">

@@ -289,4 +289,59 @@ class Portal extends CI_Controller {
 
 		$this->parser->parse("portal/ga_code", $data);
 	}
+
+	function invite()
+	{
+		$this->load->model("Ion_auth_model");
+		$this->load->library("ion_auth");
+
+		$data = array('page_title' => 'User Invitation');
+
+		$data['active_users'] = array();
+		$data['invited_users'] = array();
+
+		$users = $this->Ion_auth_model->select('id,email,created_on,active,first_name,last_name')->where('company', $this->user_company->company_id)->users()->result();
+		foreach($users as $user)
+		{
+			$user->created_on_format = date("H:i:s m/d/Y", $user->created_on);
+			$user->role = $this->ion_auth->in_group("manager", $user->id) ? "Manager" : "Author";
+			$user->tracker = $this->ion_auth->in_group("manager", $user->id) ? "" : "Author";
+
+			if($user->active)
+			{
+				$data['active_users'] = $user;
+			}
+			else
+			{
+				$data['invited_users'] = $user;
+			}
+		}
+
+		$this->parser->parse("portal/invite", $data);
+	}
+
+	function invite_user()
+	{
+		$data = array('page_title' => 'User Invitation');
+
+		$this->form_validation->set_rules('firstname', 'First Name', 'required');
+		$this->form_validation->set_rules('lastname', 'Last Name', 'required');
+		$this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[users.email]');
+		$this->form_validation->set_rules('manager', 'Role', 'required');
+		
+		if($this->form_validation->run() == FALSE)
+		{
+			$data['errors'] = validation_errors('<li>', '</li>');
+
+			$data['firstname'] = set_value('firstname');
+			$data['lastname'] = set_value('lastname');
+			$data['email'] = set_value('email');
+			$data['position'] = set_value('position');
+
+			$this->parser->parse("portal/invite_user", $data);
+		}
+		else
+		{
+		}
+	}
 }
