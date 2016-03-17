@@ -322,8 +322,6 @@ class Portal extends CI_Controller {
 
 	function invite_user()
 	{
-		$data = array('page_title' => 'User Invitation');
-
 		$this->form_validation->set_rules('firstname', 'First Name', 'required');
 		$this->form_validation->set_rules('lastname', 'Last Name', 'required');
 		$this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[users.email]');
@@ -331,6 +329,7 @@ class Portal extends CI_Controller {
 		
 		if($this->form_validation->run() == FALSE)
 		{
+			$data = array('page_title' => 'User Invitation');
 			$data['errors'] = validation_errors('<li>', '</li>');
 
 			$data['firstname'] = set_value('firstname');
@@ -342,6 +341,10 @@ class Portal extends CI_Controller {
 		}
 		else
 		{
+			$this->load->library("ion_auth");
+			$ret = $this->ion_auth->invite(set_value('email'), array('first_name' => $this->input->post('firstname'), 'last_name' => $this->input->post('lastname')), array($this->input->post('manager') ? '2' : '3'));
+			var_dump($ret);
+			//$email = $this->load->view('email/invitation');
 		}
 	}
 }

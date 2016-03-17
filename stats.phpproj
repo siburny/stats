@@ -164,6 +164,7 @@
     <Compile Include="application\config\google_client.php" />
     <Compile Include="application\config\hooks.php" />
     <Compile Include="application\config\ion_auth.php" />
+    <Compile Include="application\config\email.php" />
     <Compile Include="application\config\memcached.php" />
     <Compile Include="application\config\migration.php" />
     <Compile Include="application\config\mimes.php" />
@@ -180,6 +181,7 @@
     <Compile Include="application\models\Post_stats_model.php" />
     <Compile Include="application\models\Post_model.php" />
     <Compile Include="application\modules\ajax\controllers\Ajax.php" />
+    <Compile Include="application\modules\auth\views\invitation_password.php" />
     <Compile Include="application\modules\cron\controllers\Cron.php" />
     <Compile Include="application\modules\portal\views\invite_user.php" />
     <Compile Include="application\modules\portal\views\invite.php" />
@@ -207,7 +209,7 @@
     <Compile Include="application\modules\auth\views\deactivate_user.php" />
     <Compile Include="application\modules\auth\views\edit_group.php" />
     <Compile Include="application\modules\auth\views\edit_user.php" />
-    <Compile Include="application\modules\auth\views\email\activate.tpl.php" />
+    <Compile Include="application\modules\auth\views\email\invitation.php" />
     <Compile Include="application\modules\auth\views\email\forgot_password.tpl.php" />
     <Compile Include="application\modules\auth\views\email\new_password.tpl.php" />
     <Compile Include="application\modules\auth\views\forgot_password.php" />

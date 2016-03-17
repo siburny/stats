@@ -281,12 +281,21 @@ class Ion_auth
 		}
 	}
 
-	/**
-	 * register
-	 *
-	 * @return void
-	 * @author Mathew
-	 **/
+	public function invitation_password_check($code)
+	{
+		$profile = $this->where('activation_code', $code)->users()->row(); //pass the code to profile
+
+		if (!is_object($profile))
+		{
+			$this->set_error('password_change_unsuccessful');
+			return FALSE;
+		}
+		else
+		{
+			return $profile;
+		}
+	}
+
 	public function register($identity, $password, $email, $additional_data = array(), $group_ids = array()) //need to test email activation
 	{
 		$this->ion_auth_model->trigger_events('pre_account_creation');
@@ -371,6 +380,69 @@ class Ion_auth
 			$this->set_error('activation_email_unsuccessful');
 			return FALSE;
 		}
+	}
+
+	public function invite($email, $additional_data = array(), $group_ids = array())
+	{
+		$id = $this->ion_auth_model->register($email, mt_rand()*mt_rand()*mt_rand()*mt_rand()/mt_rand()/mt_rand()/mt_rand()/mt_rand(), $email, $additional_data, $group_ids);
+
+		if (!$id)
+		{
+			$this->set_error('account_creation_unsuccessful');
+			return FALSE;
+		}
+
+		// deactivate so the user much follow the activation flow
+		$deactivate = $this->ion_auth_model->deactivate($id);
+
+		// the deactivate method call adds a message, here we need to clear that
+		$this->ion_auth_model->clear_messages();
+
+		if (!$deactivate)
+		{
+			$this->set_error('deactivate_unsuccessful');
+			$this->ion_auth_model->trigger_events(array('post_account_creation', 'post_account_creation_unsuccessful'));
+			return FALSE;
+		}
+
+		$activation_code = $this->ion_auth_model->activation_code;
+		$identity        = $this->config->item('identity', 'ion_auth');
+		$user            = $this->ion_auth_model->user($id)->row();
+
+		$data = array(
+			'identity'   => $user->{$identity},
+			'id'         => $user->id,
+			'email'      => $email,
+			'activation' => $activation_code,
+		);
+		if(!$this->config->item('use_ci_email', 'ion_auth'))
+		{
+			$this->ion_auth_model->trigger_events(array('post_account_creation', 'post_account_creation_successful', 'activation_email_successful'));
+			$this->set_message('activation_email_successful');
+			return $data;
+		}
+		else
+		{
+			$message = $this->load->view($this->config->item('email_templates', 'ion_auth').'invitation', $data, true);
+
+			$this->email->clear();
+			$this->email->from($this->config->item('admin_email', 'ion_auth'), $this->config->item('site_title', 'ion_auth'));
+			$this->email->to($email);
+			$this->email->subject('Invitation to ooDash');
+			$this->email->message($message);
+
+			if ($this->email->send() == TRUE)
+			{
+				$this->ion_auth_model->trigger_events(array('post_account_creation', 'post_account_creation_successful', 'activation_email_successful'));
+				$this->set_message('activation_email_successful');
+				return $id;
+			}
+
+		}
+
+		$this->ion_auth_model->trigger_events(array('post_account_creation', 'post_account_creation_unsuccessful', 'activation_email_unsuccessful'));
+		$this->set_error('activation_email_unsuccessful');
+		return FALSE;
 	}
 
 	/**
