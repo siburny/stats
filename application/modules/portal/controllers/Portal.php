@@ -342,9 +342,15 @@ class Portal extends CI_Controller {
 		else
 		{
 			$this->load->library("ion_auth");
-			$ret = $this->ion_auth->invite(set_value('email'), array('first_name' => $this->input->post('firstname'), 'last_name' => $this->input->post('lastname')), array($this->input->post('manager') ? '2' : '3'));
-			var_dump($ret);
-			//$email = $this->load->view('email/invitation');
+			$this->ion_auth->invite(set_value('email'), 
+				array(
+					'first_name' => $this->input->post('firstname'),
+					'last_name' => $this->input->post('lastname'),
+					'position' => $this->input->post('position'),
+					'company' => $this->user_company->company_id
+				),
+				array($this->input->post('manager') ? '2' : '3'));
+			redirect('/portal/invite/');
 		}
 	}
 }

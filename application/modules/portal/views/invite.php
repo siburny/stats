@@ -47,7 +47,6 @@
 <h2>Invited</h2>
 <table class="users">
 	<tr>
-		<th></th>
 		<th>Name</th>
 		<th>Email</th>
 		<th>Tracker</th>

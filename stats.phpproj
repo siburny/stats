@@ -175,6 +175,7 @@
     <Compile Include="application\config\testing\google_client.php" />
     <Compile Include="application\config\user_agents.php" />
     <Compile Include="application\libraries\Cache\MY_Cache.php" />
+    <Compile Include="application\migrations\008_add_author_name_to_users.php" />
     <Compile Include="application\migrations\007_add_post_stats_table.php" />
     <Compile Include="application\migrations\006_add_domain_to_company.php" />
     <Compile Include="application\migrations\005_add_post_table.php" />
@@ -219,6 +220,7 @@
     <Compile Include="application\modules\portal\views\connect.php" />
     <Compile Include="application\modules\portal\views\ga_code.php" />
     <Compile Include="application\modules\portal\views\home.php" />
+    <Compile Include="application\third_party\CI_CC.php" />
     <Compile Include="application\third_party\google-api-php-client-1.1.6\autoload.php" />
     <Compile Include="application\third_party\google-api-php-client-1.1.6\examples\appengineauth.php" />
     <Compile Include="application\third_party\google-api-php-client-1.1.6\examples\batch.php" />

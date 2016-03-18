@@ -1,8 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-$config = array(
-	'mailtype' => 'html',
-	'crlf' => "\r\n",
-	'newline' => "\r\n"
-);
+$config['mailtype'] = 'html';
+$config['crlf']     = "\r\n";
+$config['newline']  = "\r\n";
