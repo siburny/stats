@@ -220,7 +220,7 @@
     <Compile Include="application\modules\portal\views\connect.php" />
     <Compile Include="application\modules\portal\views\ga_code.php" />
     <Compile Include="application\modules\portal\views\home.php" />
-    <Compile Include="application\third_party\CI_CC.php" />
+    <None Include="application\third_party\CI_CC.php" />
     <Compile Include="application\third_party\google-api-php-client-1.1.6\autoload.php" />
     <Compile Include="application\third_party\google-api-php-client-1.1.6\examples\appengineauth.php" />
     <Compile Include="application\third_party\google-api-php-client-1.1.6\examples\batch.php" />

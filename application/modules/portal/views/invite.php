@@ -61,7 +61,7 @@
 		<td></td>
 		<td>{{role}}</td>
 		<td>{{created_on_format}}</td>
-		<td><a href="#">Cancel</a></td>
+		<td><a href="/portal/cancel_invite/{{id}}" onclick="return confirm('Are you sure?');">Cancel</a></td>
 	</tr>
 	{{/invited_users}}
 	{{^invited_users}}

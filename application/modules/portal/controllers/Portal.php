@@ -292,15 +292,22 @@ class Portal extends CI_Controller {
 
 	function invite()
 	{
+		if(!$this->ion_auth->is_admin())
+		{
+			redirect('/portal/');
+		}
+
 		$this->load->model("Ion_auth_model");
-		$this->load->library("ion_auth");
 
 		$data = array('page_title' => 'User Invitation');
 
 		$data['active_users'] = array();
 		$data['invited_users'] = array();
 
-		$users = $this->Ion_auth_model->select('id,email,created_on,active,first_name,last_name')->where('company', $this->user_company->company_id)->users()->result();
+		$users = $this->Ion_auth_model->select('id,email,created_on,active,first_name,last_name')
+			->where('company', $this->user_company->company_id)->where('id <> '.$this->user->id)
+			->users()->result();
+
 		foreach($users as $user)
 		{
 			$user->created_on_format = date("H:i:s m/d/Y", $user->created_on);
@@ -351,6 +358,23 @@ class Portal extends CI_Controller {
 				),
 				array($this->input->post('manager') ? '2' : '3'));
 			redirect('/portal/invite/');
+		}
+	}
+
+	function cancel_invite($id = null)
+	{
+		if(is_null($id))
+		{
+			redirect('/portal/invite/');
+		}
+
+		if($this->ion_auth->is_admin())
+		{
+			$this->ion_auth->delete($id);
+		}
+		else
+		{
+			redirect('/portal/');
 		}
 	}
 }

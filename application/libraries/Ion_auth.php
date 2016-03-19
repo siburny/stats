@@ -21,6 +21,9 @@
 *
 */
 
+/**
+ * @property Ion_auth_model      ion_auth_model
+ */
 class Ion_auth
 {
 	/**
