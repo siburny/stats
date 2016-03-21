@@ -46,13 +46,13 @@
 			</select>
 		</label>
 	</p>
-	<p style="display:none;" id="row_name">
+	<p style="display:;" id="row_name">
 		<label>
 			Tracker Name:<br />
 			<select>
 				<option></option>
 				{{#names}}
-				<option value="{{.}}">{{.}}</option>
+				<option value="{{author}}">{{author}}</option>
 				{{/names}}
 			</select>
 		</label>

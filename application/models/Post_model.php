@@ -250,4 +250,9 @@ $limit
 			return $res->result_array();
 		}
 	}
+
+	function get_authors($company_id)
+	{
+		return $this->select("author")->distinct()->where("author <> ''")->get_all();
+	}
 }

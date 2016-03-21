@@ -80,6 +80,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	* @property Ion_auth            $ion_auth
 	***************** YOUR MODELS *****************
 	* @property Ion_auth_model      ion_auth_model
+	* @property Post_model					posts
 	*/
 class CI_Controller {
 	public function __construct() {
@@ -139,6 +140,7 @@ class CI_Controller {
 	* @property Ion_auth            $ion_auth
 	***************** YOUR MODELS *****************
 	* @property Ion_auth_model      ion_auth_model
+	* @property Post_model					posts
 	*/
 class CI_Model {
 	public function __construct() {

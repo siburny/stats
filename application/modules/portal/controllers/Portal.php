@@ -344,6 +344,9 @@ class Portal extends CI_Controller {
 			$data['email'] = set_value('email');
 			$data['position'] = set_value('position');
 
+			$this->load->model("post_model", "posts");
+			$data['names'] = $this->posts->get_authors($this->user_company->company_id);
+
 			$this->parser->parse("portal/invite_user", $data);
 		}
 		else
@@ -361,7 +364,7 @@ class Portal extends CI_Controller {
 		}
 	}
 
-	function cancel_invite($id = null)
+	function cancel($id = null)
 	{
 		if(is_null($id))
 		{
@@ -370,7 +373,8 @@ class Portal extends CI_Controller {
 
 		if($this->ion_auth->is_admin())
 		{
-			$this->ion_auth->delete($id);
+			$this->ion_auth->delete_user($id);
+			redirect('/portal/invite/');
 		}
 		else
 		{
