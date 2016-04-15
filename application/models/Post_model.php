@@ -255,4 +255,22 @@ $limit
 	{
 		return $this->select("author")->distinct()->where("author <> ''")->get_all();
 	}
+
+	public static function process_url($url)
+	{
+		$lower = strtolower($url);
+
+		// Normalize protocol
+		if(substr($lower, 0, 8) == "https://")
+		{
+			$url = "http://".substr($lower, 8);
+		}
+
+		// Page numbers
+		if(preg_match("/\/\d+$\//", $url))
+		{
+			$url = preg_replace("\/\d+\/$", "/", $url);
+		}
+		return $url;
+	}
 }

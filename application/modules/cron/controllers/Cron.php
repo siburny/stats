@@ -29,7 +29,7 @@ class Cron extends CI_Controller
 				$i = 0; $count = count($rows);
 				foreach($rows as $row)
 				{
-					$url = $row[0];
+					$url = Post_model::process_url($row[0]);
 					$domain = parse_url($url, PHP_URL_HOST);
 					if(strpos($domain, $company->domain) !== FALSE)
 					{
