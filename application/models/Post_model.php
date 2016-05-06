@@ -267,9 +267,10 @@ $limit
 		}
 
 		// Page numbers
-		if(preg_match("/\/\d+$\//", $url))
+		if(preg_match("/\/[0-9]+\/?$/", $url))
 		{
-			$url = preg_replace("\/\d+\/$", "/", $url);
+
+			$url = preg_replace("/\/[0-9]+\/?$/", "/", $url);
 		}
 		return $url;
 	}

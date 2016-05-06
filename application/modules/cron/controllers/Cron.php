@@ -14,7 +14,7 @@ class Cron extends CI_Controller
 		$this->load->model("Post_model", "post");
 	}
 
-	function get_history_posts($debug = FALSE)
+	function get_all_posts($debug = FALSE)
 	{
 		$this->load->library("google_php_client");
 		$companies = $this->company->get_all();
