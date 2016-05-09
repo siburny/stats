@@ -306,6 +306,7 @@ class Portal extends MY_Controller {
 		$this->load->model("Ion_auth_model");
 
 		$data = array('page_title' => 'User Invitation');
+		$this->input->get('done') && $data['message'] = 'Invite has been sent to '.htmlentities($this->input->get('done'));
 
 		$data['active_users'] = array();
 		$data['invited_users'] = array();
@@ -373,8 +374,9 @@ class Portal extends MY_Controller {
 					'company' => $this->user_company->company_id,
 					'author_name' => $this->input->post('author')
 				),
-				array($this->input->post('manager') ? '2' : '3'));
-			redirect('/portal/invite/');
+				array($this->input->post('manager') ? '2' : '3'),
+				trim($this->input->post('custom_message')));
+			redirect('/portal/invite?done='.urlencode(set_value('email')));
 		}
 	}
 

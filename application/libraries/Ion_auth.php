@@ -385,7 +385,7 @@ class Ion_auth
 		}
 	}
 
-	public function invite($email, $additional_data = array(), $group_ids = array())
+	public function invite($email, $additional_data, $group_ids, $custom_message)
 	{
 		$id = $this->ion_auth_model->register($email, mt_rand()*mt_rand()*mt_rand()*mt_rand()/mt_rand()/mt_rand()/mt_rand()/mt_rand(), $email, $additional_data, $group_ids);
 
@@ -417,6 +417,7 @@ class Ion_auth
 			'id'         => $user->id,
 			'email'      => $email,
 			'activation' => $activation_code,
+			'name'       => $additional_data['first_name']
 		);
 		if(!$this->config->item('use_ci_email', 'ion_auth'))
 		{
@@ -426,6 +427,7 @@ class Ion_auth
 		}
 		else
 		{
+			$data['custom_message'] = $custom_message;
 			$message = $this->load->view($this->config->item('email_templates', 'ion_auth').'invitation', $data, true);
 
 			$this->email->clear();

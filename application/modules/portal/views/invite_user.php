@@ -63,6 +63,12 @@
 		</label>
 	</p>
 	<p>
+		<label>
+			Custom message to attach:<br />
+			<textarea type="text" name="custom_message" placeholder="e.g. Welcome to ooDash" value="" cols="50" rows="4">{{custom_message}}</textarea>
+		</label>
+	</p>
+	<p>
 		<input type="submit" name="submit" value="Invite"/>
 	</p>
 </form>

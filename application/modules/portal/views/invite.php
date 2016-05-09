@@ -17,6 +17,8 @@
 
 <h2><a href="/portal/invite_user/">Invite User</a></h2>
 
+{{#message}}<h3 style="color:#D33">{{.}}</h3>{{/message}}
+
 <h2>Active</h2>
 <table class="users">
 	<tr>
