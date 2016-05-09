@@ -72,6 +72,7 @@
 <body>
 
 <div id="container">
+	{{#is_logged_in}}<a href="/auth/logout" style="float:right;margin: 10px 10px 0 0;">Log out</a>{{/is_logged_in}}
 	<h1>{{page_title}}</h1>
 
 	<div id="body">

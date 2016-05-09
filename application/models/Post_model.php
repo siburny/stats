@@ -184,6 +184,13 @@ class Post_model extends MY_Model
 	static function get_posts($company_id, $start = null, $end = null, $objects = TRUE, $limit = TRUE, $page = 0)
 	{
 		$ci = &get_instance();
+
+		if(is_array($company_id))
+		{
+			$user = $company_id[1];
+			$company_id = $company_id[0];
+		}
+
 		if($start == null)
 		{
 			$today = new DateTime();
@@ -229,8 +236,24 @@ class Post_model extends MY_Model
 			$limit = "";
 		}
 
-		$res = $ci->db->query("
-SELECT `posts`.*, sum(sessions) as total_sessions, sum(pageviews) as total_pageviews 
+		if(!empty($user))
+		{
+			$res = $ci->db->query("
+SELECT `posts`.*, sum(sessions) as total_sessions, sum(pageviews) as total_pageviews
+FROM `posts`
+LEFT JOIN `post_stats` ON `posts`.`post_id` = `post_stats`.`post_id`
+WHERE `posts`.`company_id` = ?
+AND `posts`.`author` = ?
+AND `date` >= ?
+AND `date` <= ?
+GROUP BY posts.post_id
+ORDER BY total_pageviews DESC, posts.post_id ASC
+$limit", array($company_id, $user, $end, $start));
+		}
+		else
+		{
+			$res = $ci->db->query("
+SELECT `posts`.*, sum(sessions) as total_sessions, sum(pageviews) as total_pageviews
 FROM `posts`
 LEFT JOIN `post_stats` ON `posts`.`post_id` = `post_stats`.`post_id`
 WHERE `posts`.`company_id` = ?
@@ -238,8 +261,8 @@ AND `date` >= ?
 AND `date` <= ?
 GROUP BY posts.post_id
 ORDER BY total_pageviews DESC, posts.post_id ASC
-$limit
-		", array($company_id, $end, $start));
+$limit", array($company_id, $end, $start));
+		}
 
 		if($objects)
 		{

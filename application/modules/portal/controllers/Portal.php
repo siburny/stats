@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Portal extends CI_Controller {
+class Portal extends MY_Controller {
 	private $user = NULL;
 	private $user_company = NULL;
 
@@ -107,14 +107,20 @@ class Portal extends CI_Controller {
 		$this->load->model("Post_model", "post");
 		
 		$this->user = $this->ion_auth->user()->row();
-		if($this->ion_auth->in_group("manager"))
+		
+		if($this->ion_auth->is_manager())
 		{
 			$data["is_admin"] = TRUE;
+			$company_id = $this->user_company->company_id;
+		}
+		else
+		{
+			$company_id = array($this->user_company->company_id, $this->user->author_name);
 		}
 
-		$rows = Post_model::get_posts($this->user_company->company_id, $date_to, $date_from, TRUE, TRUE, $page);
+		$rows = Post_model::get_posts($company_id, $date_to, $date_from, TRUE, TRUE, $page);
 		$day_diff = $date_to->diff($date_from)->days;
-		$rows_prev = Post_model::get_posts($this->user_company->company_id, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
+		$rows_prev = Post_model::get_posts($company_id, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
 		$rows_prev = array_column((array)$rows_prev, 'total_pageviews', 'url');
 
 		$data['rows'] = array();
@@ -292,7 +298,7 @@ class Portal extends CI_Controller {
 
 	function invite()
 	{
-		if(!$this->ion_auth->is_admin())
+		if(!$this->ion_auth->is_manager())
 		{
 			redirect('/portal/');
 		}
@@ -311,8 +317,9 @@ class Portal extends CI_Controller {
 		foreach($users as $user)
 		{
 			$user->created_on_format = date("H:i:s m/d/Y", $user->created_on);
-			$user->role = $this->ion_auth->in_group("manager", $user->id) ? "Manager" : "Author";
-			$user->tracker = $this->ion_auth->in_group("manager", $user->id) ? "" : "Author";
+			$user->role = $this->ion_auth->is_manager($user->id) ? "Manager" : "Author";
+			$user->tracker = $this->ion_auth->is_manager($user->id) ? "" : "Author";
+			$this->ion_auth->is_admin($user->id) && $user->protected = TRUE;
 
 			if($user->active)
 			{
@@ -333,7 +340,12 @@ class Portal extends CI_Controller {
 		$this->form_validation->set_rules('lastname', 'Last Name', 'required');
 		$this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[users.email]');
 		$this->form_validation->set_rules('manager', 'Role', 'required');
-		
+
+		if(!set_value('author')) {
+			$this->form_validation->set_rules('author', 'Tracker Name', 'required');
+		}
+
+
 		if($this->form_validation->run() == FALSE)
 		{
 			$data = array('page_title' => 'User Invitation');
@@ -343,6 +355,7 @@ class Portal extends CI_Controller {
 			$data['lastname'] = set_value('lastname');
 			$data['email'] = set_value('email');
 			$data['position'] = set_value('position');
+			$data['manager'] = set_value('manager', '1');
 
 			$this->load->model("post_model", "posts");
 			$data['names'] = $this->posts->get_authors($this->user_company->company_id);
@@ -357,7 +370,8 @@ class Portal extends CI_Controller {
 					'first_name' => $this->input->post('firstname'),
 					'last_name' => $this->input->post('lastname'),
 					'position' => $this->input->post('position'),
-					'company' => $this->user_company->company_id
+					'company' => $this->user_company->company_id,
+					'author_name' => $this->input->post('author')
 				),
 				array($this->input->post('manager') ? '2' : '3'));
 			redirect('/portal/invite/');

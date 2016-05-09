@@ -18,6 +18,7 @@ class MY_Parser extends CI_Parser {
 
     protected $config;
     private $ci;
+		public $data = array();
 
     function __construct()
     {
@@ -83,6 +84,7 @@ class MY_Parser extends CI_Parser {
         {
             $data = array();
         }
+				$data = array_merge($this->data, $data);
 
 				$options['partials_loader'] = new Mustache_Loader_FilesystemLoader(APPPATH.'/views', array('extension' => '.php'));
         $parser = new Mustache_Engine($options);
@@ -93,7 +95,7 @@ class MY_Parser extends CI_Parser {
 				if( ! $return)
 				{
 					$this->ci->output->append_output($template);
-					return;
+					return "";
 				}
 			return $template;
 		}
@@ -118,14 +120,15 @@ class MY_Parser extends CI_Parser {
         {
             $data = array();
         }
+				$data = array_merge($this->data, $data);
 
         $parser = new Mustache_Engine($options);
         $template = $parser->render($template, $data);
 
 				if( ! $return)
 				{
-					$ci->output->append_output($template);
-					return;
+					$this->ci->output->append_output($template);
+					return "";
 				}
 			return $template;
     }

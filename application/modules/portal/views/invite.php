@@ -34,7 +34,7 @@
 		<td></td>
 		<td>{{role}}</td>
 		<td>{{created_on_format}}</td>
-		<td><a href="/portal/cancel/{{id}}" onclick="return confirm('Are you sure?');">Delete</a></td>
+		<td>{{^protected}}<a href="/portal/cancel/{{id}}" onclick="return confirm('Are you sure?');">Delete</a>{{/protected}}</td>
 	</tr>
 {{/active_users}}
 {{^active_users}}

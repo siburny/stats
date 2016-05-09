@@ -40,16 +40,15 @@
 		<label>
 			Role:<br />
 			<select name="manager" id="manager">
-				<option></option>
-				<option value="1">Manager</option>
-				<option value="0">Author</option>
+				<option value="1"{{#manager}} selected="selected"{{/manager}}>Manager</option>
+				<option value="0"{{^manager}} selected="selected"{{/manager}}>User</option>
 			</select>
 		</label>
 	</p>
-	<p style="display:;" id="row_name">
+	<p style="display:none;" id="row_name">
 		<label>
 			Tracker Name:<br />
-			<select>
+			<select name="author">
 				<option></option>
 				{{#names}}
 				<option value="{{author}}">{{author}}</option>
@@ -67,5 +66,11 @@
 		<input type="submit" name="submit" value="Invite"/>
 	</p>
 </form>
+
+<script>
+	$(function () {
+		$("#manager").trigger("change");
+	});
+</script>
 
 {{> templates/footer}}
