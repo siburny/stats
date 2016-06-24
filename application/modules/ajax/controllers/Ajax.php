@@ -72,9 +72,22 @@ class Ajax extends CI_Controller {
 
 		$data = "Can't connect to Google";
 
+		$post_id = NULL;
+		if($this->input->get("post_id") != NULL && is_numeric($this->input->get("post_id")))
+		{
+			$post_id = $this->input->get("post_id");
+		}
+
 		if($this->user_company->ga_token && $this->user_company->view_id)
 		{
-			$key = "viewstats_".$this->user_company->view_id.'_'.$date_from->format('Ymd').'_'.$date_to->format('Ymd');
+			if(is_null($post_id))
+			{
+				$key = "viewstats_".$this->user_company->view_id.'_'.$date_from->format('Ymd').'_'.$date_to->format('Ymd');
+			}
+			else
+			{
+				$key = "viewstats_".$this->user_company->view_id.'_'.$date_from->format('Ymd').'_'.$date_to->format('Ymd').'_'.$post_id;
+			}
 			if(($val = $this->cache->get($key)) !== FALSE)
 			{
 				$data = $val;
@@ -92,9 +105,14 @@ class Ajax extends CI_Controller {
 						$rows[$index][0] = $date.' '.$row[0].':00';
 					}
 				}
-				else
+				elseif (is_null($post_id))
 				{
 					$rows = Post_stats_model::get_manager_graph_data($this->user_company->company_id, $date_to, $date_from);
+				}
+				else
+				{
+					$rows = $this->post_stats->get_manager_graph_post_data($this->user_company->company_id, $post_id, $date_to, $date_from);
+
 				}
 
 				foreach($rows as $row)
@@ -104,7 +122,7 @@ class Ajax extends CI_Controller {
 				$this->cache->save($key, $data, 300);
 			}
 		}
-		
+
 		$this->output->set_output($data);
 	}
 
@@ -144,7 +162,7 @@ class Ajax extends CI_Controller {
 			}
 			$this->cache->save($key, $data, 1800);
 		}
-		
+
 		$this->output->set_output($data);
 	}
 
@@ -155,7 +173,7 @@ class Ajax extends CI_Controller {
 			set_status_header(401);
 			return;
 		}
-		
+
 		require_once(APPPATH.'third_party/querypath-3.0.4/src/qp.php');
 
 		$data = [];
@@ -197,14 +215,14 @@ class Ajax extends CI_Controller {
 			if(!isset($data['author_class']))
 			{
 				$author3 = $qp->find("*[class*='author']");
-				
+
 				$classes = [];
 				foreach($author3->get() as $el)
 				{
 					$classes[] = $el->getAttribute('class');
 				}
 				$classes = array_count_values(array_map('strtolower', $classes));
-				
+
 				foreach($classes as $class => $count)
 				{
 					if($count == 1)

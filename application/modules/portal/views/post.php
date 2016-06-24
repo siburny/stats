@@ -62,6 +62,8 @@
 		}
 </style>
 
+<h2>Showing stats for &quot;{{post_title}}&quot;</h2>
+
 <div id="action">
 	<div style="float:left">
 		<select name="date_selector" id="date_selector">
@@ -146,26 +148,13 @@
 {{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}&nbsp;&nbsp;&nbsp;<a href="{{next_link}}">NEXT&nbsp;&gt;</a>
 <table style="" id="posts">
 {{#rows}}
-	<tr class="{{class}}" data-url="{{url}}">
+	<tr class="{{class}}">
 		<td>{{n}}</td>
-		<td class="image"><img src="{{image}}" alt=""/></td>
-		<td>
-			<div class="title" style="clear:both;margin-bottom:5px;">
-				<a href="/portal/post/{{post_id}}/" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
-			</div>
-			<div style="font-size:90%;">
-				<div class="date_published">{{date_published}}{{#author}} by {{.}}{{/author}}</div>
-			</div>
-		</td>
-		<td>
+		<td>{{source}}</td>
+		<!--<td>
 			<div id="chart{{n}}" data-url="{{url}}" style="width:100px;height:50px;"></div>
-		</td>
+		</td>-->
 		<td>{{sessions}}</td>
-		<td>
-			{{#up_arrow}}<img src="/images/arrow_up_green.png" alt="UP" />{{/up_arrow}}
-			{{#down_arrow}}<img src="/images/arrow_down_red.png" alt="UP" />{{/down_arrow}}
-			<span style="color:{{#up_arrow}}green{{/up_arrow}}{{#down_arrow}}red{{/down_arrow}}">{{up_down_text}}</span>
-		</td>
 	</tr>
 {{/rows}}
 </table>
@@ -177,7 +166,7 @@
 $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
-		data: { x: 'x', type: 'area-spline', url: '/ajax/get_graph_data/{{date_link}}', xFormat: '%Y-%m-%d %-H:%M' },
+		data: { x: 'x', type: 'area-spline', url: '/ajax/get_graph_data/{{date_link}}?post_id={{post_id}}', xFormat: '%Y-%m-%d %-H:%M' },
 		axis: { x: { type: 'timeseries' }, y: { padding: { top: 20 }, tick: { } }, },
 		grid: { y: { show: true } },
 		legend: { show: false },
@@ -201,7 +190,7 @@ $(function () {
 		});
 	});*/
 
-	$("#posts tr").each(function(index, value) {
+	/*$("#posts tr").each(function(index, value) {
 		$chart = $(value);
 		var chart = c3.generate({
 			bindto: '#chart'+$chart.find("td:first-child").text(),
@@ -215,7 +204,7 @@ $(function () {
 			tooltip: { show: false },
 			bar: { width: { ratio: 0.9 } },
 		});
-	});
+	});*/
 });
 </script>
 

@@ -63,59 +63,13 @@ class Cron extends CI_Controller
 		}
 	}
 
-	function _get_history_stats($debug = FALSE)
+	function get_all_stats($debug = FALSE)
 	{
-		$this->load->library("google_php_client");
-
 		$today = new DateTime();
-		$start_date = $today->format('Y-m-d');
-		$end_date = $today->modify("-30 days")->format('Y-m-d');
-
-		$companies = $this->company->get_all();
-		foreach($companies as $company)
+		for($i=0;$i<30;$i++)
 		{
-			if($company->ga_token && $company->view_id)
-			{
-				$posts = $this->post->where('company_id', $company->company_id)->get_all();
-
-				$this->google_php_client->set_user_company($company);
-				foreach($posts as $post)
-				{
-					$count = $this->db->from('post_stats')->where('post_id', $post->post_id)->where('date_updated >= DATE_SUB(NOW(), INTERVAL 30 MINUTE)')->count_all_results();
-
-					if(!$count)
-					{
-						if($debug)
-						{
-							echo "Checking post URL ".$post->url.PHP_EOL;
-						}
-
-						$rows = array();
-						$rows = $this->google_php_client->get_post_stats($post->url, $start_date, $end_date);
-
-						foreach($rows as $row)
-						{
-							$this->db->query("INSERT INTO post_stats VALUES (?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE sessions = ?, pageviews = ?, date_updated = NOW()",
-								array($post->post_id, $row[0], $row[1], $row[2], $row[1], $row[2]));
-							if($debug)
-							{
-								echo "Updated post_id #".$post->post_id." for ".$row[0]." (".$row[1].", ".$row[2].")".PHP_EOL;
-							}
-						}
-
-						usleep(500000);
-					}
-					elseif($debug)
-					{
-						echo 'Skipping post URL '.$post->url.' - already up-to-date'.PHP_EOL;
-					}
-
-				}
-			}
-			elseif($debug)
-			{
-				echo "Skipping company ID #".$company->company_id." - no GA data".PHP_EOL;
-			}
+			$this->_get_latest($today->format('Y-m-d'), $debug);
+			$today->modify("-1 days");
 		}
 	}
 

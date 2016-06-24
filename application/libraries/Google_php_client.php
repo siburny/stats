@@ -31,7 +31,7 @@ class Google_php_client
 		$client->setRedirectUri(site_url("portal/oauth2/"));
 		$client->setAccessType("offline");
 		$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);
-		
+
 		if(!is_null($this->user_company) && !is_null($this->user_company->ga_token))
 		{
 			$client->setAccessToken($this->user_company->ga_token);
@@ -80,11 +80,12 @@ class Google_php_client
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
-			'ga:uniqueEvents,ga:totalEvents',
+			'ga:sessions',
 			array(
-				'dimensions' => 'ga:date',
-				'sort' => 'ga:date',
-				'filters' => 'ga:eventCategory==Author;ga:eventLabel=='.$url
+				'dimensions' => 'ga:source',
+				'sort' => '-ga:sessions',
+				'filters' => 'ga:eventCategory==Author;ga:eventLabel=='.$url,
+				'max-results' => 25
 			)
 		);
 

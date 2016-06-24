@@ -61,6 +61,35 @@
 		border: 1px solid #D0D0D0;
 		box-shadow: 0 0 8px #D0D0D0;
 	}
+	
+	.clear {
+		clear:both;
+	}
+
+	ul#menu {
+		border:1px solid #AAF;
+		display:inline-block;
+		margin:0;
+		padding:0;
+	}
+	ul#menu li {
+		display:block;
+		float:left;
+	}
+	ul#menu li a {
+		display:block;
+		text-align:center;
+		width:150px;
+		padding: 10px 0px;
+		background-color:#EEF;
+		text-decoration:none;
+	}
+	ul#menu li.active a {
+		background-color:#CCF;
+	}
+	ul#menu li a:hover {
+		background-color:#DDF;
+	}
 	</style>
 	<script src="/js/jquery-2.2.0.min.js"></script>
 	<script src="/js/spin.min.js"></script>
@@ -76,3 +105,11 @@
 	<h1>{{page_title}}</h1>
 
 	<div id="body">
+		<ul id="menu">
+			<li{{#active_menu_portal}} class="active"{{/active_menu_portal}}><a href="/portal/">Portal</a></li>
+			<li{{#active_menu_account}} class="active"{{/active_menu_account}}><a href="#" onclick="alert('no yet'); return false;">Account Settings</a></li>
+			<li{{#active_menu_data}} class="active"{{/active_menu_data}}><a href="/portal/data/">Data Settings</a></li>
+			<li{{#active_menu_billing}} class="active"{{/active_menu_billing}}><a href="/" onclick="alert('no yet'); return false;">Billing Settings</a></li>
+			<li{{#active_menu_users}} class="active"{{/active_menu_users}}><a href="/portal/invite/">Users</a></li>
+		</ul>
+		<div class="clear"></div>
