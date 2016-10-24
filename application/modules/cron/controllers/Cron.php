@@ -14,6 +14,30 @@ class Cron extends CI_Controller
 		$this->load->model("Post_model", "post");
 	}
 
+	function update_thumbs($debug = FALSE)
+	{
+		$companies = $this->company->get_all();
+		
+		foreach($companies as $company)
+		{
+			$rows = $this->post->list_posts($company->company_id);
+				
+			$i = 0; $count = count($rows);
+			print_r($rows[0]);
+			foreach($rows as $row)
+			{
+				$data = Post_model::get_post($row->url);
+				unset($data['url']);
+
+				$this->post->update($row->post_id, $data);
+				if($debug)
+				{
+					echo "[".++$i."/".$count."] Updated thumb ".$row->url.PHP_EOL;
+				}
+			}
+		}
+	}
+
 	function get_all_posts($debug = FALSE)
 	{
 		$this->load->library("google_php_client");
