@@ -21,9 +21,8 @@ class Cron extends CI_Controller
 		foreach($companies as $company)
 		{
 			$rows = $this->post->list_posts($company->company_id);
-				
 			$i = 0; $count = count($rows);
-			print_r($rows[0]);
+
 			foreach($rows as $row)
 			{
 				$data = Post_model::get_post($row->url);
