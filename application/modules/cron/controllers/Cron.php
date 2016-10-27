@@ -99,14 +99,39 @@ class Cron extends CI_Controller
 	function get_today($debug = FALSE)
 	{
 		$today = new DateTime();
-		return $this->_get_latest($today->format('Y-m-d'), $debug);
+		$this->_get_latest($today->format('Y-m-d'), $debug);
 	}
 
 	function get_yesterday($debug = FALSE)
 	{
 		$today = new DateTime();
 		$today->modify("-1 days");
-		return $this->_get_latest($today->format('Y-m-d'), $debug);
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+	}
+
+	function get_7days($debug = FALSE)
+	{
+		$today = new DateTime();
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
 	}
 
 	function update($debug = FALSE)
