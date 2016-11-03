@@ -181,7 +181,13 @@ class Portal extends MY_Controller {
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'engaged_minutes' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
 
 		$this->load->library("google_php_client", $this->user_company);
-		$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
+		$rows = null;
+		try {
+			$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
+		}
+		catch(Exception $e) {
+
+		}
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
