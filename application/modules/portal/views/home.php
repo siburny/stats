@@ -84,8 +84,7 @@
 <script>
 	$("#date_custom #go").on('click', function () {
 		if ($("#date_from").val() && $("#date_to").val()) {
-
-			window.location = '/portal/page1/' + encodeURIComponent($("#date_from").val()) + '/' + encodeURIComponent($("#date_to").val()) + '/';
+			window.location = '/portal/?date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val());
 		}
 	});
 
@@ -103,16 +102,16 @@
 	$("#action #date_selector").on("change", function (event, param) {
 		switch ($(this).val()) {
 			case "today":
-				window.location = '/portal/page1/today/';
+				window.location = '/portal/?date_from=today';
 				break;
 			case "yesterday":
-				window.location = '/portal/page1/yesterday/';
+				window.location = '/portal/?date_from=yesterday';
 				break;
 			case "7days":
-				window.location = '/portal/page1/7days/';
+				window.location = '/portal/?date_from=7days';
 				break;
 			case "30days":
-				window.location = '/portal/page1/30days/';
+				window.location = '/portal/?date_from=30days';
 				break;
 			case "custom":
 				$("#date_custom").show();
@@ -151,10 +150,10 @@
 		<td class="image"><img src="{{image}}" alt=""/></td>
 		<td>
 			<div class="title" style="clear:both;margin-bottom:5px;">
-				<a href="/portal/post/{{post_id}}/" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
+				<a href="/portal/post/?post_id={{post_id}}&{{{date_link}}}" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
 			</div>
 			<div style="font-size:90%;">
-				<div class="date_published">{{date_published}}{{#author}} by {{.}}{{/author}}</div>
+				<div class="date_published">{{date_published}}{{#author}} by <a style="font-weight:bold;" href="/portal/author/?author_name={{.}}{{#date_link}}&{{{.}}}{{/date_link}}">{{.}}</a>{{/author}}</div>
 			</div>
 		</td>
 		<td>
@@ -177,7 +176,7 @@
 $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
-		data: { x: 'x', type: 'area-spline', url: '/ajax/get_graph_data/{{date_link}}', xFormat: '%Y-%m-%d %-H:%M' },
+		data: { x: 'x', type: 'area-spline', url: '/ajax/get_graph_data/?{{{portal_link}}}', xFormat: '%Y-%m-%d %-H:%M' },
 		axis: { x: { type: 'timeseries' }, y: { padding: { top: 20 }, tick: { } }, },
 		grid: { y: { show: true } },
 		legend: { show: false },

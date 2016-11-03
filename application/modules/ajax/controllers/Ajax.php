@@ -21,8 +21,10 @@ class Ajax extends CI_Controller {
 		$this->user_company = $this->company->get($this->user->company);
 	}
 
-	function get_graph_data($date_from = NULL, $date_to = NULL)
+	function get_graph_data()
 	{
+		$date_from = $this->input->get("date_from");
+		$date_to = $this->input->get("date_to");
 		if(!isset($this->user) || !isset($this->user_company))
 		{
 			set_status_header(401);
@@ -73,9 +75,14 @@ class Ajax extends CI_Controller {
 		$data = "Can't connect to Google";
 
 		$post_id = NULL;
+		$author = NULL;
 		if($this->input->get("post_id") != NULL && is_numeric($this->input->get("post_id")))
 		{
 			$post_id = $this->input->get("post_id");
+		}
+		elseif($this->input->get("author_name") != NULL && !empty($this->input->get("author_name")))
+		{
+			$author = $this->input->get("author_name");
 		}
 
 		if($this->user_company->ga_token && $this->user_company->view_id)
@@ -88,7 +95,7 @@ class Ajax extends CI_Controller {
 			{
 				$key = "viewstats_".$this->user_company->view_id.'_'.$date_from->format('Ymd').'_'.$date_to->format('Ymd').'_'.$post_id;
 			}
-			if(($val = $this->cache->get($key)) !== FALSE)
+			if(FALSE && ($val = $this->cache->get($key)) !== FALSE)
 			{
 				$data = $val;
 			}
@@ -105,14 +112,17 @@ class Ajax extends CI_Controller {
 						$rows[$index][0] = $date.' '.$row[0].':00';
 					}
 				}
-				elseif (is_null($post_id))
+				elseif(!is_null($post_id))
 				{
-					$rows = Post_stats_model::get_manager_graph_data($this->user_company->company_id, $date_to, $date_from);
+					$rows = $this->post_stats->get_manager_graph_post_data($this->user_company->company_id, $post_id, $date_to, $date_from);
+				}
+				elseif(!is_null($author))
+				{
+					$rows = $this->post_stats->get_author_graph_data($this->user_company->company_id, $author, $date_to, $date_from);
 				}
 				else
 				{
-					$rows = $this->post_stats->get_manager_graph_post_data($this->user_company->company_id, $post_id, $date_to, $date_from);
-
+					$rows = Post_stats_model::get_manager_graph_data($this->user_company->company_id, $date_to, $date_from);
 				}
 
 				foreach($rows as $row)
