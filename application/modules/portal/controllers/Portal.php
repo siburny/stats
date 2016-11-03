@@ -689,7 +689,7 @@ class Portal extends MY_Controller {
 		$this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[users.email]');
 		$this->form_validation->set_rules('manager', 'Role', 'required');
 
-		if(!set_value('author')) {
+		if($this->input->post('manager') !== '1') {
 			$this->form_validation->set_rules('author', 'Tracker Name', 'required');
 		}
 

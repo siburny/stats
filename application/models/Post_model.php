@@ -350,6 +350,11 @@ $limit", array($post_id, $company_id, $end, $start));
 		return $this->select("author")->distinct()->where("author <> ''")->get_all();
 	}
 
+	function list_posts($company_id)
+	{
+		return $this->select(array("post_id", "url"))->distinct()->where("author <> ''")->get_all();
+	}
+
 	public static function process_url($url)
 	{
 		$lower = strtolower($url);

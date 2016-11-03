@@ -14,6 +14,29 @@ class Cron extends CI_Controller
 		$this->load->model("Post_model", "post");
 	}
 
+	function update_thumbs($debug = FALSE)
+	{
+		$companies = $this->company->get_all();
+		
+		foreach($companies as $company)
+		{
+			$rows = $this->post->list_posts($company->company_id);
+			$i = 0; $count = count($rows);
+
+			foreach($rows as $row)
+			{
+				$data = Post_model::get_post($row->url);
+				unset($data['url']);
+
+				$this->post->update($row->post_id, $data);
+				if($debug)
+				{
+					echo "[".++$i."/".$count."] Updated thumb ".$row->url.PHP_EOL;
+				}
+			}
+		}
+	}
+
 	function get_all_posts($debug = FALSE)
 	{
 		$this->load->library("google_php_client");
@@ -76,14 +99,39 @@ class Cron extends CI_Controller
 	function get_today($debug = FALSE)
 	{
 		$today = new DateTime();
-		return $this->_get_latest($today->format('Y-m-d'), $debug);
+		$this->_get_latest($today->format('Y-m-d'), $debug);
 	}
 
 	function get_yesterday($debug = FALSE)
 	{
 		$today = new DateTime();
 		$today->modify("-1 days");
-		return $this->_get_latest($today->format('Y-m-d'), $debug);
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+	}
+
+	function get_7days($debug = FALSE)
+	{
+		$today = new DateTime();
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
+		$today->modify("-1 days");
+
+		$this->_get_latest($today->format('Y-m-d'), $debug);
 	}
 
 	function update($debug = FALSE)
