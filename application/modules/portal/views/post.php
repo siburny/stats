@@ -86,7 +86,7 @@
 <script>
 	$("#date_custom #go").on('click', function () {
 		if ($("#date_from").val() && $("#date_to").val()) {
-			window.location = '/portal/post/?date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val());
+			window.location = '/portal/post/?post_id={{post_id}}&date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val());
 		}
 	});
 
@@ -163,7 +163,7 @@
 $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
-		data: { x: 'x', type: 'area-spline', url: '/ajax/get_graph_data/?{{{date_link}}}', xFormat: '%Y-%m-%d %-H:%M' },
+		data: { x: 'x', type: 'area-spline', url: '/ajax/get_graph_data/{{#param_link}}?{{{.}}}{{/param_link}}', xFormat: '%Y-%m-%d %-H:%M' },
 		axis: { x: { type: 'timeseries' }, y: { padding: { top: 20 }, tick: { } }, },
 		grid: { y: { show: true } },
 		legend: { show: false },

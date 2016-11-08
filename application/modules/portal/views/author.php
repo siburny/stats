@@ -86,7 +86,7 @@
 <script>
 	$("#date_custom #go").on('click', function () {
 		if ($("#date_from").val() && $("#date_to").val()) {
-			window.location = '/portal/post/?date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val());
+			window.location = '/portal/post/?author_name={{author}}&date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val());
 		}
 	});
 

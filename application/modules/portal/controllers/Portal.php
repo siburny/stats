@@ -44,6 +44,12 @@ class Portal extends MY_Controller {
 			"params" => array()
 		);
 
+		$author = $this->input->get('author_name');
+		if(!empty($author))
+		{
+			$data['params']['author_name'] = $author;
+		}
+
 		$page = $this->input->get('page');
 		if($page != null && preg_match('/^[0-9]+$/i', $page))
 		{
@@ -121,7 +127,14 @@ class Portal extends MY_Controller {
 		if($this->ion_auth->is_manager())
 		{
 			$data["is_admin"] = TRUE;
-			$company_id = $this->user_company->company_id;
+			if(!empty($author))
+			{
+				$company_id = array($this->user_company->company_id, $author);
+			}
+			else
+			{
+				$company_id = $this->user_company->company_id;
+			}
 		}
 		else
 		{
@@ -342,6 +355,10 @@ class Portal extends MY_Controller {
 			$data['totals']['pageviews'] = number_format($rows[0][2]);
 		}
 
+		$query = $data['params'];
+		unset($query['page']);
+		$data['param_link'] = http_build_query($query);
+
 		//$query = $data['params'];
 		//$data['prev_link'] = $page == 0 ? "" : "/portal/?".http_build_query($query);
 		//$query['page']++;
@@ -352,7 +369,7 @@ class Portal extends MY_Controller {
 		$this->parser->parse("portal/post", $data);
 	}
 
-	function author()
+	function _author()
 	{
 		$this->parser->data['active_menu_portal'] = TRUE;
 
@@ -501,7 +518,8 @@ class Portal extends MY_Controller {
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'engaged_minutes' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
 
 		$this->load->library("google_php_client", $this->user_company);
-		$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
+		//$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
+		$rows = null;
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
@@ -519,7 +537,7 @@ class Portal extends MY_Controller {
 		unset($query['page']);
 		$data['date_link'] = http_build_query($query);
 
-		$this->parser->parse("portal/home", $data);
+		$this->parser->parse("portal/author", $data);
 	}
 
 	function connect()

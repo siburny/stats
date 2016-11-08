@@ -109,7 +109,7 @@ class Cron extends CI_Controller
 		$this->_get_latest($today->format('Y-m-d'), $debug);
 	}
 
-	function get_7days($debug = FALSE)
+	function update_7days($debug = FALSE)
 	{
 		$today = new DateTime();
 

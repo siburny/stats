@@ -150,10 +150,10 @@
 		<td class="image"><img src="{{image}}" alt=""/></td>
 		<td>
 			<div class="title" style="clear:both;margin-bottom:5px;">
-				<a href="/portal/post/?post_id={{post_id}}&{{{date_link}}}" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
+				<a href="/portal/post/?post_id={{post_id}}{{#date_link}}&{{{.}}}{{/date_link}}" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
 			</div>
 			<div style="font-size:90%;">
-				<div class="date_published">{{date_published}}{{#author}} by <a style="font-weight:bold;" href="/portal/author/?author_name={{.}}{{#date_link}}&{{{.}}}{{/date_link}}">{{.}}</a>{{/author}}</div>
+				<div class="date_published">{{date_published}}{{#author}} by <a style="font-weight:bold;" href="/portal/?author_name={{.}}{{#date_link}}&{{{.}}}{{/date_link}}">{{.}}</a>{{/author}}</div>
 			</div>
 		</td>
 		<td>
