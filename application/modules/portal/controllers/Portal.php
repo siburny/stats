@@ -115,10 +115,17 @@ class Portal extends MY_Controller {
 			$date_from = clone $date_to;
 			$date_from->modify('-29 days');
 		}
-		$data['date_from'] = $date_from->format("M j, Y");
-		$data['date_to'] = $date_to->format("M j, Y");
 		$data['date_from_ymd'] = $date_from->format('Y-m-d');
 		$data['date_to_ymd'] = $date_to->format('Y-m-d');
+		$data['date_from'] = $date_from->format("M j, Y");
+		if($data['date_from_ymd'] == $data['date_to_ymd'])
+		{
+			$data['date_to'] = "";
+		}
+		else
+		{
+			$data['date_to'] = $date_to->format("M j, Y");
+		}
 
 		$this->load->model("Post_model", "post");
 

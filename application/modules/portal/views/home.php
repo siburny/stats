@@ -141,7 +141,7 @@
 
 <br />
 
-<div style="float:right;">Showing {{date_from}} to {{date_to}}</div>
+<div style="float:right;">Showing stats {{^date_to}}for{{/date_to}}{{#date_to}}from{{/date_to}} {{date_from}}{{#date_to}} to {{.}}{{/date_to}}</div>
 {{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}&nbsp;&nbsp;&nbsp;<a href="{{next_link}}">NEXT&nbsp;&gt;</a>
 <table style="" id="posts">
 {{#rows}}
