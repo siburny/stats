@@ -125,9 +125,16 @@ class Ajax extends CI_Controller {
 					$rows = Post_stats_model::get_manager_graph_data($this->user_company->company_id, $date_to, $date_from);
 				}
 
-				foreach($rows as $row)
+				if(count($rows) > 0)
 				{
-					$data .= implode(",", $row).PHP_EOL;
+					if($rows[0]['date'] != $date_from->format('Y-m-d').' 00:00')
+					{
+						$data .= $date_from->format('Y-m-d').",0".PHP_EOL;
+					}
+					foreach($rows as $row)
+					{
+						$data .= implode(",", $row).PHP_EOL;
+					}
 				}
 				$this->cache->save($key, $data, 300);
 			}

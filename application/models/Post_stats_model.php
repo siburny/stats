@@ -41,7 +41,7 @@ class Post_stats_model extends MY_Model
 		$ci = &get_instance();
 
 		return $ci->db->query("
-SELECT DATE_FORMAT(date, '%Y-%m-%d %H:%i'), /*sum(sessions) as total_sessions,*/ sum(pageviews) as total_pageviews FROM post_stats
+SELECT DATE_FORMAT(date, '%Y-%m-%d %H:%i') as date, /*sum(sessions) as total_sessions,*/ sum(pageviews) as total_pageviews FROM post_stats
 WHERE
 	date >= ? AND
 	date <= ? AND
@@ -67,7 +67,7 @@ ORDER BY date ASC
 		$ci = &get_instance();
 
 		return $ci->db->query("
-SELECT DATE_FORMAT(date, '%Y-%m-%d %H:%i'), /*sum(sessions) as total_sessions,*/ sum(pageviews) as total_pageviews FROM post_stats
+SELECT DATE_FORMAT(date, '%Y-%m-%d %H:%i') as date, /*sum(sessions) as total_sessions,*/ sum(pageviews) as total_pageviews FROM post_stats
 WHERE
 	date >= ? AND
 	date <= ? AND
@@ -113,7 +113,7 @@ ORDER BY date ASC
 		$ci = &get_instance();
 
 		return $ci->db->query("
-SELECT DATE_FORMAT(date, '%Y-%m-%d %H:%i'), /*sum(sessions) as total_sessions,*/ sum(pageviews) as total_pageviews FROM post_stats
+SELECT DATE_FORMAT(date, '%Y-%m-%d %H:%i') as date, /*sum(sessions) as total_sessions,*/ sum(pageviews) as total_pageviews FROM post_stats
 WHERE
 	date >= ? AND
 	date <= ? AND
