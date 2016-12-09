@@ -127,10 +127,14 @@ class Ajax extends CI_Controller {
 
 				if(count($rows) > 0)
 				{
-					$start = $date_from->format('Y-m-d').' 00:00';
-					if($rows[0]['date'] != $start)
+					$start = clone $date_from;
+
+					$i = 0;
+					while($rows[0]['date'] != $start->format('Y-m-d').' 00:00')
 					{
-						$data .= $start.",0".PHP_EOL;
+						$data .= $start->format('Y-m-d').' 00:00,0'.PHP_EOL;
+						$start->modify("1 day");
+						if($i++ > 1000) break;
 					}
 					foreach($rows as $row)
 					{
