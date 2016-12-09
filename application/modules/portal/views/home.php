@@ -11,7 +11,6 @@
 		{{#totals}}
 		Pageviews: {{pageviews}}<br />
 		Visits: {{sessions}}<br />
-		Engaged Minutes: {{engaged_minutes}}<br />
 		Posts Published: {{posts}}<br />
 		Posts Total: {{all_posts}}
 		{{/totals}}
@@ -117,6 +116,7 @@
 				$("#date_custom").show();
 				$("#date_from").datepicker({
 					dateFormat: "mm-dd-yy",
+					maxDate: 0,
 					numberOfMonths: 2,
 					onSelect: function (date) {
 						if (date) {
@@ -128,6 +128,7 @@
 				});
 				$("#date_to").datepicker({
 					dateFormat: "mm-dd-yy",
+					maxDate: 0,
 					numberOfMonths: 2
 				});
 				break;
@@ -142,7 +143,7 @@
 <br />
 
 <div style="float:right;">Showing stats {{^date_to}}for{{/date_to}}{{#date_to}}from{{/date_to}} {{date_from}}{{#date_to}} to {{.}}{{/date_to}}</div>
-{{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}&nbsp;&nbsp;&nbsp;<a href="{{next_link}}">NEXT&nbsp;&gt;</a>
+{{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}&nbsp;&nbsp;&nbsp;{{#next_link}}<a href="{{.}}">{{/next_link}}NEXT&nbsp;&gt;{{#next_link}}</a>{{/next_link}}
 <table style="" id="posts">
 {{#rows}}
 	<tr class="{{class}}" data-url="{{url}}">
@@ -169,7 +170,7 @@
 {{/rows}}
 </table>
 <div style="float:right;">GA last updated: {{last_updated}}</div>
-{{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}&nbsp;&nbsp;&nbsp;<a href="{{next_link}}">NEXT&nbsp;&gt;</a>
+{{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}&nbsp;&nbsp;&nbsp;{{#next_link}}<a href="{{.}}">{{/next_link}}NEXT&nbsp;&gt;{{#next_link}}</a>{{/next_link}}
 
 <script>
 
