@@ -47,6 +47,7 @@ class Portal extends MY_Controller {
 		$author = $this->input->get('author_name');
 		if(!empty($author))
 		{
+			$data['author'] = $author;
 			$data['params']['author_name'] = $author;
 		}
 
@@ -395,7 +396,6 @@ class Portal extends MY_Controller {
 		{
 			redirect('/portal/');
 		}
-		$data['author'] = $author;
 		$data['params']['author_name'] = $author;
 
 		$page = $this->input->get('page');
