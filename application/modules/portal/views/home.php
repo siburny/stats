@@ -83,7 +83,7 @@
 <script>
 	$("#date_custom #go").on('click', function () {
 		if ($("#date_from").val() && $("#date_to").val()) {
-			window.location = '/portal/?date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val());
+			window.location = '/portal/?date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val()) + '{{#author}}&author_name={{.}}{{/author}}';
 		}
 	});
 
@@ -101,16 +101,16 @@
 	$("#action #date_selector").on("change", function (event, param) {
 		switch ($(this).val()) {
 			case "today":
-				window.location = '/portal/?date_from=today';
+				window.location = '/portal/?date_from=today{{#author}}&author_name={{.}}{{/author}}';
 				break;
 			case "yesterday":
-				window.location = '/portal/?date_from=yesterday';
+				window.location = '/portal/?date_from=yesterday{{#author}}&author_name={{.}}{{/author}}';
 				break;
 			case "7days":
-				window.location = '/portal/?date_from=7days';
+				window.location = '/portal/?date_from=7days{{#author}}&author_name={{.}}{{/author}}';
 				break;
 			case "30days":
-				window.location = '/portal/?date_from=30days';
+				window.location = '/portal/?date_from=30days{{#author}}&author_name={{.}}{{/author}}';
 				break;
 			case "custom":
 				$("#date_custom").show();
