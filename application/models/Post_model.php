@@ -224,11 +224,11 @@ class Post_model extends MY_Model
 		{
 			if(is_numeric($page))
 			{
-				$limit = 'LIMIT '.($page*10).', 10';
+				$limit = 'LIMIT '.($page*10).', 11';
 			}
 			else
 			{
-				$limit = "LIMIT 0, 10";
+				$limit = "LIMIT 0, 11";
 			}
 		}
 		else

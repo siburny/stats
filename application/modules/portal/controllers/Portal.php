@@ -47,6 +47,7 @@ class Portal extends MY_Controller {
 		$author = $this->input->get('author_name');
 		if(!empty($author))
 		{
+			$data['author'] = $author;
 			$data['params']['author_name'] = $author;
 		}
 
@@ -55,6 +56,10 @@ class Portal extends MY_Controller {
 		{
 			$page = str_replace("page", "", strtolower($page));
 			$page--;
+			if($page < 0)
+			{
+				$page = 0;
+			}
 		}
 		else
 			$page = 0;
@@ -149,6 +154,9 @@ class Portal extends MY_Controller {
 		}
 
 		$rows = Post_model::get_posts($company_id, $date_to, $date_from, TRUE, TRUE, $page);
+		$more_available = count($rows) > 10;
+		array_pop($rows);
+
 		$day_diff = $date_to->diff($date_from)->days;
 		$rows_prev = Post_model::get_posts($company_id, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
 		$rows_prev = array_column((array)$rows_prev, 'total_pageviews', 'url');
@@ -198,7 +206,7 @@ class Portal extends MY_Controller {
 		$count_all = $this->db->from('posts')->
 			where('company_id', $this->user_company->company_id)->
 			count_all_results();
-		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'engaged_minutes' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
+		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
 
 		$this->load->library("google_php_client", $this->user_company);
 		$rows = null;
@@ -211,7 +219,6 @@ class Portal extends MY_Controller {
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
-			$data['totals']['engaged_minutes'] = number_format($rows[0][0] * $rows[0][1] / 60);
 			$data['totals']['pageviews'] = number_format($rows[0][2]);
 		}
 
@@ -220,7 +227,7 @@ class Portal extends MY_Controller {
 		$query['page']++;
 		$data['portal_link'] = http_build_query($query);
 		$query['page']++;
-		$data['next_link'] = "/portal/?".http_build_query($query);
+		$data['next_link'] = $more_available ? "/portal/?".http_build_query($query) : "";
 
 		unset($query['page']);
 		$data['date_link'] = http_build_query($query);
@@ -352,13 +359,12 @@ class Portal extends MY_Controller {
 		$count_all = $this->db->from('posts')->
 			where('company_id', $this->user_company->company_id)->
 			count_all_results();
-		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'engaged_minutes' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
+		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
 
 		$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
-			$data['totals']['engaged_minutes'] = number_format($rows[0][0] * $rows[0][1] / 60);
 			$data['totals']['pageviews'] = number_format($rows[0][2]);
 		}
 
@@ -522,7 +528,7 @@ class Portal extends MY_Controller {
 		$count_all = $this->db->from('posts')->
 			where('company_id', $this->user_company->company_id)->
 			count_all_results();
-		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'engaged_minutes' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
+		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
 
 		$this->load->library("google_php_client", $this->user_company);
 		//$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
@@ -530,7 +536,6 @@ class Portal extends MY_Controller {
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
-			$data['totals']['engaged_minutes'] = number_format($rows[0][0] * $rows[0][1] / 60);
 			$data['totals']['pageviews'] = number_format($rows[0][2]);
 		}
 
