@@ -11,9 +11,7 @@
 		{{#totals}}
 		Pageviews: {{pageviews}}<br />
 		Visits: {{sessions}}<br />
-		Engaged Minutes: {{engaged_minutes}}<br />
-		Posts Published: {{posts}}<br />
-		Posts Total: {{all_posts}}
+		Engaged Minutes: {{engaged_minutes}}
 		{{/totals}}
 	</div>
 </div>
