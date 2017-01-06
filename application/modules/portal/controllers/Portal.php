@@ -37,7 +37,7 @@ class Portal extends MY_Controller {
 
 	function index()
 	{
-		$this->parser->data['active_menu_portal'] = TRUE;
+		$this->parser->data['active_menu_posts'] = TRUE;
 
 		$data = array(
 			"page_title" => "Welcome!",
@@ -239,7 +239,7 @@ class Portal extends MY_Controller {
 	{
 		$this->load->library("google_php_client", $this->user_company);
 
-		$this->parser->data['active_menu_portal'] = TRUE;
+		$this->parser->data['active_menu_posts'] = TRUE;
 
 		$data = array(
 			"page_title" => "Welcome!",
@@ -388,7 +388,7 @@ class Portal extends MY_Controller {
 
 	function _author()
 	{
-		$this->parser->data['active_menu_portal'] = TRUE;
+		$this->parser->data['active_menu_posts'] = TRUE;
 
 		$data = array(
 			"page_title" => "Welcome!",

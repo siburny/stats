@@ -106,7 +106,8 @@
 
 	<div id="body">
 		<ul id="menu">
-			<li{{#active_menu_portal}} class="active"{{/active_menu_portal}}><a href="/portal/">Portal</a></li>
+			<li{{#active_menu_posts}} class="active"{{/active_menu_posts}}><a href="/portal/">Portal</a></li>
+			<li{{#active_menu_authors}} class="active"{{/active_menu_authors}}><a href="/portal/">Portal</a></li>
 			<li{{#active_menu_account}} class="active"{{/active_menu_account}}><a href="#" onclick="alert('no yet'); return false;">Account Settings</a></li>
 			<li{{#active_menu_data}} class="active"{{/active_menu_data}}><a href="/portal/data/">Data Settings</a></li>
 			<li{{#active_menu_billing}} class="active"{{/active_menu_billing}}><a href="/" onclick="alert('no yet'); return false;">Billing Settings</a></li>
