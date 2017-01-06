@@ -224,11 +224,11 @@ class Post_model extends MY_Model
 		{
 			if(is_numeric($page))
 			{
-				$limit = 'LIMIT '.($page*10).', 11';
+				$limit = 'LIMIT '.($page*10).', 10';
 			}
 			else
 			{
-				$limit = "LIMIT 0, 11";
+				$limit = "LIMIT 0, 10";
 			}
 		}
 		else
@@ -272,6 +272,73 @@ $limit", array($company_id, $end, $start));
 		{
 			return $res->result_array();
 		}
+	}
+
+	static function get_posts_count($company_id, $start = null, $end = null)
+	{
+		$ci = &get_instance();
+
+		if(is_array($company_id))
+		{
+			$user = $company_id[1];
+			$company_id = $company_id[0];
+		}
+
+		if($start == null)
+		{
+			$today = new DateTime();
+			$start = $today->format('Y-m-d');
+		}
+		else
+		{
+			if($start instanceof DateTime)
+			{
+				$today = $start;
+				$start = $today->format('Y-m-d');
+			}
+			else
+			{
+				$today = new DateTime($start);
+			}
+		}
+		if($end == null)
+		{
+			$end = $today->modify('-6 days')->format('Y-m-d');
+		}
+		elseif(is_numeric($end))
+		{
+			$end = $today->modify('-'.$end.' days')->format('Y-m-d');
+		}
+		elseif($end instanceof DateTime)
+		{
+			$end = $end->format('Y-m-d');
+		}
+
+		if(!empty($user))
+		{
+			$res = $ci->db->query("
+SELECT count(distinct posts.post_id) as `count`
+FROM `posts`
+LEFT JOIN `post_stats` ON `posts`.`post_id` = `post_stats`.`post_id`
+WHERE `posts`.`company_id` = ?
+AND `posts`.`author` = ?
+AND `date` >= ?
+AND `date` <= ?
+", array($company_id, $user, $end, $start));
+		}
+		else
+		{
+			$res = $ci->db->query("
+SELECT count(distinct posts.post_id) as `count`
+FROM `posts`
+LEFT JOIN `post_stats` ON `posts`.`post_id` = `post_stats`.`post_id`
+WHERE `posts`.`company_id` = ?
+AND `date` >= ?
+AND `date` <= ?
+", array($company_id, $end, $start));
+		}
+
+		return $res->result_array()[0];
 	}
 
 	static function get_post_stats($post_id, $company_id, $start = null, $end = null, $objects = TRUE, $limit = TRUE, $page = 0)

@@ -11,8 +11,6 @@
 		{{#totals}}
 		Pageviews: {{pageviews}}<br />
 		Visits: {{sessions}}<br />
-		Posts Published: {{posts}}<br />
-		Posts Total: {{all_posts}}
 		{{/totals}}
 	</div>
 </div>
@@ -23,45 +21,29 @@
 <p>&nbsp;</p>
 
 <style>
-	#posts {
+	#post {
 		width: 100%;
 		border-spacing: 0px;
 		border-collapse: collapse;
 	}
-		#posts tr {
+		#post tr {
 			border: 1px solid #333;
 		}
-		#posts td {
+		#post td,#post th {
 			padding: 5px;
 		}
-		#posts td:nth-child(1) {
-			width: 20px;
-		}
-		#posts td:nth-child(2) {
+		#post td:nth-child(2) {
 			width: 50px;
-			text-align: center;
-		}
-		#posts td:nth-child(2) img {
-			max-width: 100px;
-			max-height: 50px;
-		}
-		#posts td:nth-child(4) {
-			width: 100px;
-		}
-		#posts td:nth-child(5) {
-			width: 80px;
-			text-align:right;
-		}
-		#posts td:nth-child(6) {
-			width: 80px;
-			text-align:right;
+			text-align: right;
 		}
 		#action #date_selector {
 			width: 200px;
 		}
 </style>
 
-<h2>Showing stats for &quot;{{post_title}}&quot;</h2>
+<h2><img src="{{post_thumb}}" style="float:left;" />Showing stats for &quot;{{post_title}}&quot;</h2>
+<p>Published by <b>{{post_author}}</b> on <b>{{post_date}}</b></p>
+<p>{{post_url}}</p>
 
 <div id="action">
 	<div style="float:left">
@@ -143,14 +125,14 @@
 <br />
 
 <div style="float:right;">Showing {{date_from}} to {{date_to}}</div>
-<table style="" id="posts">
+<table id="post" style="width:300px;">
+	<tr>
+		<th>Channel</th>
+		<th style="text-align:right;">Sessions</th>
+	</tr>
 {{#rows}}
 	<tr class="{{class}}">
-		<td>{{n}}</td>
-		<td style="font-weight:bold;font-size:125%;">{{source}}</td>
-		<!--<td>
-			<div id="chart{{n}}" data-url="{{url}}" style="width:100px;height:50px;"></div>
-		</td>-->
+		<td>{{source}}</td>
 		<td>{{sessions}}</td>
 	</tr>
 {{/rows}}
@@ -162,7 +144,7 @@
 $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
-		data: { x: 'x', type: 'area-spline', url: '/ajax/get_graph_data/{{#param_link}}?{{{.}}}{{/param_link}}', xFormat: '%Y-%m-%d %-H:%M' },
+		data: { x: 'x', type: 'area', url: '/ajax/get_graph_data/{{#param_link}}?{{{.}}}{{/param_link}}', xFormat: '%Y-%m-%d %-H:%M' },
 		axis: { x: { type: 'timeseries' }, y: { padding: { top: 20 }, tick: { } }, },
 		grid: { y: { show: true } },
 		legend: { show: false },

@@ -159,33 +159,36 @@ class Cron extends CI_Controller
 				$this->google_php_client->set_user_company($company);
 				$rows = $this->google_php_client->get_posts_stats($start_date, $end_date);
 
-				foreach($rows as $row)
+				if(is_array($rows))
 				{
-					$url = $row[0];
-					if(array_key_exists($url, $posts))
+					foreach($rows as $row)
 					{
-						$post_id = $posts[$url];
-					}
-					else
-					{
+						$url = $row[0];
+						if(array_key_exists($url, $posts))
+						{
+							$post_id = $posts[$url];
+						}
+						else
+						{
+							if($debug)
+							{
+								echo "Post is not found: adding ".$url.PHP_EOL;
+							}
+							$data = Post_model::get_post($url);
+							$data['company_id'] = $company->company_id;
+							$post_id = $this->post->insert($data);
+						}
+
+						$this->db->query("INSERT INTO post_stats VALUES (?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE sessions = ?, pageviews = ?, date_updated = NOW()",
+						array($post_id, $start_date, $row[1], $row[2], $row[1], $row[2]));
 						if($debug)
 						{
-							echo "Post is not found: adding ".$url.PHP_EOL;
+							echo "Updated post_id #".$post_id." for ".$start_date." (".$row[1].", ".$row[2].")".PHP_EOL;
 						}
-						$data = Post_model::get_post($url);
-						$data['company_id'] = $company->company_id;
-						$post_id = $this->post->insert($data);
 					}
 
-					$this->db->query("INSERT INTO post_stats VALUES (?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE sessions = ?, pageviews = ?, date_updated = NOW()",
-					array($post_id, $start_date, $row[1], $row[2], $row[1], $row[2]));
-					if($debug)
-					{
-						echo "Updated post_id #".$post_id." for ".$start_date." (".$row[1].", ".$row[2].")".PHP_EOL;
-					}
+					usleep(500000);
 				}
-
-				usleep(500000);
 			}
 			elseif($debug)
 			{

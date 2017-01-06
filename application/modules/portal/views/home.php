@@ -11,8 +11,6 @@
 		{{#totals}}
 		Pageviews: {{pageviews}}<br />
 		Visits: {{sessions}}<br />
-		Posts Published: {{posts}}<br />
-		Posts Total: {{all_posts}}
 		{{/totals}}
 	</div>
 </div>
@@ -143,7 +141,11 @@
 <br />
 
 <div style="float:right;">Showing stats {{^date_to}}for{{/date_to}}{{#date_to}}from{{/date_to}} {{date_from}}{{#date_to}} to {{.}}{{/date_to}}</div>
-{{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}&nbsp;&nbsp;&nbsp;{{#next_link}}<a href="{{.}}">{{/next_link}}NEXT&nbsp;&gt;{{#next_link}}</a>{{/next_link}}
+
+{{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}
+&nbsp;&nbsp;&nbsp;{{results_count}}&nbsp;&nbsp;&nbsp;
+{{#next_link}}<a href="{{.}}">{{/next_link}}NEXT&nbsp;&gt;{{#next_link}}</a>{{/next_link}}
+
 <table style="" id="posts">
 {{#rows}}
 	<tr class="{{class}}" data-url="{{url}}">
@@ -177,7 +179,7 @@
 $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
-		data: { x: 'x', type: 'area-spline', url: '/ajax/get_graph_data/?{{{portal_link}}}', xFormat: '%Y-%m-%d %-H:%M' },
+		data: { x: 'x', type: 'area', url: '/ajax/get_graph_data/?{{{portal_link}}}', xFormat: '%Y-%m-%d %-H:%M' },
 		axis: { x: { type: 'timeseries' }, y: { padding: { top: 20 }, tick: { } }, },
 		grid: { y: { show: true } },
 		legend: { show: false },
