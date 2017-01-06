@@ -154,8 +154,8 @@ class Portal extends MY_Controller {
 		}
 
 		$rows = Post_model::get_posts($company_id, $date_to, $date_from, TRUE, TRUE, $page);
-		$more_available = count($rows) > 10;
-		array_pop($rows);
+		$count = Post_model::get_posts_count($company_id, $date_to, $date_from);
+		$more_available = $count['count']/10 > $page + 1;
 
 		$day_diff = $date_to->diff($date_from)->days;
 		$rows_prev = Post_model::get_posts($company_id, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
@@ -198,15 +198,7 @@ class Portal extends MY_Controller {
 		$data['last_updated'] = $rows[0]['date_updated'];
 
 		//Total Stats
-		$count = $this->db->from('posts')->
-			where('company_id', $this->user_company->company_id)->
-			where('date_published >=', $data['date_from_ymd'])->
-			where('date_published <=', $data['date_to_ymd'])->
-			count_all_results();
-		$count_all = $this->db->from('posts')->
-			where('company_id', $this->user_company->company_id)->
-			count_all_results();
-		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
+		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
 
 		$this->load->library("google_php_client", $this->user_company);
 		$rows = null;
@@ -222,6 +214,8 @@ class Portal extends MY_Controller {
 			$data['totals']['pageviews'] = number_format($rows[0][2]);
 		}
 
+		$data['results_count'] = (1+$page*10)." - ".min($count['count'], (1+$page)*10)." of ".$count['count'];
+
 		$query = $data['params'];
 		$data['prev_link'] = $page == 0 ? "" : "/portal/?".http_build_query($query);
 		$query['page']++;
@@ -234,6 +228,12 @@ class Portal extends MY_Controller {
 
 		$this->parser->parse("portal/home", $data);
 	}
+
+	/*
+	 *
+	 ***** POST *****
+	 *
+	 */
 
 	function post()
 	{
@@ -329,8 +329,12 @@ class Portal extends MY_Controller {
 		$this->user = $this->ion_auth->user()->row();
 
 		$post_stats = Post_model::get_post_stats($post_id, $this->user_company->company_id, $date_to, $date_from, TRUE, TRUE, $page);
-		$data['post_title'] = $post_stats[0]->title;
 		$data['post_id'] = $post_stats[0]->post_id;
+		$data['post_title'] = $post_stats[0]->title;
+		$data['post_url'] = $post_stats[0]->url;
+		$data['post_author'] = $post_stats[0]->author;
+		$data['post_thumb'] = $post_stats[0]->image;
+		$data['post_date'] = date("F jS, Y", strtotime($post_stats[0]->date_published));
 
 		$rows = $this->google_php_client->get_post_stats($post_stats[0]->url, $data['date_to_ymd'], $data['date_from_ymd']);
 

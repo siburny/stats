@@ -82,7 +82,7 @@ class Google_php_client
 			$date_start,
 			'ga:sessions',
 			array(
-				'dimensions' => 'ga:source',
+				'dimensions' => 'ga:channelGrouping',
 				'sort' => '-ga:sessions',
 				'filters' => 'ga:eventCategory==Author;ga:eventLabel=='.$url,
 				'max-results' => 25
