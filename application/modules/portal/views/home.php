@@ -116,6 +116,7 @@
 				$("#date_custom").show();
 				$("#date_from").datepicker({
 					dateFormat: "mm-dd-yy",
+					minDate: -365,
 					maxDate: 0,
 					numberOfMonths: 2,
 					onSelect: function (date) {
@@ -128,6 +129,7 @@
 				});
 				$("#date_to").datepicker({
 					dateFormat: "mm-dd-yy",
+					minDate: -365,
 					maxDate: 0,
 					numberOfMonths: 2
 				});
