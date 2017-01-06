@@ -80,10 +80,10 @@ class Google_php_client
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
-			'ga:sessions',
+			'ga:uniqueEvents',
 			array(
 				'dimensions' => 'ga:channelGrouping',
-				'sort' => '-ga:sessions',
+				'sort' => '-ga:uniqueEvents',
 				'filters' => 'ga:eventCategory==Author;ga:eventLabel=='.$url,
 				'max-results' => 25
 			)
@@ -104,6 +104,26 @@ class Google_php_client
 			'ga:uniqueEvents,ga:totalEvents',
 			array(
 				'dimensions' => 'ga:eventLabel',
+				'filters' => 'ga:eventCategory==Author'
+			)
+		);
+
+		return $res->getRows();
+	}
+
+	public function get_authors_stats($date_start = 'today', $date_end = 'today')
+	{
+		$client = $this->get_client();
+		$analytics = new Google_Service_Analytics($client);
+
+		$res = $analytics->data_ga->get(
+			'ga:' . $this->user_company->view_id,
+			$date_end,
+			$date_start,
+			'ga:uniqueEvents,ga:totalEvents',
+			array(
+				'dimensions' => 'ga:eventAction',
+				'sort' => '-ga:uniqueEvents',
 				'filters' => 'ga:eventCategory==Author'
 			)
 		);
