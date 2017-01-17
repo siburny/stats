@@ -44,6 +44,13 @@ class Portal extends MY_Controller {
 			"params" => array()
 		);
 
+		$post_search = $this->input->get("search");
+		if(!empty($post_search))
+		{
+			$data['post_search'] = $post_search;
+			$data['params']['post_search'] = $post_search;
+		}
+
 		$author = $this->input->get('author_name');
 		if(!empty($author))
 		{
@@ -141,24 +148,24 @@ class Portal extends MY_Controller {
 			$data["is_admin"] = TRUE;
 			if(!empty($author))
 			{
-				$company_id = array($this->user_company->company_id, $author);
+				$search_param = array($this->user_company->company_id, $author, $post_search);
 			}
 			else
 			{
-				$company_id = $this->user_company->company_id;
+				$search_param = array($this->user_company->company_id, '', $post_search);
 			}
 		}
 		else
 		{
-			$company_id = array($this->user_company->company_id, $this->user->author_name);
+			$search_param = array($this->user_company->company_id, $this->user->author_name, $post_search);
 		}
 
-		$rows = Post_model::get_posts($company_id, $date_to, $date_from, TRUE, TRUE, $page);
-		$count = Post_model::get_posts_count($company_id, $date_to, $date_from);
+		$rows = Post_model::get_posts($search_param, $date_to, $date_from, TRUE, TRUE, $page);
+		$count = Post_model::get_posts_count($search_param, $date_to, $date_from);
 		$more_available = $count['count']/10 > $page + 1;
 
 		$day_diff = $date_to->diff($date_from)->days;
-		$rows_prev = Post_model::get_posts($company_id, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
+		$rows_prev = Post_model::get_posts($search_param, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
 		$rows_prev = array_column((array)$rows_prev, 'total_pageviews', 'url');
 
 		$data['rows'] = array();

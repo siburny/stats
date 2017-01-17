@@ -181,15 +181,17 @@ class Post_model extends MY_Model
 		return $data;
 	}
 
-	static function get_posts($company_id, $start = null, $end = null, $objects = TRUE, $limit = TRUE, $page = 0)
+	static function get_posts($search_param, $start = null, $end = null, $objects = TRUE, $limit = TRUE, $page = 0)
 	{
 		$ci = &get_instance();
 
-		if(is_array($company_id))
+		if(!is_array($search_param))
 		{
-			$user = $company_id[1];
-			$company_id = $company_id[0];
+			return;
 		}
+		$company_id = $search_param[0];
+		$user = $search_param[1];
+		$post_search = $search_param[2];
 
 		if($start == null)
 		{
@@ -236,8 +238,21 @@ class Post_model extends MY_Model
 			$limit = "";
 		}
 
+		$params = array($company_id, $end, $start);
+
+		if(!empty($post_search))
+		{
+			$post_search_where = " AND `posts`.`title` LIKE '%?%'";
+			$params = array_push($search_param);
+		}
+		else
+		{
+			$post_search_where = "";
+		}
+
 		if(!empty($user))
 		{
+			array_splice($params, 1, 0, $user);
 			$res = $ci->db->query("
 SELECT `posts`.*, sum(sessions) as total_sessions, sum(pageviews) as total_pageviews
 FROM `posts`
@@ -246,9 +261,10 @@ WHERE `posts`.`company_id` = ?
 AND `posts`.`author` = ?
 AND `date` >= ?
 AND `date` <= ?
+$post_search_where
 GROUP BY posts.post_id
 ORDER BY total_pageviews DESC, posts.post_id ASC
-$limit", array($company_id, $user, $end, $start));
+$limit", $params);
 		}
 		else
 		{
@@ -259,9 +275,10 @@ LEFT JOIN `post_stats` ON `posts`.`post_id` = `post_stats`.`post_id`
 WHERE `posts`.`company_id` = ?
 AND `date` >= ?
 AND `date` <= ?
+$post_search_where
 GROUP BY posts.post_id
 ORDER BY total_pageviews DESC, posts.post_id ASC
-$limit", array($company_id, $end, $start));
+$limit", $params);
 		}
 
 		if($objects)
