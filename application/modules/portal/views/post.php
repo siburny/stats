@@ -26,10 +26,8 @@
 		border-spacing: 0px;
 		border-collapse: collapse;
 	}
-		#post tr {
-			border: 1px solid #333;
-		}
 		#post td,#post th {
+			border: 1px solid #333;
 			padding: 5px;
 		}
 		#post td:nth-child(2) {
@@ -41,7 +39,7 @@
 		}
 </style>
 
-<h2><img src="{{post_thumb}}" style="float:left;" />Showing stats for &quot;{{post_title}}&quot;</h2>
+<h2><img src="{{post_thumb}}" style="float:left;height:90px;margin-right:10px;" />Showing stats for &quot;{{post_title}}&quot;</h2>
 <p>Published by <b>{{post_author}}</b> on <b>{{post_date}}</b></p>
 <p>{{post_url}}</p>
 
