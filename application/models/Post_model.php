@@ -242,8 +242,8 @@ class Post_model extends MY_Model
 
 		if(!empty($post_search))
 		{
-			$post_search_where = " AND `posts`.`title` LIKE '%?%'";
-			$params = array_push($search_param);
+			$post_search_where = " AND `posts`.`title` LIKE ?";
+			array_push($params, $post_search);
 		}
 		else
 		{
