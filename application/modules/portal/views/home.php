@@ -76,7 +76,7 @@
 	</div>
 
 	<div style="margin-left:50px;float:left;" class="search_box">
-		<input type="text" value="" placeholder="Enter search here" class="ui-widget ui-corner-all ui-button" /><input type="button" value="GO" class="ui-button ui-widget ui-corner-all" />
+		<input type="text" placeholder="Enter search here" class="ui-widget ui-corner-all ui-button" value="{{post_search}}" /><input type="button" value="GO" class="ui-button ui-widget ui-corner-all" />
 	</div>
 
 	<div style="clear:both"></div>
@@ -86,6 +86,12 @@
 	$(".search_box input[type=button]").on('click', function() {
 		window.location = '/portal/?search=' + encodeURIComponent($(".search_box input[type=text]").val());
 	});
+	$(".search_box input[type=text]").keypress(function(e) {
+    	if(e.which == 13) {
+			window.location = '/portal/?search=' + encodeURIComponent($(".search_box input[type=text]").val());
+    	}
+	});
+
 	$("#date_custom #go").on('click', function () {
 		if ($("#date_from").val() && $("#date_to").val()) {
 			window.location = '/portal/?date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val()) + '{{#author}}&author_name={{.}}{{/author}}';
