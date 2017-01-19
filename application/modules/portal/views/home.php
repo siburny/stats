@@ -181,7 +181,10 @@
 {{/rows}}
 </table>
 <div style="float:right;">GA last updated: {{last_updated}}</div>
-{{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}&nbsp;&nbsp;&nbsp;{{#next_link}}<a href="{{.}}">{{/next_link}}NEXT&nbsp;&gt;{{#next_link}}</a>{{/next_link}}
+
+{{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}
+&nbsp;&nbsp;&nbsp;{{results_count}}&nbsp;&nbsp;&nbsp;
+{{#next_link}}<a href="{{.}}">{{/next_link}}NEXT&nbsp;&gt;{{#next_link}}</a>{{/next_link}}
 
 <script>
 
