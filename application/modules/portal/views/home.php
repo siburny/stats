@@ -94,7 +94,7 @@
 
 	$("#date_custom #go").on('click', function () {
 		if ($("#date_from").val() && $("#date_to").val()) {
-			window.location = '/portal/?date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val()) + '{{#author}}&author_name={{.}}{{/author}}';
+			window.location = '/portal/?date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val()) + '{{#uri_author}}&{{.}}{{/uri_author}}';
 		}
 	});
 
@@ -112,16 +112,16 @@
 	$("#action #date_selector").on("change", function (event, param) {
 		switch ($(this).val()) {
 			case "today":
-				window.location = '/portal/?date_from=today{{#author}}&author_name={{.}}{{/author}}';
+				window.location = '/portal/?date_from=today{{#uri_author}}&{{.}}{{/uri_author}}';
 				break;
 			case "yesterday":
-				window.location = '/portal/?date_from=yesterday{{#author}}&author_name={{.}}{{/author}}';
+				window.location = '/portal/?date_from=yesterday{{#uri_author}}&{{.}}{{/uri_author}}';
 				break;
 			case "7days":
-				window.location = '/portal/?date_from=7days{{#author}}&author_name={{.}}{{/author}}';
+				window.location = '/portal/?date_from=7days{{#uri_author}}&{{.}}{{/uri_author}}';
 				break;
 			case "30days":
-				window.location = '/portal/?date_from=30days{{#author}}&author_name={{.}}{{/author}}';
+				window.location = '/portal/?date_from=30days{{#uri_author}}&{{.}}{{/uri_author}}';
 				break;
 			case "custom":
 				$("#date_custom").show();
@@ -171,7 +171,7 @@
 				<a href="/portal/post/?post_id={{post_id}}{{#date_link}}&{{{.}}}{{/date_link}}" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
 			</div>
 			<div style="font-size:90%;">
-				<div class="date_published">{{date_published}}{{#author}} by <a style="font-weight:bold;" href="/portal/?author_name={{.}}{{#date_link}}&{{{.}}}{{/date_link}}">{{.}}</a>{{/author}}</div>
+				<div class="date_published">{{date_published}}{{#author}} by {{^uri_author}}<a style="font-weight:bold;" href="/portal/?{{.}}{{#date_link}}&{{{.}}}{{/date_link}}">{{/uri_author}}{{.}}{{^uri_author}}</a>{{/uri_author}}{{/author}}</div>
 			</div>
 		</td>
 		<td>

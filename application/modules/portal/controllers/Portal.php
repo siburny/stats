@@ -54,7 +54,8 @@ class Portal extends MY_Controller {
 		$author = $this->input->get('author_name');
 		if(!empty($author))
 		{
-			$data['author'] = $author;
+			$data['author_name'] = $author;
+			$data['uri_author'] = "author_name=".$author;
 			$data['params']['author_name'] = $author;
 		}
 
