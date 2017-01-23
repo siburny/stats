@@ -171,7 +171,7 @@
 				<a href="/portal/post/?post_id={{post_id}}{{#date_link}}&{{{.}}}{{/date_link}}" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
 			</div>
 			<div style="font-size:90%;">
-				<div class="date_published">{{date_published}}{{#author}} by {{^uri_author}}<a style="font-weight:bold;" href="/portal/?{{.}}{{#date_link}}&{{{.}}}{{/date_link}}">{{/uri_author}}{{.}}{{^uri_author}}</a>{{/uri_author}}{{/author}}</div>
+				<div class="date_published">{{date_published}}{{#author}} by {{^uri_author}}<a style="font-weight:bold;" href="/portal/?author_name={{.}}{{#date_link}}&{{{.}}}{{/date_link}}">{{/uri_author}}{{.}}{{^uri_author}}</a>{{/uri_author}}{{/author}}</div>
 			</div>
 		</td>
 		<td>

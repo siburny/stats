@@ -48,7 +48,7 @@ class Portal extends MY_Controller {
 		if(!empty($post_search))
 		{
 			$data['post_search'] = $post_search;
-			$data['params']['post_search'] = $post_search;
+			$data['params']['search'] = $post_search;
 		}
 
 		$author = $this->input->get('author_name');
@@ -214,7 +214,6 @@ class Portal extends MY_Controller {
 			$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
 		}
 		catch(Exception $e) {
-
 		}
 		if($rows)
 		{

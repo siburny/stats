@@ -10,7 +10,7 @@ class Google_php_client
 
 	public function __construct($user_company = null)
 	{
-		require_once APPPATH.'third_party/google-api-php-client-1.1.6/src/Google/autoload.php';
+		require_once APPPATH.'third_party/google-api-php-client-2.1.1/vendor/autoload.php';
 
 		$this->ci = &get_instance();
 		$this->ci->config->load("google_client", TRUE);
