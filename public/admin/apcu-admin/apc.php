@@ -165,14 +165,14 @@ if ($AUTHENTICATED && $MYREQUEST['OB'] == OB_USER_CACHE) {
 }
 // clear cache
 if ($AUTHENTICATED && isset($MYREQUEST['CC']) && $MYREQUEST['CC']) {
-	apc_clear_cache($cache_mode);
+	apcu_clear_cache($cache_mode);
 }
 
 if ($AUTHENTICATED && !empty($MYREQUEST['DU'])) {
-	apc_delete($MYREQUEST['DU']);
+	apcu_delete($MYREQUEST['DU']);
 }
 
-if(!function_exists('apc_cache_info') || !($cache=@apc_cache_info($cache_mode))) {
+if(!function_exists('apcu_cache_info') || !($cache=@apcu_cache_info($cache_mode))) {
 	echo "No cache info available.  APC does not appear to be running.";
   exit;
 }
@@ -183,7 +183,7 @@ if(isset($cache['nmisses'])){
 }
 
 
-$cache_user = apc_cache_info('user');
+$cache_user = apcu_cache_info();
 
 // INFO FORMAT UPGRADE, IF NEEDED //
 
@@ -214,7 +214,7 @@ foreach($cache_user['cache_list'] as $key=>$row){
 
 
 
-$mem=apc_sma_info();
+$mem=apcu_sma_info();
 if(!$cache['num_hits']) { $cache['num_hits']=1; $time++; }  // Avoid division by 0 errors on a cache clear
 
 // don't cache this page
@@ -563,9 +563,9 @@ if(isset($_REQUEST['clear'])){
     header('Content-Type: application/json');
     
     if($_REQUEST['clear']=='user'){
-        apc_clear_cache('user');
+        apcu_clear_cache();
     }else{
-        apc_clear_cache('opcode');
+        apcu_clear_cache('opcode');
     }
     
     
@@ -575,8 +575,8 @@ if(isset($_REQUEST['clear'])){
 
 if(isset($_REQUEST['refresh_cache_file'])){
     header('Content-Type: application/json');
-    apc_delete_file($_REQUEST['refresh_cache_file']);
-    apc_compile_file($_REQUEST['refresh_cache_file']);
+    apcu_delete_file($_REQUEST['refresh_cache_file']);
+    apcu_compile_file($_REQUEST['refresh_cache_file']);
     
     echo json_encode(array('status'=>1,'text'=>date('c')));
     die();
@@ -584,7 +584,7 @@ if(isset($_REQUEST['refresh_cache_file'])){
 
 if(isset($_REQUEST['remove_cache_file'])){
     header('Content-Type: application/json');
-    if(apc_delete_file($_REQUEST['remove_cache_file'])){
+    if(apcu_delete_file($_REQUEST['remove_cache_file'])){
         $status = 1;
     }else{
         $status = 0;
@@ -597,8 +597,8 @@ if(isset($_REQUEST['remove_cache_file'])){
 
 if(isset($_REQUEST['refresh_cache_folder'])){
     header('Content-Type: application/json');
-    apc_delete_directory($_REQUEST['refresh_cache_folder']);
-    apc_add_directory($_REQUEST['refresh_cache_folder']);
+    apcu_delete_directory($_REQUEST['refresh_cache_folder']);
+    apcu_add_directory($_REQUEST['refresh_cache_folder']);
     
     echo json_encode(array('status'=>1,'text'=>date('c')));
     die();
@@ -606,7 +606,7 @@ if(isset($_REQUEST['refresh_cache_folder'])){
 
 if(isset($_REQUEST['remove_cache_folder'])){
     header('Content-Type: application/json');
-    if(apc_delete_directory($_REQUEST['remove_cache_folder'])){
+    if(apcu_delete_directory($_REQUEST['remove_cache_folder'])){
         $status = 1;
     }else{
         $status = 0;
@@ -622,7 +622,7 @@ if(isset($_REQUEST['add_cache_folder'])){
     
     $status = 0;
     
-    if(is_dir($_REQUEST['add_cache_folder']) && apc_add_directory($_REQUEST['add_cache_folder'])){
+    if(is_dir($_REQUEST['add_cache_folder']) && apcu_add_directory($_REQUEST['add_cache_folder'])){
         $status = 1;
     }
     
@@ -632,7 +632,7 @@ if(isset($_REQUEST['add_cache_folder'])){
 
 if(isset($_REQUEST['remove_cache_user'])){
     header('Content-Type: application/json');
-    apc_delete($_REQUEST['remove_cache_user']);
+    apcu_delete($_REQUEST['remove_cache_user']);
     
     echo json_encode(array('status'=>1,'text'=>date('c')));
     die();
@@ -641,9 +641,9 @@ if(isset($_REQUEST['remove_cache_user'])){
 if(isset($_REQUEST['setvariable'])){
     
     if(isset($_REQUEST['value'])){
-        apc_store($_REQUEST['setvariable'],$_REQUEST['value'],intval($_REQUEST['ttl']));
+        apcu_store($_REQUEST['setvariable'],$_REQUEST['value'],intval($_REQUEST['ttl']));
     }else{
-        apc_store($_REQUEST['setvariable'],apc_fetch($_REQUEST['setvariable']),intval($_REQUEST['ttl']));
+        apcu_store($_REQUEST['setvariable'],apcu_fetch($_REQUEST['setvariable']),intval($_REQUEST['ttl']));
     }
 
     echo json_encode(array('status'=>1,'text'=>date('c')));
@@ -709,17 +709,17 @@ if(isset($_REQUEST['about_info'])){
 // Required lib functions
 
 //  Add  files in a directory  to APC Cache
-function apc_add_directory($dir) { 
+function apcu_add_directory($dir) { 
 	$result = array(); 
 	$cdir 	= scandir($dir); 
 	foreach ($cdir as $key => $value) { 
 		if (!in_array($value,array(".",".."))) { 
 			if (is_dir($dir . DIRECTORY_SEPARATOR . $value)) { 
-			   $result[$value] = apc_add_directory($dir . DIRECTORY_SEPARATOR . $value); 
+			   $result[$value] = apcu_add_directory($dir . DIRECTORY_SEPARATOR . $value); 
 			} else {
 				if(strtolower(substr($value,-4))=='.php'){
 					$result[] = $dir. DIRECTORY_SEPARATOR .$value;
-					apc_compile_file($dir. DIRECTORY_SEPARATOR .$value);
+					apcu_compile_file($dir. DIRECTORY_SEPARATOR .$value);
 				}
 			} 
 		} 
@@ -727,14 +727,14 @@ function apc_add_directory($dir) {
 	return $result; 
 }
 
-function apc_delete_directory($dir,$cache=false){
+function apcu_delete_directory($dir,$cache=false){
     if($cache==false){
         $cache = $GLOBALS['cache'];
     }
     foreach($cache['cache_list'] as $list){
         if($list['type']=='file'){
             if(strcmp($dir,$list['filename'])>=0){
-                apc_delete_file($list['filename']);
+                apcu_delete_file($list['filename']);
             }
         }
     }
@@ -866,6 +866,13 @@ function displayVar($var){
 			<div class="tab-content" style="padding-top: 20px">
 		
 				<div class="tab-pane active" id="status">
+					
+					<?php if(count(ini_get_all('apc'))==0 && count(ini_get_all('apcu'))>0){ ?>
+						<div class="alert alert-warning" role="alert">
+							You are running APCu instead of APC, some options will not work properly
+						</div>
+					<?php } ?>
+					
 					
 					<div class="col-md-6" style="padding-left: 0px">
     
@@ -1518,7 +1525,7 @@ for($i=20; $i>=0; $i--){
                                         </span>
                                         <div style="display: none" class="var_details_body" title="<?php echo $row['info'] ?> Details" ajaxr="remove_cache_user=<?php echo $row['info'] ?>">
                                             <?php
-                                            $var  = apc_fetch($row['info']);
+                                            $var  = apcu_fetch($row['info']);
                                             $type = gettype($var);
                                             ?>
                                             <input type="hidden" name="name" value="<?php echo $row['info'] ?>"/> 
@@ -1734,7 +1741,7 @@ function getFragments($mem) {
             <h3>Memory Segments - User Cache</h3>
             <?php
             
-            $slot = apc_cache_info('user');
+            $slot = apcu_cache_info('user');
             $slot = $slot['slot_distribution'];
             
             echo'<div>';
@@ -1799,7 +1806,7 @@ function getFragments($mem) {
         $(document).ready(function(){
             $("#about_link").click(function(){
                 $.ajax({url:'apc.php?about_info=full'}).done(function(data){
-                    $("#apc_about").html(data);
+                    $("#apcu_about").html(data);
                 })
             })
         })
@@ -1827,7 +1834,7 @@ function getFragments($mem) {
         <div class="panel-heading">
             <h3 class="panel-title">APC Version Information</h3>
         </div>
-        <div class="panel-body" id="apc_about">
+        <div class="panel-body" id="apcu_about">
             <div class="alert alert-info">Please wait loading updated  information</div>
         </div>
     </div>

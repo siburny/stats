@@ -11,6 +11,7 @@ class Google_php_client
 	public function __construct($user_company = null)
 	{
 		require_once APPPATH.'third_party/google-api-php-client-2.1.1/vendor/autoload.php';
+		require_once APPPATH.'third_party/Stash-0.14.1/autoload.php';
 
 		$this->ci = &get_instance();
 		$this->ci->config->load("google_client", TRUE);
@@ -36,6 +37,9 @@ class Google_php_client
 		{
 			$client->setAccessToken($this->user_company->ga_token);
 		}
+
+		$cache = new Stash\Pool(new Stash\Driver\Apc);
+		$client->setCache($cache);
 
 		$this->queries++;
 
@@ -71,8 +75,15 @@ class Google_php_client
 		return $res->getRows();
 	}
 
-	public function get_post_stats($url, $date_start = 'today', $date_end = '30daysAgo')
+	public function get_post_stats_by_channel($url, $date_start = null, $date_end = null, $best = true)
 	{
+		if(is_null($date_start)) {
+			$date_start = 'today';
+		}
+		if(is_null($date_end)) {
+			$date_end = '30daysAgo';
+		}
+
 		$client = $this->get_client();
 		$analytics = new Google_Service_Analytics($client);
 
@@ -80,12 +91,11 @@ class Google_php_client
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
-			'ga:uniqueEvents',
+			'ga:uniqueEvents, ga:totalEvents',
 			array(
 				'dimensions' => 'ga:channelGrouping',
-				'sort' => '-ga:uniqueEvents',
-				'filters' => 'ga:eventCategory==Author;ga:eventLabel=='.$url,
-				'max-results' => 25
+				'sort' => ($best ? '-' : '') . 'ga:uniqueEvents',
+				'filters' => 'ga:eventCategory==Author;ga:eventLabel=='.$url
 			)
 		);
 
@@ -131,8 +141,43 @@ class Google_php_client
 		return $res->getRows();
 	}
 
-	public function get_profile_stats($date_start = 'today', $date_end = '30daysAgo')
+	public function get_profile_stats($search_param = null, $date_start = 'today', $date_end = '30daysAgo')
 	{
+		$client = $this->get_client();
+		$analytics = new Google_Service_Analytics($client);
+
+		$filters = 'ga:eventCategory==Author';
+		if(is_array($search_param))
+		{
+			if(!empty($search_param['post_url']))
+			{
+				$filters .= ';ga:eventLabel=='.$search_param['post_url'];
+			}
+		}
+
+		$res = $analytics->data_ga->get(
+			'ga:' . $this->user_company->view_id,
+			$date_end,
+			$date_start,
+			'ga:uniqueEvents,ga:totalEvents',
+			array(
+				//'dimensions' => '',
+				//'sort' => '',
+				'filters' => $filters
+			)
+		);
+
+		return $res->getRows();
+	}
+
+	public function get_graph_data($date_start = 'today', $date_end = 'today')
+	{
+		$dimension = 'ga:date';
+		if($date_start == $date_end)
+		{
+			$dimension = 'ga:hour';
+		}
+
 		$client = $this->get_client();
 		$analytics = new Google_Service_Analytics($client);
 
@@ -140,30 +185,10 @@ class Google_php_client
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
-			'ga:uniqueEvents,ga:avgSessionDuration,ga:totalEvents',
-			array(
-				//'dimensions' => '',
-				//'sort' => '',
-				'filters' => 'ga:eventCategory==Author'
-			)
-		);
-
-		return $res->getRows();
-	}
-
-	public function get_posts_stats_by_hour($date_start = 'today')
-	{
-		$client = $this->get_client();
-		$analytics = new Google_Service_Analytics($client);
-
-		$res = $analytics->data_ga->get(
-			'ga:' . $this->user_company->view_id,
-			$date_start,
-			$date_start,
 			'ga:totalEvents',
 			array(
-				'dimensions' => 'ga:hour',
-				'sort' => 'ga:hour',
+				'dimensions' => $dimension,
+				'sort' => $dimension,
 				'filters' => 'ga:eventCategory==Author'
 			)
 		);

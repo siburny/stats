@@ -12,9 +12,9 @@ if(isset($_REQUEST['clear'])){
     header('Content-Type: application/json');
     
     if($_REQUEST['clear']=='user'){
-        apc_clear_cache('user');
+        apcu_clear_cache('user');
     }else{
-        apc_clear_cache('opcode');
+        apcu_clear_cache('opcode');
     }
     
     
@@ -24,8 +24,8 @@ if(isset($_REQUEST['clear'])){
 
 if(isset($_REQUEST['refresh_cache_file'])){
     header('Content-Type: application/json');
-    apc_delete_file($_REQUEST['refresh_cache_file']);
-    apc_compile_file($_REQUEST['refresh_cache_file']);
+    apcu_delete_file($_REQUEST['refresh_cache_file']);
+    apcu_compile_file($_REQUEST['refresh_cache_file']);
     
     echo json_encode(array('status'=>1,'text'=>date('c')));
     die();
@@ -33,7 +33,7 @@ if(isset($_REQUEST['refresh_cache_file'])){
 
 if(isset($_REQUEST['remove_cache_file'])){
     header('Content-Type: application/json');
-    if(apc_delete_file($_REQUEST['remove_cache_file'])){
+    if(apcu_delete_file($_REQUEST['remove_cache_file'])){
         $status = 1;
     }else{
         $status = 0;
@@ -46,8 +46,8 @@ if(isset($_REQUEST['remove_cache_file'])){
 
 if(isset($_REQUEST['refresh_cache_folder'])){
     header('Content-Type: application/json');
-    apc_delete_directory($_REQUEST['refresh_cache_folder']);
-    apc_add_directory($_REQUEST['refresh_cache_folder']);
+    apcu_delete_directory($_REQUEST['refresh_cache_folder']);
+    apcu_add_directory($_REQUEST['refresh_cache_folder']);
     
     echo json_encode(array('status'=>1,'text'=>date('c')));
     die();
@@ -55,7 +55,7 @@ if(isset($_REQUEST['refresh_cache_folder'])){
 
 if(isset($_REQUEST['remove_cache_folder'])){
     header('Content-Type: application/json');
-    if(apc_delete_directory($_REQUEST['remove_cache_folder'])){
+    if(apcu_delete_directory($_REQUEST['remove_cache_folder'])){
         $status = 1;
     }else{
         $status = 0;
@@ -71,7 +71,7 @@ if(isset($_REQUEST['add_cache_folder'])){
     
     $status = 0;
     
-    if(is_dir($_REQUEST['add_cache_folder']) && apc_add_directory($_REQUEST['add_cache_folder'])){
+    if(is_dir($_REQUEST['add_cache_folder']) && apcu_add_directory($_REQUEST['add_cache_folder'])){
         $status = 1;
     }
     
@@ -81,7 +81,7 @@ if(isset($_REQUEST['add_cache_folder'])){
 
 if(isset($_REQUEST['remove_cache_user'])){
     header('Content-Type: application/json');
-    apc_delete($_REQUEST['remove_cache_user']);
+    apcu_delete($_REQUEST['remove_cache_user']);
     
     echo json_encode(array('status'=>1,'text'=>date('c')));
     die();
@@ -90,9 +90,9 @@ if(isset($_REQUEST['remove_cache_user'])){
 if(isset($_REQUEST['setvariable'])){
     
     if(isset($_REQUEST['value'])){
-        apc_store($_REQUEST['setvariable'],$_REQUEST['value'],intval($_REQUEST['ttl']));
+        apcu_store($_REQUEST['setvariable'],$_REQUEST['value'],intval($_REQUEST['ttl']));
     }else{
-        apc_store($_REQUEST['setvariable'],apc_fetch($_REQUEST['setvariable']),intval($_REQUEST['ttl']));
+        apcu_store($_REQUEST['setvariable'],apcu_fetch($_REQUEST['setvariable']),intval($_REQUEST['ttl']));
     }
 
     echo json_encode(array('status'=>1,'text'=>date('c')));
@@ -158,17 +158,17 @@ if(isset($_REQUEST['about_info'])){
 // Required lib functions
 
 //  Add  files in a directory  to APC Cache
-function apc_add_directory($dir) { 
+function apcu_add_directory($dir) { 
 	$result = array(); 
 	$cdir 	= scandir($dir); 
 	foreach ($cdir as $key => $value) { 
 		if (!in_array($value,array(".",".."))) { 
 			if (is_dir($dir . DIRECTORY_SEPARATOR . $value)) { 
-			   $result[$value] = apc_add_directory($dir . DIRECTORY_SEPARATOR . $value); 
+			   $result[$value] = apcu_add_directory($dir . DIRECTORY_SEPARATOR . $value); 
 			} else {
 				if(strtolower(substr($value,-4))=='.php'){
 					$result[] = $dir. DIRECTORY_SEPARATOR .$value;
-					apc_compile_file($dir. DIRECTORY_SEPARATOR .$value);
+					apcu_compile_file($dir. DIRECTORY_SEPARATOR .$value);
 				}
 			} 
 		} 
@@ -176,14 +176,14 @@ function apc_add_directory($dir) {
 	return $result; 
 }
 
-function apc_delete_directory($dir,$cache=false){
+function apcu_delete_directory($dir,$cache=false){
     if($cache==false){
         $cache = $GLOBALS['cache'];
     }
     foreach($cache['cache_list'] as $list){
         if($list['type']=='file'){
             if(strcmp($dir,$list['filename'])>=0){
-                apc_delete_file($list['filename']);
+                apcu_delete_file($list['filename']);
             }
         }
     }

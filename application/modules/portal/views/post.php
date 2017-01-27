@@ -9,8 +9,8 @@
 <div style="float:right;width:300px;">
 	<div style="padding:10px 10px 10px 30px;font-size:1.5em;line-height:200%;">
 		{{#totals}}
-		Pageviews: {{pageviews}}<br />
 		Visits: {{sessions}}<br />
+		Pageviews: {{pageviews}}<br />
 		{{/totals}}
 	</div>
 </div>
@@ -30,7 +30,7 @@
 			border: 1px solid #333;
 			padding: 5px;
 		}
-		#post td:nth-child(2) {
+		#post td:nth-child(2), #post td:nth-child(3) {
 			width: 50px;
 			text-align: right;
 		}
@@ -127,11 +127,13 @@
 	<tr>
 		<th>Channel</th>
 		<th style="text-align:right;">Sessions</th>
+		<th style="text-align:right;">Pageviews</th>
 	</tr>
 {{#rows}}
 	<tr class="{{class}}">
 		<td>{{source}}</td>
 		<td>{{sessions}}</td>
+		<td>{{pageviews}}</td>
 	</tr>
 {{/rows}}
 </table>

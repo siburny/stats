@@ -211,14 +211,15 @@ class Portal extends MY_Controller {
 		$this->load->library("google_php_client", $this->user_company);
 		$rows = null;
 		try {
-			$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
+			$rows = $this->google_php_client->get_profile_stats(array(), $data['date_to_ymd'], $data['date_from_ymd']);
 		}
 		catch(Exception $e) {
+			print_r($e);
 		}
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
-			$data['totals']['pageviews'] = number_format($rows[0][2]);
+			$data['totals']['pageviews'] = number_format($rows[0][1]);
 		}
 
 		$data['results_count'] = (1+$page*10)." - ".min($count['count'], (1+$page)*10)." of ".$count['count'];
@@ -235,12 +236,6 @@ class Portal extends MY_Controller {
 
 		$this->parser->parse("portal/home", $data);
 	}
-
-	/**
-	 *
-	 ***** AUTHORS *****
-	 *
-	 **/
 
 	function authors()
 	{
@@ -348,7 +343,7 @@ class Portal extends MY_Controller {
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
-			$data['totals']['pageviews'] = number_format($rows[0][2]);
+			$data['totals']['pageviews'] = number_format($rows[0][1]);
 		}
 
 		$query = $data['params'];
@@ -359,12 +354,6 @@ class Portal extends MY_Controller {
 
 		$this->parser->parse("portal/authors", $data);
 	}
-
-	/*
-	 *
-	 ***** POST *****
-	 *
-	 */
 
 	function post()
 	{
@@ -467,15 +456,15 @@ class Portal extends MY_Controller {
 		$data['post_thumb'] = $post_stats[0]->image;
 		$data['post_date'] = date("F jS, Y", strtotime($post_stats[0]->date_published));
 
-		$rows = $this->google_php_client->get_post_stats($post_stats[0]->url, $data['date_to_ymd'], $data['date_from_ymd']);
-
+		$rows = $this->google_php_client->get_post_stats_by_channel($post_stats[0]->url, $data['date_to_ymd'], $data['date_from_ymd']);
 		$data['rows'] = array();
 		foreach($rows as $index => $row)
 		{
 			$ar = array(
 				"n" => $index+1,
 				"source" => $row[0],
-				"sessions" => $row[1]
+				"sessions" => $row[1],
+				"pageviews" => $row[2]
 			);
 
 			$data['rows'][] = $ar;
@@ -496,11 +485,13 @@ class Portal extends MY_Controller {
 			count_all_results();
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
 
-		$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
+		$rows = $this->google_php_client->get_profile_stats(array('post_url' => $data['post_url']), $data['date_to_ymd'], $data['date_from_ymd']);
+		print_r($rows);
+		print_r($data['params']);
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
-			$data['totals']['pageviews'] = number_format($rows[0][2]);
+			$data['totals']['pageviews'] = number_format($rows[0][1]);
 		}
 
 		$query = $data['params'];
@@ -517,7 +508,7 @@ class Portal extends MY_Controller {
 		$this->parser->parse("portal/post", $data);
 	}
 
-	function _author()
+	/*function _author()
 	{
 		$this->parser->data['active_menu_posts'] = TRUE;
 
@@ -666,12 +657,11 @@ class Portal extends MY_Controller {
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
 
 		$this->load->library("google_php_client", $this->user_company);
-		//$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
-		$rows = null;
+		$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
-			$data['totals']['pageviews'] = number_format($rows[0][2]);
+			$data['totals']['pageviews'] = number_format($rows[0][1]);
 		}
 
 		$query = $data['params'];
@@ -685,7 +675,7 @@ class Portal extends MY_Controller {
 		$data['date_link'] = http_build_query($query);
 
 		$this->parser->parse("portal/author", $data);
-	}
+	}*/
 
 	function connect()
 	{

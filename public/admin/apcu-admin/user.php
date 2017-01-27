@@ -200,7 +200,7 @@ for($i=20; $i>=0; $i--){
                                         </span>
                                         <div style="display: none" class="var_details_body" title="<?php echo $row['info'] ?> Details" ajaxr="remove_cache_user=<?php echo $row['info'] ?>">
                                             <?php
-                                            $var  = apc_fetch($row['info']);
+                                            $var  = apcu_fetch($row['info']);
                                             $type = gettype($var);
                                             ?>
                                             <input type="hidden" name="name" value="<?php echo $row['info'] ?>"/> 

@@ -27,19 +27,10 @@ include "api.php";
 		<script src="./js/jquery.tablesorter.min.js"></script>
 
 		<script>
-			$(function(){
-			  var hash = window.location.hash;
-			  hash && $('ul.nav a[href="' + hash + '"]').tab('show');
-
-			  $('.nav-tabs a').click(function (e) {
-				$(this).tab('show');
-				var scrollmem = $('body').scrollTop();
-				window.location.hash = this.hash;
-				$('html,body').scrollTop(scrollmem);
-			  });
-			});
 			var req_time = (new Date()).getTime();
+			var opcode_progress = Array();
 			var ctime = (new Date()).getTime();
+			var opcode_chart;
 			var cache;
 			
 			function refreshData(){
@@ -67,6 +58,11 @@ include "api.php";
 					
 					console.log(cache);
 					
+					opcode_progress[0].addPoint([curr_time, cache.num_hits],false,true);
+					opcode_progress[1].addPoint([curr_time, cache.num_misses],false,true);
+					
+					opcode_chart.redraw();
+					
 					user_progress[0].addPoint([curr_time, cache.user.num_hits],false,true);
 					user_progress[1].addPoint([curr_time, cache.user.num_misses],false,true);
 					
@@ -90,6 +86,14 @@ include "api.php";
 			
 			<ul class="nav nav-tabs nav-tabs-google">
 				<li class="active"><a href="#status" data-toggle="tab"><b>APC Admin</b></a></li>
+				<li class="dropdown">
+					<a href="#" id="opcode-drop" class="dropdown-toggle" data-toggle="dropdown">Opcode Cache <b class="caret"></b></a>
+					<ul class="dropdown-menu" role="menu" aria-labelledby="opcode-drop">
+						<li><a href="#opcode" tabindex="-1" data-toggle="tab">Cache Info</a></li>
+						<li><a href="#per-file" tabindex="-1" data-toggle="tab">Cached Files</a></li>
+						<li><a href="#per-directory" tabindex="-1" data-toggle="tab">Per Directory Entrys</a></li>
+					</ul>
+				</li>
 				<li class="dropdown">
 					<a href="#" id="user-drop" class="dropdown-toggle" data-toggle="dropdown">User Cache <b class="caret"></b></a>
 					<ul class="dropdown-menu" role="menu" aria-labelledby="user-drop">

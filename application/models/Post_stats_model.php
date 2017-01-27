@@ -125,25 +125,6 @@ ORDER BY date ASC
 			", array($end, $start, $company_id, $post_id))->result_array();
 	}
 
-	function get_manager_graph_data_hourly($user_company, $start = null)
-	{
-		if($start == NULL)
-		{
-			if($start == NULL)
-			{
-				$start = new DateTime();
-			}
-		}
-
-		if($start instanceof DateTime)
-		{
-			$start = $start->format("Y-m-d");
-		}
-
-		$this->load->library("google_php_client", $user_company);
-		return $this->google_php_client->get_posts_stats_by_hour($start);
-	}
-
 	static function get_post_graph_data($company_id, $url, $start = null, $end = null)
 	{
 		if($start == NULL || $end == NULL)

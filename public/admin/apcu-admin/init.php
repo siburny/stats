@@ -160,14 +160,14 @@ if ($AUTHENTICATED && $MYREQUEST['OB'] == OB_USER_CACHE) {
 }
 // clear cache
 if ($AUTHENTICATED && isset($MYREQUEST['CC']) && $MYREQUEST['CC']) {
-	apc_clear_cache($cache_mode);
+	apcu_clear_cache($cache_mode);
 }
 
 if ($AUTHENTICATED && !empty($MYREQUEST['DU'])) {
-	apc_delete($MYREQUEST['DU']);
+	apcu_delete($MYREQUEST['DU']);
 }
 
-if(!function_exists('apc_cache_info') || !($cache=@apc_cache_info($cache_mode))) {
+if(!function_exists('apcu_cache_info') || !($cache=@apcu_cache_info($cache_mode))) {
 	echo "No cache info available.  APC does not appear to be running.";
   exit;
 }
@@ -178,7 +178,7 @@ if(isset($cache['nmisses'])){
 }
 
 
-$cache_user = apc_cache_info('user');
+$cache_user = apcu_cache_info('user');
 
 // INFO FORMAT UPGRADE, IF NEEDED //
 
@@ -210,7 +210,7 @@ foreach($cache_user['cache_list'] as $key=>$row){
 
 
 
-$mem=apc_sma_info();
+$mem=apcu_sma_info();
 if(!$cache['num_hits']) { $cache['num_hits']=1; $time++; }  // Avoid division by 0 errors on a cache clear
 
 // don't cache this page

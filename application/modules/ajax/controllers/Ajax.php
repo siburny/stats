@@ -23,6 +23,8 @@ class Ajax extends CI_Controller {
 
 	function get_graph_data()
 	{
+		$this->load->library("google_php_client", $this->user_company);
+
 		$date_from = $this->input->get("date_from");
 		$date_to = $this->input->get("date_to");
 		if(!isset($this->user) || !isset($this->user_company))
@@ -85,68 +87,43 @@ class Ajax extends CI_Controller {
 			$author = $this->input->get("author_name");
 		}
 
-		if($this->user_company->ga_token && $this->user_company->view_id)
-		{
-			if(is_null($post_id))
+		$rows = $this->google_php_client->get_graph_data('today', '30daysAgo');
+
+			$data = 'x,Views'.PHP_EOL;
+			if($date_to == $date_from)
 			{
-				$key = "viewstats_".$this->user_company->view_id.'_'.$date_from->format('Ymd').'_'.$date_to->format('Ymd');
+				$date = $date_to->format('Ymd');
+				foreach($rows as $index => $row)
+				{
+					$rows[$index][0] = $date.' '.$row[0].':00';
+				}
 			}
 			else
 			{
-				$key = "viewstats_".$this->user_company->view_id.'_'.$date_from->format('Ymd').'_'.$date_to->format('Ymd').'_'.$post_id;
+				foreach($rows as $index => $row)
+				{
+					$rows[$index][0] = substr($rows[$index][0], 0, 4).'-'.substr($rows[$index][0], 4, 2).'-'.substr($rows[$index][0], 6, 2).' 00:00';
+				}
 			}
-			if(FALSE && ($val = $this->cache->get($key)) !== FALSE)
+
+
+			/*elseif(!is_null($post_id))
 			{
-				$data = $val;
+				$rows = $this->post_stats->get_manager_graph_post_data($this->user_company->company_id, $post_id, $date_to, $date_from);
+			}
+			elseif(!is_null($author))
+			{
+				$rows = $this->post_stats->get_author_graph_data($this->user_company->company_id, $author, $date_to, $date_from);
 			}
 			else
 			{
-				$data = 'x,Views'.PHP_EOL;
+				$rows = Post_stats_model::get_manager_graph_data($this->user_company->company_id, $date_to, $date_from);
+			}*/
 
-				if($date_to == $date_from)
-				{
-					$rows = $this->post_stats->get_manager_graph_data_hourly($this->user_company, $date_to);
-					$date = $date_to->format('Y-m-d');
-					foreach($rows as $index => $row)
-					{
-						$rows[$index][0] = $date.' '.$row[0].':00';
-					}
-				}
-				elseif(!is_null($post_id))
-				{
-					$rows = $this->post_stats->get_manager_graph_post_data($this->user_company->company_id, $post_id, $date_to, $date_from);
-				}
-				elseif(!is_null($author))
-				{
-					$rows = $this->post_stats->get_author_graph_data($this->user_company->company_id, $author, $date_to, $date_from);
-				}
-				else
-				{
-					$rows = Post_stats_model::get_manager_graph_data($this->user_company->company_id, $date_to, $date_from);
-				}
-
-				if(count($rows) > 0)
-				{
-					$start = clone $date_from;
-
-					if($date_to != $date_from)
-					{
-						$i = 0;
-						while($rows[0]['date'] != $start->format('Y-m-d').' 00:00')
-						{
-							$data .= $start->format('Y-m-d').' 00:00,0'.PHP_EOL;
-							$start->modify("1 day");
-							if($i++ > 1000) break;
-						}
-					}
-					foreach($rows as $row)
-					{
-						$data .= implode(",", $row).PHP_EOL;
-					}
-				}
-				$this->cache->save($key, $data, 300);
+			foreach($rows as $row)
+			{
+				$data .= implode(",", $row).PHP_EOL;
 			}
-		}
 
 		$this->output->set_output($data);
 	}

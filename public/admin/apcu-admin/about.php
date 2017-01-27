@@ -3,7 +3,7 @@
         $(document).ready(function(){
             $("#about_link").click(function(){
                 $.ajax({url:'apc.php?about_info=full'}).done(function(data){
-                    $("#apc_about").html(data);
+                    $("#apcu_about").html(data);
                 })
             })
         })
@@ -31,7 +31,7 @@
         <div class="panel-heading">
             <h3 class="panel-title">APC Version Information</h3>
         </div>
-        <div class="panel-body" id="apc_about">
+        <div class="panel-body" id="apcu_about">
             <div class="alert alert-info">Please wait loading updated  information</div>
         </div>
     </div>
