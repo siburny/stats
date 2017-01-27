@@ -130,6 +130,8 @@ class Ajax extends CI_Controller {
 
 	function get_post_graph_data()
 	{
+		$this->load->library("google_php_client", $this->user_company);
+
 		if(!isset($this->user) || !isset($this->user_company))
 		{
 			set_status_header(401);
@@ -139,30 +141,16 @@ class Ajax extends CI_Controller {
 		$data = "Can't connect to Google";
 		$url = $this->input->get("url");
 
-		if($this->user_company->ga_token && $this->user_company->view_id && $url)
+		$data = 'x,Views'.PHP_EOL;
+		if(!empty($url))
 		{
-			$key = "viewstats_".$this->user_company->view_id."_".$url;
-
-			if(($val = $this->cache->get($key)) !== FALSE)
-			{
-				$this->output->set_output($val);
-				return;
-			}
-
-			$data = 'x,Views'.PHP_EOL;
-			$rows = Post_stats_model::get_post_graph_data($this->user_company->company_id, $url);
-
-			$max = max(array_column($rows, 'total_pageviews'));
+			$rows = $this->google_php_client->get_graph_data('yesterday', '7daysAgo', $url);
 
 			foreach($rows as $row)
 			{
-				if(!$row['total_pageviews'])
-				{
-					$row['total_pageviews'] = $max/50;
-				}
+				$row[0] = substr($row[0], 0, 4).'-'.substr($row[0], 4, 2).'-'.substr($row[0], 6, 2);
 				$data .= implode(",", $row).PHP_EOL;
 			}
-			$this->cache->save($key, $data, 1800);
 		}
 
 		$this->output->set_output($data);

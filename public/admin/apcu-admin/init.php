@@ -167,7 +167,7 @@ if ($AUTHENTICATED && !empty($MYREQUEST['DU'])) {
 	apcu_delete($MYREQUEST['DU']);
 }
 
-if(!function_exists('apcu_cache_info') || !($cache=@apcu_cache_info($cache_mode))) {
+if(!function_exists('apcu_cache_info') || !($cache=@apcu_cache_info())) {
 	echo "No cache info available.  APC does not appear to be running.";
   exit;
 }
@@ -178,7 +178,7 @@ if(isset($cache['nmisses'])){
 }
 
 
-$cache_user = apcu_cache_info('user');
+$cache_user = apcu_cache_info();
 
 // INFO FORMAT UPGRADE, IF NEEDED //
 

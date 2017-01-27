@@ -126,7 +126,7 @@ function getFragments($mem) {
             <h3>Memory Segments - User Cache</h3>
             <?php
             
-            $slot = apcu_cache_info('user');
+            $slot = apcu_cache_info();
             $slot = $slot['slot_distribution'];
             
             echo'<div>';

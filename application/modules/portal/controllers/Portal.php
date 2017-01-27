@@ -17,26 +17,12 @@ class Portal extends MY_Controller {
 
 		$this->user = $this->ion_auth->user()->row();
 		$this->user_company = $this->company->get($this->user->company);
-
 	}
-
-/*	function _remap()
-	{
-		$method = func_get_arg(0);
-		print "+".$method."+";exit;
-		if (method_exists($this, $method))
-		{
-			call_user_func_array(array($this, $method), func_get_arg(1));
-		}
-		else
-		{
-			$args = array_merge(array($method), func_get_arg(1));
-			call_user_func_array(array($this, 'index'), $args);
-		}
-	}*/
 
 	function index()
 	{
+		$this->load->library("google_php_client", $this->user_company);
+
 		$this->parser->data['active_menu_posts'] = TRUE;
 
 		$data = array(
@@ -48,6 +34,7 @@ class Portal extends MY_Controller {
 		if(!empty($post_search))
 		{
 			$data['post_search'] = $post_search;
+			$data['uri_search'] = "search=".$post_search;
 			$data['params']['search'] = $post_search;
 		}
 
@@ -149,19 +136,26 @@ class Portal extends MY_Controller {
 			$data["is_admin"] = TRUE;
 			if(!empty($author))
 			{
-				$search_param = array($this->user_company->company_id, $author, $post_search);
+				//$search_param = array($author, $post_search);
 			}
 			else
 			{
-				$search_param = array($this->user_company->company_id, '', $post_search);
+				//$search_param = array('', $post_search);
 			}
 		}
 		else
 		{
-			$search_param = array($this->user_company->company_id, $this->user->author_name, $post_search);
+			$search_param = array($this->user->author_name, $post_search);
 		}
 
+		$search_param = array('search' => $post_search);
+		$rows = $this->google_php_client->get_posts_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd']);
+		print_r($rows);
+		exit;
+
 		$rows = Post_model::get_posts($search_param, $date_to, $date_from, TRUE, TRUE, $page);
+
+
 		$count = Post_model::get_posts_count($search_param, $date_to, $date_from);
 		$more_available = $count['count']/10 > $page + 1;
 
@@ -206,12 +200,11 @@ class Portal extends MY_Controller {
 		$data['last_updated'] = $rows[0]['date_updated'];
 
 		//Total Stats
-		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
+		$data['totals'] = array('pageviews' => -1, 'sessions' => -1);
 
-		$this->load->library("google_php_client", $this->user_company);
 		$rows = null;
 		try {
-			$rows = $this->google_php_client->get_profile_stats(array(), $data['date_to_ymd'], $data['date_from_ymd']);
+			$rows = $this->google_php_client->get_profile_stats($data['params'], $data['date_to_ymd'], $data['date_from_ymd']);
 		}
 		catch(Exception $e) {
 			print_r($e);

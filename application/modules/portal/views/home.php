@@ -112,16 +112,16 @@
 	$("#action #date_selector").on("change", function (event, param) {
 		switch ($(this).val()) {
 			case "today":
-				window.location = '/portal/?date_from=today{{#uri_author}}&{{.}}{{/uri_author}}';
+				window.location = '/portal/?date_from=today{{#uri_author}}&{{.}}{{/uri_author}}{{#uri_search}}&{{.}}{{/uri_search}}';
 				break;
 			case "yesterday":
-				window.location = '/portal/?date_from=yesterday{{#uri_author}}&{{.}}{{/uri_author}}';
+				window.location = '/portal/?date_from=yesterday{{#uri_author}}&{{.}}{{/uri_author}}{{#uri_search}}&{{.}}{{/uri_search}}';
 				break;
 			case "7days":
-				window.location = '/portal/?date_from=7days{{#uri_author}}&{{.}}{{/uri_author}}';
+				window.location = '/portal/?date_from=7days{{#uri_author}}&{{.}}{{/uri_author}}{{#uri_search}}&{{.}}{{/uri_search}}';
 				break;
 			case "30days":
-				window.location = '/portal/?date_from=30days{{#uri_author}}&{{.}}{{/uri_author}}';
+				window.location = '/portal/?date_from=30days{{#uri_author}}&{{.}}{{/uri_author}}{{#uri_search}}&{{.}}{{/uri_search}}';
 				break;
 			case "custom":
 				$("#date_custom").show();
@@ -204,22 +204,6 @@ $(function () {
 		transition: { duration: 1000 },
 		tooltip: { show: false }
 	});
-
-	/*var q = $.ajaxMultiQueue(3);
-	$("#posts tr.loading").each(function (index, item) {
-		var $item = $(item);
-		q.queue({
-			url: '/ajax/get_post_cache?url=' + encodeURIComponent($item.data("url")),
-			dataType: 'json',
-			success: function (data) {
-				$item.find(".image img").attr('src', data.image);
-				$item.find(".title").html(data.title);
-				if (!!data.date_published) {
-					$item.find(".date_published").html(data.date_published)
-				}
-			}
-		});
-	});*/
 
 	$("#posts tr").each(function(index, value) {
 		$chart = $(value);

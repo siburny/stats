@@ -5,6 +5,6 @@ class MY_Cache extends CI_Cache
 {
 	public function __construct()
 	{
-		parent::__construct(array('adapter' => 'apc'));
+		parent::__construct(array('adapter' => 'apcu'));
 	}
 }
