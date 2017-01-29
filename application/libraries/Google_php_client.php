@@ -12,10 +12,6 @@ class Google_php_client
 	{
 		$keyString = 'oodash::'.md5(__FILE__) . '::' . json_encode($params); // make it unique per install
 
-		/*foreach ($params as $piece) {
-			$keyString .= (is_array($piece) ? implode('::', $piece) : $piece) . '::';
-		}*/
-
 		return $keyString;
 	}
 
@@ -53,11 +49,11 @@ class Google_php_client
 		$client->setCache($cache);
 
 		// FOR DEBUGGING ONLY
-		if(true)
+		if(0)
 		{
 			$httpClient = new GuzzleHttp\Client([
-					'proxy' => 'localhost:8888', // by default, Charles runs on localhost port 8888
-					'verify' => false, // otherwise HTTPS requests will fail.
+				'proxy' => 'localhost:8888',
+				'verify' => false,
 			]);
 			$client->setHttpClient($httpClient);
 		}
@@ -71,7 +67,7 @@ class Google_php_client
 	{
 		if($date_start == NULL)
 		{
-			$date_start = 'today';
+			$date_start = 'yesterday';
 		}
 		if($date_end == NULL)
 		{
@@ -127,12 +123,12 @@ class Google_php_client
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
-			'ga:totalEvents',
+			'ga:uniqueEvents,ga:totalEvents',
 			array(
 				'dimensions' => 'ga:eventLabel',
-				'sort' => '-ga:totalEvents',
+				'sort' => '-ga:uniqueEvents',
 				'filters' => $filters,
-				'max-results' => $limit ? 25 : 10000
+				'max-results' => $limit ? (is_numeric($limit) ? $limit : 25) : 10000
 			));
 
 		return $res->getRows();
@@ -141,7 +137,7 @@ class Google_php_client
 	public function get_post_stats_by_channel($url, $date_start = null, $date_end = null, $best = true)
 	{
 		if(is_null($date_start)) {
-			$date_start = 'today';
+			$date_start = 'yesterday';
 		}
 		if(is_null($date_end)) {
 			$date_end = '30daysAgo';
@@ -165,7 +161,7 @@ class Google_php_client
 		return $res->getRows();
 	}
 
-	/*public function get_posts_stats($date_start = 'today', $date_end = 'today')
+	/*public function get_posts_stats($date_start = 'yesterday', $date_end = 'yesterday')
 	{
 		$client = $this->get_client();
 		$analytics = new Google_Service_Analytics($client);
@@ -184,7 +180,7 @@ class Google_php_client
 		return $res->getRows();
 	}*/
 
-	public function get_authors_stats($date_start = 'today', $date_end = 'today')
+	public function get_authors_stats($date_start = 'yesterday', $date_end = 'yesterday')
 	{
 		$client = $this->get_client();
 		$analytics = new Google_Service_Analytics($client);
@@ -204,7 +200,7 @@ class Google_php_client
 		return $res->getRows();
 	}
 
-	public function get_profile_stats($search_param = null, $date_start = 'today', $date_end = '30daysAgo')
+	public function get_profile_stats($search_param = null, $date_start = 'yesterday', $date_end = '30daysAgo', $by_date = FALSE)
 	{
 		$client = $this->get_client();
 		$analytics = new Google_Service_Analytics($client);
@@ -222,22 +218,44 @@ class Google_php_client
 			}
 		}
 
-		$res = $analytics->data_ga->get(
+		if($by_date)
+		{
+			$dimension = 'ga:date';
+			if($date_start == $date_end)
+			{
+				$dimension = 'ga:hour';
+			}
+		}
+
+		$params = array(
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
 			'ga:uniqueEvents,ga:totalEvents',
 			array(
-				//'dimensions' => '',
-				//'sort' => '',
+				'dimensions' => isset($dimension) ? $dimension : null,
+				'sort' => isset($dimension) ? $dimension : null,
 				'filters' => $filters
 			)
 		);
 
-		return $res->getRows();
+		$key = Google_php_client::make_key($params);
+		if(($val = $this->ci->cache->get($key)) !== FALSE && FALSE)
+		{
+			return $val;
+		}
+
+		$client = $this->get_client();
+		$analytics = new Google_Service_Analytics($client);
+		$res = call_user_func_array(array($analytics->data_ga, 'get'), $params);
+
+		$data = $res->getRows();
+		$this->ci->cache->save($key, $data, 600);
+
+		return $data;
 	}
 
-	public function get_graph_data($date_start = 'today', $date_end = 'today', $post_url = null)
+	public function get_graph_data($search_params = array(), $date_start = 'yesterday', $date_end = 'yesterday')
 	{
 		$dimension = 'ga:date';
 		if($date_start == $date_end)
@@ -246,9 +264,13 @@ class Google_php_client
 		}
 
 		$addFilters = '';
-		if(!empty($post_url))
+		if(!empty($search_params['post_url']))
 		{
-			$addFilters .= ';ga:eventLabel=='.$post_url;
+			$addFilters .= ';ga:eventLabel=='.$search_params['post_url'];
+		}
+		if(!empty($search_params['search']))
+		{
+			$addFilters .= ';ga:eventLabel=='.$search_params['search'];
 		}
 
 		$params = array(
@@ -264,7 +286,7 @@ class Google_php_client
 		);
 
 		$key = Google_php_client::make_key($params);
-		if(($val = $this->ci->cache->get($key)) !== FALSE)
+		if(($val = $this->ci->cache->get($key)) !== FALSE && FALSE)
 		{
 			return $val;
 		}

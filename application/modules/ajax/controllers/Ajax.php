@@ -78,21 +78,26 @@ class Ajax extends CI_Controller {
 
 		$post_id = NULL;
 		$author = NULL;
+		$search_param = array();
 		if($this->input->get("post_id") != NULL && is_numeric($this->input->get("post_id")))
 		{
 			$post_id = $this->input->get("post_id");
 		}
 		elseif($this->input->get("author_name") != NULL && !empty($this->input->get("author_name")))
 		{
-			$author = $this->input->get("author_name");
+			$search_param['author'] = $this->input->get("author_name");
+		}
+		elseif($this->input->get("search"))
+		{
+			$search_param['search'] = $this->input->get("search");
 		}
 
-		$rows = $this->google_php_client->get_graph_data('today', '30daysAgo');
+		$rows = $this->google_php_client->get_profile_stats($search_param, $date_to->format('Y-m-d'), $date_from->format('Y-m-d'), TRUE);
 
 			$data = 'x,Views'.PHP_EOL;
 			if($date_to == $date_from)
 			{
-				$date = $date_to->format('Ymd');
+				$date = $date_to->format('Y-m-d');
 				foreach($rows as $index => $row)
 				{
 					$rows[$index][0] = $date.' '.$row[0].':00';

@@ -11,3 +11,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |	https://codeigniter.com/user_guide/general/hooks.html
 |
 */
+
+$hook['post_controller'] = function()
+{
+	$ci =& get_instance();
+	if(isset($ci) && isset($ci->google_php_client))
+	{
+		//$ci->output->final_output
+		//print_r($ci->google_php_client->queries);
+	}
+};

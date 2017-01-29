@@ -488,6 +488,7 @@
     <Compile Include="application\modules\ajax\controllers\Ajax.php" />
     <Compile Include="application\modules\auth\views\invitation_password.php" />
     <Compile Include="application\modules\cron\controllers\Cron.php" />
+    <Compile Include="application\modules\portal\views\authors.php" />
     <Compile Include="application\modules\portal\views\data.php" />
     <Compile Include="application\modules\portal\views\invite_user.php" />
     <Compile Include="application\modules\portal\views\invite.php" />

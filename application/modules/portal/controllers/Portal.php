@@ -30,12 +30,15 @@ class Portal extends MY_Controller {
 			"params" => array()
 		);
 
+		$search_param = array();
+
 		$post_search = $this->input->get("search");
 		if(!empty($post_search))
 		{
 			$data['post_search'] = $post_search;
 			$data['uri_search'] = "search=".$post_search;
 			$data['params']['search'] = $post_search;
+			$search_param['search'] = $post_search;
 		}
 
 		$author = $this->input->get('author_name');
@@ -44,6 +47,7 @@ class Portal extends MY_Controller {
 			$data['author_name'] = $author;
 			$data['uri_author'] = "author_name=".$author;
 			$data['params']['author_name'] = $author;
+			$search_param['author'] = $author;
 		}
 
 		$page = $this->input->get('page');
@@ -134,54 +138,46 @@ class Portal extends MY_Controller {
 		if($this->ion_auth->is_manager())
 		{
 			$data["is_admin"] = TRUE;
-			if(!empty($author))
-			{
-				//$search_param = array($author, $post_search);
-			}
-			else
-			{
-				//$search_param = array('', $post_search);
-			}
 		}
 		else
 		{
-			$search_param = array($this->user->author_name, $post_search);
+			$search_param['author'] = $this->user->author_name;
 		}
 
-		$search_param = array('search' => $post_search);
-		$rows = $this->google_php_client->get_posts_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd']);
-		print_r($rows);
-		exit;
+		//$day_diff = $date_to->diff($date_from)->days + 1;
+		//$date_from_compare = clone $date_from;
+		//$date_from_compare->modify("-".$day_diff." days")->format("Y-m-d");
 
-		$rows = Post_model::get_posts($search_param, $date_to, $date_from, TRUE, TRUE, $page);
+		$rows = $this->google_php_client->get_posts_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd'], 10);
 
+		//$count = Post_model::get_posts_count($search_param, $date_to, $date_from);
+		$more_available = 0;//$count['count']/10 > $page + 1;
 
-		$count = Post_model::get_posts_count($search_param, $date_to, $date_from);
-		$more_available = $count['count']/10 > $page + 1;
-
-		$day_diff = $date_to->diff($date_from)->days;
-		$rows_prev = Post_model::get_posts($search_param, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
-		$rows_prev = array_column((array)$rows_prev, 'total_pageviews', 'url');
+		$rows_prev = array();
+		//$rows_prev = Post_model::get_posts($search_param, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
+		//$rows_prev = array_column((array)$rows_prev, 'total_pageviews', 'url');
 
 		$data['rows'] = array();
 		foreach($rows as $index => $row)
 		{
-			$prev = isset($rows_prev[$row->url]) ? $rows_prev[$row->url] : 0;
+			$prev = isset($rows_prev[$row[0]]) ? $rows_prev[$row[0]] : 0;
 			if($prev && $row->total_pageviews - $prev)
 			{
 				$prev = round(100*($row->total_pageviews - $prev)/$prev, 1);
 			}
 
 			$ar = array(
-				"post_id" => $row->post_id,
+				//"post_id" => $row->post_id,
 				"n" => $page*10 + $index + 1,
-				"image" => $row->image,
-				"url" => $row->url,
-				"title" => $row->title,
-				"sessions" => $row->total_pageviews,
-				"date_published" => date('M j, Y', strtotime($row->date_published)),
-				"up_down_text" => $prev ? $prev."%" : "",
-				'author' => $row->author
+				//"image" => $row->image,
+				//"url" => $row->url,
+				//"title" => $row->title,
+				'title' => $row[0],
+				"sessions" => $row[1],
+				"pageviews" => $row[2]
+				//"date_published" => date('M j, Y', strtotime($row->date_published)),
+				//"up_down_text" => $prev ? $prev."%" : "",
+				//'author' => $row->author
 			);
 
 			if($prev > 0)
@@ -215,7 +211,7 @@ class Portal extends MY_Controller {
 			$data['totals']['pageviews'] = number_format($rows[0][1]);
 		}
 
-		$data['results_count'] = (1+$page*10)." - ".min($count['count'], (1+$page)*10)." of ".$count['count'];
+		//$data['results_count'] = (1+$page*10)." - ".min($count['count'], (1+$page)*10)." of ".$count['count'];
 
 		$query = $data['params'];
 		$data['prev_link'] = $page == 0 ? "" : "/portal/?".http_build_query($query);

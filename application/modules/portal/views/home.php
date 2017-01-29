@@ -162,6 +162,15 @@
 {{#next_link}}<a href="{{.}}">{{/next_link}}NEXT&nbsp;&gt;{{#next_link}}</a>{{/next_link}}
 
 <table style="" id="posts">
+	<tr>
+		<th></th>
+		<th></th>
+		<th></th>
+		<th></th>
+		<th>Sessions</th>
+		<th>Pageviews</th>
+		<th></th>
+	</tr>
 {{#rows}}
 	<tr class="{{class}}" data-url="{{url}}">
 		<td>{{n}}</td>
@@ -178,6 +187,7 @@
 			<div id="chart{{n}}" data-url="{{url}}" style="width:100px;height:50px;"></div>
 		</td>
 		<td>{{sessions}}</td>
+		<td>{{pageviews}}</td>
 		<td>
 			{{#up_arrow}}<img src="/images/arrow_up_green.png" alt="UP" />{{/up_arrow}}
 			{{#down_arrow}}<img src="/images/arrow_down_red.png" alt="UP" />{{/down_arrow}}
@@ -205,7 +215,7 @@ $(function () {
 		tooltip: { show: false }
 	});
 
-	$("#posts tr").each(function(index, value) {
+	$("#posts tr1:not(:first)").each(function(index, value) {
 		$chart = $(value);
 		var chart = c3.generate({
 			bindto: '#chart'+$chart.find("td:first-child").text(),
