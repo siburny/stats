@@ -200,7 +200,7 @@ class Google_php_client
 		return $res->getRows();
 	}
 
-	public function get_profile_stats($search_param = null, $date_start = 'yesterday', $date_end = '30daysAgo', $by_date = FALSE)
+	public function get_stats($search_param = null, $date_start = 'yesterday', $date_end = '30daysAgo', $dimension = null, $sort = null, $limit = null)
 	{
 		$client = $this->get_client();
 		$analytics = new Google_Service_Analytics($client);
@@ -216,14 +216,38 @@ class Google_php_client
 			{
 				$filters .= ';ga:pageTitle=@'.$search_param['search'];
 			}
+			if(!empty($search_param['author']))
+			{
+				$filters .= ';ga:eventAction=='.$search_param['author'];
+			}
 		}
 
-		if($by_date)
+		if(!is_null($dimension))
 		{
-			$dimension = 'ga:date';
-			if($date_start == $date_end)
+			if($dimension == 'date')
 			{
-				$dimension = 'ga:hour';
+				if($date_start == $date_end)
+				{
+					$dimension = 'hour';
+					$sort = 'hour';
+				}
+				else
+				{
+					$sort = $dimension;
+				}
+			}
+			$dimension = 'ga:'.$dimension;
+		}
+
+		if(!is_null($sort))
+		{
+			if(substr($sort, 0, 1) === '-')
+			{
+				$sort = '-ga:'.substr($sort, 1);
+			}
+			else
+			{
+				$sort = 'ga:'.$sort;
 			}
 		}
 
@@ -233,9 +257,10 @@ class Google_php_client
 			$date_start,
 			'ga:uniqueEvents,ga:totalEvents',
 			array(
-				'dimensions' => isset($dimension) ? $dimension : null,
-				'sort' => isset($dimension) ? $dimension : null,
-				'filters' => $filters
+				'dimensions' => $dimension,
+				'sort' => $sort,
+				'filters' => $filters,
+				'max-results' => $limit ? (is_numeric($limit) ? $limit : 25) : 10000
 			)
 		);
 

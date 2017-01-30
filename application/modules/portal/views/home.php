@@ -84,12 +84,12 @@
 
 <script>
 	$(".search_box input[type=button]").on('click', function() {
-		window.location = '/portal/?search=' + encodeURIComponent($(".search_box input[type=text]").val());
+		window.location = '/portal/?{{#uri_date}}{{.}}&{{/uri_date}}{{#uri_author}}{{.}}&{{/uri_author}}search=' + encodeURIComponent($(".search_box input[type=text]").val());
 	});
 	$(".search_box input[type=text]").keypress(function(e) {
-    	if(e.which == 13) {
-			window.location = '/portal/?search=' + encodeURIComponent($(".search_box input[type=text]").val());
-    	}
+    if(e.which == 13) {
+    	window.location = '/portal/?{{#uri_date}}{{.}}&{{/uri_date}}{{#uri_author}}{{.}}&{{/uri_author}}search=' + encodeURIComponent($(".search_box input[type=text]").val());
+    }
 	});
 
 	$("#date_custom #go").on('click', function () {

@@ -92,7 +92,7 @@ class Ajax extends CI_Controller {
 			$search_param['search'] = $this->input->get("search");
 		}
 
-		$rows = $this->google_php_client->get_profile_stats($search_param, $date_to->format('Y-m-d'), $date_from->format('Y-m-d'), TRUE);
+		$rows = $this->google_php_client->get_stats($search_param, $date_to->format('Y-m-d'), $date_from->format('Y-m-d'), 'date');
 
 			$data = 'x,Views'.PHP_EOL;
 			if($date_to == $date_from)

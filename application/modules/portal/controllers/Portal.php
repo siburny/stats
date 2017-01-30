@@ -70,6 +70,7 @@ class Portal extends MY_Controller {
 		if($date_from != NULL)
 		{
 			$date_from = strtolower($date_from);
+			$data['uri_date'] = "date_from=".$date_from;
 			switch($date_from)
 			{
 				case "today":
@@ -103,12 +104,14 @@ class Portal extends MY_Controller {
 							$data['date_to_input'] = $date_to;
 							$data['params']['date_from'] = $date_from;
 							$data['params']['date_to'] = $date_to;
+							$data['uri_date'] .= "&date_to=".$date_to;
 							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
 							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
 							break;
 						}
 					}
-					$data['date_selected'] = "";
+					$data['date_selected'] = '';
+					$data['uri_date'] = '';
 					$date_to = NULL;
 					break;
 			}
@@ -148,7 +151,7 @@ class Portal extends MY_Controller {
 		//$date_from_compare = clone $date_from;
 		//$date_from_compare->modify("-".$day_diff." days")->format("Y-m-d");
 
-		$rows = $this->google_php_client->get_posts_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd'], 10);
+		$rows = $this->google_php_client->get_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd'], 'eventLabel', '-uniqueEvents', 10);
 
 		//$count = Post_model::get_posts_count($search_param, $date_to, $date_from);
 		$more_available = 0;//$count['count']/10 > $page + 1;
@@ -166,18 +169,18 @@ class Portal extends MY_Controller {
 				$prev = round(100*($row->total_pageviews - $prev)/$prev, 1);
 			}
 
+			$post = $this->post->get_by('url', $row[0]);
 			$ar = array(
-				//"post_id" => $row->post_id,
+				"post_id" => $post->post_id,
 				"n" => $page*10 + $index + 1,
-				//"image" => $row->image,
-				//"url" => $row->url,
-				//"title" => $row->title,
-				'title' => $row[0],
-				"sessions" => $row[1],
-				"pageviews" => $row[2]
-				//"date_published" => date('M j, Y', strtotime($row->date_published)),
-				//"up_down_text" => $prev ? $prev."%" : "",
-				//'author' => $row->author
+				"image" => $post->image,
+				"url" => $post->url,
+				"title" => $post->title,
+				"sessions" => number_format($row[1]),
+				"pageviews" => number_format($row[2]),
+				"date_published" => date('M j, Y', strtotime($post->date_published)),
+				"up_down_text" => $prev ? $prev."%" : "",
+				'author' => $post->author
 			);
 
 			if($prev > 0)
@@ -196,11 +199,11 @@ class Portal extends MY_Controller {
 		$data['last_updated'] = $rows[0]['date_updated'];
 
 		//Total Stats
-		$data['totals'] = array('pageviews' => -1, 'sessions' => -1);
+		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
 
 		$rows = null;
 		try {
-			$rows = $this->google_php_client->get_profile_stats($data['params'], $data['date_to_ymd'], $data['date_from_ymd']);
+			$rows = $this->google_php_client->get_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd']);
 		}
 		catch(Exception $e) {
 			print_r($e);
@@ -328,7 +331,7 @@ class Portal extends MY_Controller {
 
 		//Total Stats
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
-		$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
+		$rows = $this->google_php_client->get_stats($data['date_to_ymd'], $data['date_from_ymd']);
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
@@ -437,46 +440,32 @@ class Portal extends MY_Controller {
 
 		$this->user = $this->ion_auth->user()->row();
 
-		$post_stats = Post_model::get_post_stats($post_id, $this->user_company->company_id, $date_to, $date_from, TRUE, TRUE, $page);
-		$data['post_id'] = $post_stats[0]->post_id;
-		$data['post_title'] = $post_stats[0]->title;
-		$data['post_url'] = $post_stats[0]->url;
-		$data['post_author'] = $post_stats[0]->author;
-		$data['post_thumb'] = $post_stats[0]->image;
-		$data['post_date'] = date("F jS, Y", strtotime($post_stats[0]->date_published));
+		$post = $this->post->get($post_id);
+		$data['post_id'] = $post->post_id;
+		$data['post_title'] = $post->title;
+		$data['post_url'] = $post->url;
+		$data['post_author'] = $post->author;
+		$data['post_thumb'] = $post->image;
+		$data['post_date'] = date("F jS, Y", strtotime($post->date_published));
 
-		$rows = $this->google_php_client->get_post_stats_by_channel($post_stats[0]->url, $data['date_to_ymd'], $data['date_from_ymd']);
+		$rows = $this->google_php_client->get_post_stats_by_channel($post->url, $data['date_to_ymd'], $data['date_from_ymd']);
 		$data['rows'] = array();
 		foreach($rows as $index => $row)
 		{
 			$ar = array(
 				"n" => $index+1,
 				"source" => $row[0],
-				"sessions" => $row[1],
-				"pageviews" => $row[2]
+				"sessions" => number_format($row[1]),
+				"pageviews" => number_format($row[2])
 			);
 
 			$data['rows'][] = $ar;
 		}
 
-		$rows = $this->db->from('post_stats')->
-			select_max('date_updated')->get()->result_array();
-		$data['last_updated'] = $rows[0]['date_updated'];
+		$data['last_updated'] = date(DATE_RFC2822);
 
-		//Total Stats
-		$count = $this->db->from('posts')->
-			where('company_id', $this->user_company->company_id)->
-			where('date_published >=', $data['date_from_ymd'])->
-			where('date_published <=', $data['date_to_ymd'])->
-			count_all_results();
-		$count_all = $this->db->from('posts')->
-			where('company_id', $this->user_company->company_id)->
-			count_all_results();
-		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
-
-		$rows = $this->google_php_client->get_profile_stats(array('post_url' => $data['post_url']), $data['date_to_ymd'], $data['date_from_ymd']);
-		print_r($rows);
-		print_r($data['params']);
+		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
+		$rows = $this->google_php_client->get_stats(array('post_url' => $data['post_url']), $data['date_to_ymd'], $data['date_from_ymd']);
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
@@ -486,13 +475,6 @@ class Portal extends MY_Controller {
 		$query = $data['params'];
 		unset($query['page']);
 		$data['param_link'] = http_build_query($query);
-
-		//$query = $data['params'];
-		//$data['prev_link'] = $page == 0 ? "" : "/portal/?".http_build_query($query);
-		//$query['page']++;
-		//$data['date_link'] = http_build_query($query);
-		//$query['page']++;
-		//$data['next_link'] = "/portal/?".http_build_query($query);
 
 		$this->parser->parse("portal/post", $data);
 	}
