@@ -165,10 +165,18 @@
 	<tr>
 		<th></th>
 		<th></th>
+		<th style="text-align:left;">Title</th>
 		<th></th>
-		<th></th>
-		<th>Sessions</th>
-		<th>Pageviews</th>
+		<th>
+			<a href='/portal/?sort={{sort_sessions}}{{#uri_date}}&{{{.}}}{{/uri_date}}{{#uri_author}}&{{.}}{{/uri_author}}{{#uri_search}}&{{.}}{{/uri_search}}'>Sessions</a>
+			{{#sort_sessions_up}}<img src="/images/arrow_up_green.png" alt="Up" />{{/sort_sessions_up}}
+			{{#sort_sessions_down}}<img src="/images/arrow_down_red.png" alt="Down" />{{/sort_sessions_down}}
+		</th>
+		<th>
+			<a href='/portal/?sort={{sort_pageviews}}{{#uri_date}}&{{{.}}}{{/uri_date}}{{#uri_author}}&{{.}}{{/uri_author}}{{#uri_search}}&{{.}}{{/uri_search}}'>Pageviews</a>
+			{{#sort_pageviews_up}}<img src="/images/arrow_up_green.png" alt="Up" />{{/sort_pageviews_up}}
+			{{#sort_pageviews_down}}<img src="/images/arrow_down_red.png" alt="Down" />{{/sort_pageviews_down}}
+		</th>
 		<th></th>
 	</tr>
 {{#rows}}
@@ -177,10 +185,10 @@
 		<td class="image"><img src="{{image}}" alt=""/></td>
 		<td>
 			<div class="title" style="clear:both;margin-bottom:5px;">
-				<a href="/portal/post/?post_id={{post_id}}{{#date_link}}&{{{.}}}{{/date_link}}" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
+				<a href="/portal/post/?post_id={{post_id}}{{#uri_date}}&{{{.}}}{{/uri_date}}" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
 			</div>
 			<div style="font-size:90%;">
-				<div class="date_published">{{date_published}}{{#author}} by {{^uri_author}}<a style="font-weight:bold;" href="/portal/?author_name={{.}}{{#date_link}}&{{{.}}}{{/date_link}}">{{/uri_author}}{{.}}{{^uri_author}}</a>{{/uri_author}}{{/author}}</div>
+				<div class="date_published">{{date_published}}{{#author}} by {{^uri_author}}<a style="font-weight:bold;" href="/portal/?author_name={{.}}{{#uri_date}}&{{.}}{{/uri_date}}">{{/uri_author}}{{.}}{{^uri_author}}</a>{{/uri_author}}{{/author}}</div>
 			</div>
 		</td>
 		<td>

@@ -63,6 +63,42 @@ class Portal extends MY_Controller {
 		else
 			$page = 0;
 		$data['params']['page'] = $page;
+		
+		$sort = $this->input->get('sort');
+		if(isset($sort))
+		{
+			if($sort == 'sessions') {
+				$sort = 'uniqueEvents';
+			} elseif($sort == '-sessions') {
+				$sort = '-uniqueEvents';
+			} elseif($sort == 'pageviews') {
+				$sort = 'totalEvents';
+			} elseif($sort == '-pageviews') {
+				$sort = '-totalEvents';
+			}
+		}
+		else
+		{
+			$sort = '-uniqueEvents';
+		}
+		if($sort == '-uniqueEvents') {
+			$data['sort_sessions'] = 'sessions';
+			$data['sort_pageviews'] = '-pageviews';
+		} elseif($sort == 'uniqueEvents') {
+			$data['sort_sessions'] = '-sessions';
+			$data['sort_pageviews'] = '-pageviews';
+		} elseif($sort == '-totalEvents') {
+			$data['sort_sessions'] = '-sessions';
+			$data['sort_pageviews'] = 'pageviews';
+		} elseif($sort == 'totalEvents') {
+			$data['sort_sessions'] = '-sessions';
+			$data['sort_pageviews'] = '-pageviews';
+		}
+		$data['sort_sessions_down'] = $sort == '-uniqueEvents';
+		$data['sort_sessions_up'] = $sort == 'uniqueEvents';
+		$data['sort_pageviews_down'] = $sort == '-totalEvents';
+		$data['sort_pageviews_up'] = $sort == 'totalEvents';
+
 
 		$date_from = $this->input->get("date_from");
 		$date_to = $this->input->get("date_to");
@@ -151,7 +187,7 @@ class Portal extends MY_Controller {
 		//$date_from_compare = clone $date_from;
 		//$date_from_compare->modify("-".$day_diff." days")->format("Y-m-d");
 
-		$rows = $this->google_php_client->get_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd'], 'eventLabel', '-uniqueEvents', 10);
+		$rows = $this->google_php_client->get_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd'], 'eventLabel', $sort, 10);
 
 		//$count = Post_model::get_posts_count($search_param, $date_to, $date_from);
 		$more_available = 0;//$count['count']/10 > $page + 1;
@@ -206,7 +242,6 @@ class Portal extends MY_Controller {
 			$rows = $this->google_php_client->get_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd']);
 		}
 		catch(Exception $e) {
-			print_r($e);
 		}
 		if($rows)
 		{
@@ -222,9 +257,6 @@ class Portal extends MY_Controller {
 		$data['portal_link'] = http_build_query($query);
 		$query['page']++;
 		$data['next_link'] = $more_available ? "/portal/?".http_build_query($query) : "";
-
-		unset($query['page']);
-		$data['date_link'] = http_build_query($query);
 
 		$this->parser->parse("portal/home", $data);
 	}
@@ -340,9 +372,6 @@ class Portal extends MY_Controller {
 
 		$query = $data['params'];
 		$data['portal_link'] = http_build_query($query);
-
-		$query = $data['params'];
-		$data['date_link'] = http_build_query($query);
 
 		$this->parser->parse("portal/authors", $data);
 	}
