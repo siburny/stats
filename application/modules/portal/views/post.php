@@ -40,7 +40,7 @@
 </style>
 
 <h2><img src="{{post_thumb}}" style="float:left;height:90px;margin-right:10px;" />Showing stats for &quot;{{post_title}}&quot;</h2>
-<p>Published by <b>{{post_author}}</b> on <b>{{post_date}}</b></p>
+<p>Published by <a href="/portal/?author_name={{post_author}}{{#uri_date}}&{{.}}{{/uri_date}}"><b>{{post_author}}</b></a> on <b>{{post_date}}</b></p>
 <p>{{post_url}}</p>
 
 <div id="action">
@@ -144,45 +144,13 @@
 $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
-		data: { x: 'x', type: 'area', url: '/ajax/get_graph_data/{{#param_link}}?{{{.}}}{{/param_link}}', xFormat: '%Y-%m-%d %-H:%M' },
+		data: { x: 'x', type: 'area', url: '/ajax/get_graph_data/{{#uri_post_url}}?{{.}}&{{/uri_post_url}}{{#uri_date}}{{.}}&{{/uri_date}}', xFormat: '%Y-%m-%d %-H:%M' },
 		axis: { x: { type: 'timeseries' }, y: { padding: { top: 20 }, tick: { } }, },
 		grid: { y: { show: true } },
 		legend: { show: false },
 		transition: { duration: 1000 },
 		tooltip: { show: false }
 	});
-
-	/*var q = $.ajaxMultiQueue(3);
-	$("#posts tr.loading").each(function (index, item) {
-		var $item = $(item);
-		q.queue({
-			url: '/ajax/get_post_cache?url=' + encodeURIComponent($item.data("url")),
-			dataType: 'json',
-			success: function (data) {
-				$item.find(".image img").attr('src', data.image);
-				$item.find(".title").html(data.title);
-				if (!!data.date_published) {
-					$item.find(".date_published").html(data.date_published)
-				}
-			}
-		});
-	});*/
-
-	/*$("#posts tr").each(function(index, value) {
-		$chart = $(value);
-		var chart = c3.generate({
-			bindto: '#chart'+$chart.find("td:first-child").text(),
-			data: {
-				x: 'x',
-				type: 'bar',
-				url: '/ajax/get_post_graph_data?url=' + encodeURIComponent($chart.data("url"))
-			},
-			axis: { x: { type: 'timeseries', show: false }, y: { show: false } },
-			legend: { show: false },
-			tooltip: { show: false },
-			bar: { width: { ratio: 0.9 } },
-		});
-	});*/
 });
 </script>
 

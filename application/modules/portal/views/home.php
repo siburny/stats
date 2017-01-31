@@ -215,7 +215,7 @@
 $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
-		data: { x: 'x', type: 'area', url: '/ajax/get_graph_data/?{{{portal_link}}}', xFormat: '%Y-%m-%d %-H:%M' },
+		data: { x: 'x', type: 'area', url: '/ajax/get_graph_data/?{{#uri_date}}{{.}}&{{/uri_date}}{{#uri_author}}{{.}}&{{/uri_author}}{{#uri_search}}{{.}}&{{/uri_search}}', xFormat: '%Y-%m-%d %-H:%M' },
 		axis: { x: { type: 'timeseries' }, y: { padding: { top: 20 }, tick: { } }, },
 		grid: { y: { show: true } },
 		legend: { show: false },
@@ -223,7 +223,7 @@ $(function () {
 		tooltip: { show: false }
 	});
 
-	$("#posts tr1:not(:first)").each(function(index, value) {
+	$("#posts tr:not(:first)").each(function(index, value) {
 		$chart = $(value);
 		var chart = c3.generate({
 			bindto: '#chart'+$chart.find("td:first-child").text(),

@@ -79,7 +79,7 @@
 	ul#menu li a {
 		display:block;
 		text-align:center;
-		width:150px;
+		width:140px;
 		padding: 10px 0px;
 		background-color:#EEF;
 		text-decoration:none;

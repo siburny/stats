@@ -63,7 +63,7 @@ class Portal extends MY_Controller {
 		else
 			$page = 0;
 		$data['params']['page'] = $page;
-		
+
 		$sort = $this->input->get('sort');
 		if(isset($sort))
 		{
@@ -261,9 +261,145 @@ class Portal extends MY_Controller {
 		$this->parser->parse("portal/home", $data);
 	}
 
+	function post()
+	{
+		$this->load->library("google_php_client", $this->user_company);
+
+		$this->parser->data['active_menu_posts'] = TRUE;
+
+		$data = array(
+			"page_title" => "Welcome!",
+			"params" => array()
+		);
+
+		$post_id = $this->input->get('post_id');
+		if(empty($post_id) || !preg_match('/^[0-9]+$/i', $post_id))
+		{
+			redirect('/portal/');
+		}
+
+		$data['params']['post_id'] = $post_id;
+
+		$page = $this->input->get('page');
+		if($page != null && preg_match('/^[0-9]+$/i', $page))
+		{
+			$page = str_replace("page", "", strtolower($page));
+			$page--;
+		}
+		else
+			$page = 0;
+		$data['params']['page'] = $page;
+
+		$date_from = $this->input->get("date_from");
+		$date_to = $this->input->get("date_to");
+
+		if($date_from != NULL)
+		{
+			$date_from = strtolower($date_from);
+			$data['uri_date'] = "date_from=".$date_from;
+			switch($date_from)
+			{
+				case "today":
+				case "yesterday":
+					$data['date_selected'] = $date_from;
+					$data['params']['date_from'] = $date_from;
+					$date_to = new DateTime($date_from);
+					$date_from = clone $date_to;
+					break;
+				case "7days":
+					$data['date_selected'] = $date_from;
+					$data['params']['date_from'] = $date_from;
+					$date_to = new DateTime("yesterday");
+					$date_from = clone $date_to;
+					$date_from->modify('-6 days');
+					break;
+				case "30days":
+					$data['date_selected'] = $date_from;
+					$data['params']['date_from'] = $date_from;
+					$date_to = new DateTime("yesterday");
+					$date_from = clone $date_to;
+					$date_from->modify('-29 days');
+					break;
+				default:
+					if($date_to != NULL)
+					{
+						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
+						{
+							$data['date_selected'] = "custom";
+							$data['date_from_input'] = $date_from;
+							$data['date_to_input'] = $date_to;
+							$data['params']['date_from'] = $date_from;
+							$data['params']['date_to'] = $date_to;
+							$data['uri_date'] .= "&date_to=".$date_to;
+							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
+							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
+							break;
+						}
+					}
+					$data['date_selected'] = "";
+					$data['uri_date'] = '';
+					$date_to = NULL;
+					break;
+			}
+		}
+		if($date_to == NULL)
+		{
+			$date_to = (new DateTime());
+			$date_from = clone $date_to;
+			$date_from->modify('-29 days');
+		}
+		$data['date_from'] = $date_from->format("M j, Y");
+		$data['date_to'] = $date_to->format("M j, Y");
+		$data['date_from_ymd'] = $date_from->format('Y-m-d');
+		$data['date_to_ymd'] = $date_to->format('Y-m-d');
+
+		$this->load->model("Post_model", "post");
+
+		$this->user = $this->ion_auth->user()->row();
+
+		$post = $this->post->get($post_id);
+		$data['post_id'] = $post->post_id;
+		$data['post_title'] = $post->title;
+		$data['post_url'] = $post->url;
+		$data['post_author'] = $post->author;
+		$data['post_thumb'] = $post->image;
+		$data['post_date'] = date("F jS, Y", strtotime($post->date_published));
+
+		$data['uri_post_url'] = 'url='.$post->url;
+
+		$rows = $this->google_php_client->get_post_stats_by_channel($post->url, $data['date_to_ymd'], $data['date_from_ymd']);
+		$data['rows'] = array();
+		foreach($rows as $index => $row)
+		{
+			$ar = array(
+				"n" => $index+1,
+				"source" => $row[0],
+				"sessions" => number_format($row[1]),
+				"pageviews" => number_format($row[2])
+			);
+
+			$data['rows'][] = $ar;
+		}
+
+		$data['last_updated'] = date(DATE_RFC2822);
+
+		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
+		$rows = $this->google_php_client->get_stats(array('post_url' => $data['post_url']), $data['date_to_ymd'], $data['date_from_ymd']);
+		if($rows)
+		{
+			$data['totals']['sessions'] = number_format($rows[0][0]);
+			$data['totals']['pageviews'] = number_format($rows[0][1]);
+		}
+
+		$query = $data['params'];
+		unset($query['page']);
+		$data['param_link'] = http_build_query($query);
+
+		$this->parser->parse("portal/post", $data);
+	}
+
 	function authors()
 	{
-
 		if(!$this->ion_auth->is_manager())
 		{
 			redirect('/portal/');
@@ -376,137 +512,6 @@ class Portal extends MY_Controller {
 		$this->parser->parse("portal/authors", $data);
 	}
 
-	function post()
-	{
-		$this->load->library("google_php_client", $this->user_company);
-
-		$this->parser->data['active_menu_posts'] = TRUE;
-
-		$data = array(
-			"page_title" => "Welcome!",
-			"params" => array()
-		);
-
-		$post_id = $this->input->get('post_id');
-		if(empty($post_id) || !preg_match('/^[0-9]+$/i', $post_id))
-		{
-			redirect('/portal/');
-		}
-
-		$data['params']['post_id'] = $post_id;
-
-		$page = $this->input->get('page');
-		if($page != null && preg_match('/^[0-9]+$/i', $page))
-		{
-			$page = str_replace("page", "", strtolower($page));
-			$page--;
-		}
-		else
-			$page = 0;
-		$data['params']['page'] = $page;
-
-		$date_from = $this->input->get("date_from");
-		$date_to = $this->input->get("date_to");
-
-		if($date_from != NULL)
-		{
-			$date_from = strtolower($date_from);
-			switch($date_from)
-			{
-				case "today":
-				case "yesterday":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime($date_from);
-					$date_from = clone $date_to;
-					break;
-				case "7days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-6 days');
-					break;
-				case "30days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-29 days');
-					break;
-				default:
-					if($date_to != NULL)
-					{
-						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
-						{
-							$data['date_selected'] = "custom";
-							$data['date_from_input'] = $date_from;
-							$data['date_to_input'] = $date_to;
-							$data['params']['date_from'] = $date_from;
-							$data['params']['date_to'] = $date_to;
-							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
-							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
-							break;
-						}
-					}
-					$data['date_selected'] = "";
-					$date_to = NULL;
-					break;
-			}
-		}
-		if($date_to == NULL)
-		{
-			$date_to = (new DateTime());
-			$date_from = clone $date_to;
-			$date_from->modify('-29 days');
-		}
-		$data['date_from'] = $date_from->format("M j, Y");
-		$data['date_to'] = $date_to->format("M j, Y");
-		$data['date_from_ymd'] = $date_from->format('Y-m-d');
-		$data['date_to_ymd'] = $date_to->format('Y-m-d');
-
-		$this->load->model("Post_model", "post");
-
-		$this->user = $this->ion_auth->user()->row();
-
-		$post = $this->post->get($post_id);
-		$data['post_id'] = $post->post_id;
-		$data['post_title'] = $post->title;
-		$data['post_url'] = $post->url;
-		$data['post_author'] = $post->author;
-		$data['post_thumb'] = $post->image;
-		$data['post_date'] = date("F jS, Y", strtotime($post->date_published));
-
-		$rows = $this->google_php_client->get_post_stats_by_channel($post->url, $data['date_to_ymd'], $data['date_from_ymd']);
-		$data['rows'] = array();
-		foreach($rows as $index => $row)
-		{
-			$ar = array(
-				"n" => $index+1,
-				"source" => $row[0],
-				"sessions" => number_format($row[1]),
-				"pageviews" => number_format($row[2])
-			);
-
-			$data['rows'][] = $ar;
-		}
-
-		$data['last_updated'] = date(DATE_RFC2822);
-
-		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
-		$rows = $this->google_php_client->get_stats(array('post_url' => $data['post_url']), $data['date_to_ymd'], $data['date_from_ymd']);
-		if($rows)
-		{
-			$data['totals']['sessions'] = number_format($rows[0][0]);
-			$data['totals']['pageviews'] = number_format($rows[0][1]);
-		}
-
-		$query = $data['params'];
-		unset($query['page']);
-		$data['param_link'] = http_build_query($query);
-
-		$this->parser->parse("portal/post", $data);
-	}
 
 	/*function _author()
 	{

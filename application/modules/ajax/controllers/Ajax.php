@@ -79,9 +79,9 @@ class Ajax extends CI_Controller {
 		$post_id = NULL;
 		$author = NULL;
 		$search_param = array();
-		if($this->input->get("post_id") != NULL && is_numeric($this->input->get("post_id")))
+		if($this->input->get("url"))
 		{
-			$post_id = $this->input->get("post_id");
+			$search_param['post_url'] = $this->input->get("url");
 		}
 		elseif($this->input->get("author_name") != NULL && !empty($this->input->get("author_name")))
 		{
@@ -149,11 +149,14 @@ class Ajax extends CI_Controller {
 		$data = 'x,Views'.PHP_EOL;
 		if(!empty($url))
 		{
-			$rows = $this->google_php_client->get_graph_data('yesterday', '7daysAgo', $url);
+			$rows = $this->google_php_client->get_stats(array('post_url' => $url), 'yesterday', '7daysAgo', 'date');
 
 			foreach($rows as $row)
 			{
 				$row[0] = substr($row[0], 0, 4).'-'.substr($row[0], 4, 2).'-'.substr($row[0], 6, 2);
+				if($row[1] == 0) {
+					$row[1] = 0.01;
+				}
 				$data .= implode(",", $row).PHP_EOL;
 			}
 		}
