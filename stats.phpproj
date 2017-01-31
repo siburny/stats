@@ -493,7 +493,6 @@
     <Compile Include="application\modules\portal\views\invite_user.php" />
     <Compile Include="application\modules\portal\views\invite.php" />
     <Compile Include="application\modules\portal\views\connect_view.php" />
-    <Compile Include="application\modules\portal\views\author.php" />
     <Compile Include="application\modules\portal\views\post.php" />
     <Compile Include="application\modules\website\controllers\Main.php" />
     <Compile Include="application\core\MY_Loader.php" />

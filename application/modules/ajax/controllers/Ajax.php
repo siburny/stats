@@ -53,8 +53,6 @@ class Ajax extends CI_Controller {
 
 		$data = "Can't connect to Google";
 
-		$post_id = NULL;
-		$author = NULL;
 		$search_param = array();
 		if($this->input->get("url"))
 		{
