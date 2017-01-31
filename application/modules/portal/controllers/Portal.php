@@ -38,7 +38,6 @@ class Portal extends MY_Controller {
 		if($date_from != NULL)
 		{
 			$date_from = strtolower($date_from);
-			$data['uri_date'] = "date_from=".$date_from;
 			switch($date_from)
 			{
 				case "today":
@@ -72,14 +71,12 @@ class Portal extends MY_Controller {
 							$data['date_to_input'] = $date_to;
 							$data['params']['date_from'] = $date_from;
 							$data['params']['date_to'] = $date_to;
-							$data['uri_date'] .= "&date_to=".$date_to;
 							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
 							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
 							break;
 						}
 					}
 					$data['date_selected'] = '';
-					$data['uri_date'] = '';
 					$date_to = NULL;
 					break;
 			}

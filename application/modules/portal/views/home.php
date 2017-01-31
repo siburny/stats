@@ -84,11 +84,11 @@
 
 <script>
 	$(".search_box input[type=button]").on('click', function() {
-		window.location = '/portal/?{{#uri_date}}{{.}}&{{/uri_date}}{{#uri_author}}{{.}}&{{/uri_author}}search=' + encodeURIComponent($(".search_box input[type=text]").val());
+		window.location = '/portal/?{{#uri_author}}{{.}}&{{/uri_author}}search=' + encodeURIComponent($(".search_box input[type=text]").val());
 	});
 	$(".search_box input[type=text]").keypress(function(e) {
     if(e.which == 13) {
-    	window.location = '/portal/?{{#uri_date}}{{.}}&{{/uri_date}}{{#uri_author}}{{.}}&{{/uri_author}}search=' + encodeURIComponent($(".search_box input[type=text]").val());
+    	window.location = '/portal/?{{#uri_author}}{{.}}&{{/uri_author}}search=' + encodeURIComponent($(".search_box input[type=text]").val());
     }
 	});
 
@@ -168,12 +168,12 @@
 		<th style="text-align:left;">Title</th>
 		<th></th>
 		<th>
-			<a href='/portal/?sort={{sort_sessions}}{{#uri_date}}&{{{.}}}{{/uri_date}}{{#uri_author}}&{{.}}{{/uri_author}}{{#uri_search}}&{{.}}{{/uri_search}}'>Sessions</a>
+			<a href='/portal/?sort={{sort_sessions}}{{#uri_author}}&{{.}}{{/uri_author}}{{#uri_search}}&{{.}}{{/uri_search}}'>Sessions</a>
 			{{#sort_sessions_up}}<img src="/images/arrow_up_green.png" alt="Up" />{{/sort_sessions_up}}
 			{{#sort_sessions_down}}<img src="/images/arrow_down_red.png" alt="Down" />{{/sort_sessions_down}}
 		</th>
 		<th>
-			<a href='/portal/?sort={{sort_pageviews}}{{#uri_date}}&{{{.}}}{{/uri_date}}{{#uri_author}}&{{.}}{{/uri_author}}{{#uri_search}}&{{.}}{{/uri_search}}'>Pageviews</a>
+			<a href='/portal/?sort={{sort_pageviews}}{{#uri_author}}&{{.}}{{/uri_author}}{{#uri_search}}&{{.}}{{/uri_search}}'>Pageviews</a>
 			{{#sort_pageviews_up}}<img src="/images/arrow_up_green.png" alt="Up" />{{/sort_pageviews_up}}
 			{{#sort_pageviews_down}}<img src="/images/arrow_down_red.png" alt="Down" />{{/sort_pageviews_down}}
 		</th>
@@ -185,7 +185,7 @@
 		<td class="image"><img src="{{image}}" alt=""/></td>
 		<td>
 			<div class="title" style="clear:both;margin-bottom:5px;">
-				<a href="/portal/post/?post_id={{post_id}}{{#uri_date}}&{{{.}}}{{/uri_date}}" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
+				<a href="/portal/post/?post_id={{post_id}}" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
 			</div>
 			<div style="font-size:90%;">
 				<div class="date_published">{{date_published}}{{#author}} by {{^uri_author}}<a style="font-weight:bold;" href="/portal/?author_name={{.}}">{{/uri_author}}{{.}}{{^uri_author}}</a>{{/uri_author}}{{/author}}</div>
