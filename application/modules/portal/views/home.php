@@ -188,7 +188,7 @@
 				<a href="/portal/post/?post_id={{post_id}}{{#uri_date}}&{{{.}}}{{/uri_date}}" style="font-weight:bold;font-size:125%;text-decoration:none;">{{title}}</a><a href="{{url}}" target="_blank"><img src="/images/ic_open_in_new_black_18dp_1x.png" /></a>
 			</div>
 			<div style="font-size:90%;">
-				<div class="date_published">{{date_published}}{{#author}} by {{^uri_author}}<a style="font-weight:bold;" href="/portal/?author_name={{.}}{{#uri_date}}&{{.}}{{/uri_date}}">{{/uri_author}}{{.}}{{^uri_author}}</a>{{/uri_author}}{{/author}}</div>
+				<div class="date_published">{{date_published}}{{#author}} by {{^uri_author}}<a style="font-weight:bold;" href="/portal/?author_name={{.}}">{{/uri_author}}{{.}}{{^uri_author}}</a>{{/uri_author}}{{/author}}</div>
 			</div>
 		</td>
 		<td>
@@ -215,7 +215,7 @@
 $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
-		data: { x: 'x', type: 'area', url: '/ajax/get_graph_data/?{{#uri_date}}{{.}}&{{/uri_date}}{{#uri_author}}{{.}}&{{/uri_author}}{{#uri_search}}{{.}}&{{/uri_search}}', xFormat: '%Y-%m-%d %-H:%M' },
+		data: { x: 'x', type: 'area', url: '/ajax/get_graph_data/?date_from={{date_from_ymd}}&date_to={{date_to_ymd}}{{#uri_author}}&{{.}}{{/uri_author}}{{#uri_search}}&{{.}}{{/uri_search}}', xFormat: '%Y-%m-%d %-H:%M' },
 		axis: { x: { type: 'timeseries' }, y: { padding: { top: 20 }, tick: { } }, },
 		grid: { y: { show: true } },
 		legend: { show: false },

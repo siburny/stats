@@ -70,7 +70,7 @@
 <script>
 	$("#date_custom #go").on('click', function () {
 		if ($("#date_from").val() && $("#date_to").val()) {
-			window.location = '/portal/?date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val()) + '{{#author}}&author_name={{.}}{{/author}}';
+			window.location = '/portal/?date_from=' + encodeURIComponent($("#date_from").val()) + '&date_to=' + encodeURIComponent($("#date_to").val());
 		}
 	});
 
@@ -143,7 +143,7 @@
 {{#rows}}
 	<tr class="{{class}}" data-url="{{url}}">
 		<td>{{n}}</td>
-		<td>{{author}}</td>
+		<td><a href="/portal/?author_name={{author}}">{{author}}</a></td>
 		<td>{{sessions}}</td>
 		<td>{{pageviews}}</td>
 	</tr>
@@ -156,7 +156,7 @@
 $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
-		data: { x: 'x', type: 'area', url: '/ajax/get_graph_data/?{{{portal_link}}}', xFormat: '%Y-%m-%d %-H:%M' },
+		data: { x: 'x', type: 'area', url: '/ajax/get_graph_data/?date_from={{date_from_ymd}}&date_to={{date_to_ymd}}', xFormat: '%Y-%m-%d %-H:%M' },
 		axis: { x: { type: 'timeseries' }, y: { padding: { top: 20 }, tick: { } }, },
 		grid: { y: { show: true } },
 		legend: { show: false },
