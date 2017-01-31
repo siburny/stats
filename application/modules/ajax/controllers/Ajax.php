@@ -25,54 +25,31 @@ class Ajax extends CI_Controller {
 	{
 		$this->load->library("google_php_client", $this->user_company);
 
-		$date_from = $this->input->get("date_from");
-		$date_to = $this->input->get("date_to");
+
 		if(!isset($this->user) || !isset($this->user_company))
 		{
 			set_status_header(401);
 			return;
 		}
 
-		if($date_from != NULL)
+		$date_from = $this->input->get("date_from");
+		$date_to = $this->input->get("date_to");
+		if(!preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/", $date_from) || !preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/", $date_to))
 		{
-			$date_from = strtolower($date_from);
-			switch($date_from)
-			{
-				case "today":
-				case "yesterday":
-					$date_to = new DateTime($date_from);
-					$date_from = clone $date_to;
-					break;
-				case "7days":
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-6 days');
-					break;
-				case "30days":
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-29 days');
-					break;
-				default:
-					if($date_to != NULL)
-					{
-						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
-						{
-							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
-							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
-							break;
-						}
-					}
-					$date_to = NULL;
-					break;
-			}
+			set_status_header(401);
+			return;
 		}
-		if($date_to == NULL)
+		/*elseif(isset($_SESSION['date_to']) && isset($_SESSION['date_from']))
+		{
+			$date_to = $_SESSION['date_to'];
+			$date_from = $_SESSION['date_from'];
+		}
+		else
 		{
 			$date_to = (new DateTime());
 			$date_from = clone $date_to;
 			$date_from->modify('-29 days');
-		}
+		}*/
 
 		$data = "Can't connect to Google";
 
@@ -92,15 +69,14 @@ class Ajax extends CI_Controller {
 			$search_param['search'] = $this->input->get("search");
 		}
 
-		$rows = $this->google_php_client->get_stats($search_param, $date_to->format('Y-m-d'), $date_from->format('Y-m-d'), 'date');
+		$rows = $this->google_php_client->get_stats($search_param, $date_to, $date_from, 'date');
 
 			$data = 'x,Views'.PHP_EOL;
 			if($date_to == $date_from)
 			{
-				$date = $date_to->format('Y-m-d');
 				foreach($rows as $index => $row)
 				{
-					$rows[$index][0] = $date.' '.$row[0].':00';
+					$rows[$index][0] = $date_to.' '.$row[0].':00';
 				}
 			}
 			else

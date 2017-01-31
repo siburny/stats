@@ -19,6 +19,92 @@ class Portal extends MY_Controller {
 		$this->user_company = $this->company->get($this->user->company);
 	}
 
+	private function _process_date(&$data)
+	{
+		$date_from = $this->input->get("date_from");
+		$date_to = $this->input->get("date_to");
+
+		if($date_from != NULL)
+		{
+			$date_from = strtolower($date_from);
+			$data['uri_date'] = "date_from=".$date_from;
+			switch($date_from)
+			{
+				case "today":
+				case "yesterday":
+					$data['date_selected'] = $date_from;
+					$data['params']['date_from'] = $date_from;
+					$date_to = new DateTime($date_from);
+					$date_from = clone $date_to;
+					break;
+				case "7days":
+					$data['date_selected'] = $date_from;
+					$data['params']['date_from'] = $date_from;
+					$date_to = new DateTime("yesterday");
+					$date_from = clone $date_to;
+					$date_from->modify('-6 days');
+					break;
+				case "30days":
+					$data['date_selected'] = $date_from;
+					$data['params']['date_from'] = $date_from;
+					$date_to = new DateTime("yesterday");
+					$date_from = clone $date_to;
+					$date_from->modify('-29 days');
+					break;
+				default:
+					if($date_to != NULL)
+					{
+						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
+						{
+							$data['date_selected'] = "custom";
+							$data['date_from_input'] = $date_from;
+							$data['date_to_input'] = $date_to;
+							$data['params']['date_from'] = $date_from;
+							$data['params']['date_to'] = $date_to;
+							$data['uri_date'] .= "&date_to=".$date_to;
+							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
+							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
+							break;
+						}
+					}
+					$data['date_selected'] = '';
+					$data['uri_date'] = '';
+					$date_to = NULL;
+					break;
+			}
+		}
+		if($date_to == NULL)
+		{
+			if(isset($_SESSION['date_to']) && isset($_SESSION['date_from']))
+			{
+				$date_to = $_SESSION['date_to'];
+				$date_from = $_SESSION['date_from'];
+			}
+			else
+			{
+				$date_to = (new DateTime());
+				$date_from = clone $date_to;
+				$date_from->modify('-29 days');
+			}
+		}
+		else
+		{
+			$_SESSION['date_to'] = $date_to;
+			$_SESSION['date_from'] = $date_from;
+		}
+		$data['date_from_ymd'] = $date_from->format('Y-m-d');
+		$data['date_to_ymd'] = $date_to->format('Y-m-d');
+		$data['date_from'] = $date_from->format("M j, Y");
+		if($data['date_from_ymd'] == $data['date_to_ymd'])
+		{
+			$data['date_to'] = "";
+		}
+		else
+		{
+			$data['date_to'] = $date_to->format("M j, Y");
+		}
+	}
+
 	function index()
 	{
 		$this->load->library("google_php_client", $this->user_company);
@@ -99,76 +185,7 @@ class Portal extends MY_Controller {
 		$data['sort_pageviews_down'] = $sort == '-totalEvents';
 		$data['sort_pageviews_up'] = $sort == 'totalEvents';
 
-
-		$date_from = $this->input->get("date_from");
-		$date_to = $this->input->get("date_to");
-
-		if($date_from != NULL)
-		{
-			$date_from = strtolower($date_from);
-			$data['uri_date'] = "date_from=".$date_from;
-			switch($date_from)
-			{
-				case "today":
-				case "yesterday":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime($date_from);
-					$date_from = clone $date_to;
-					break;
-				case "7days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-6 days');
-					break;
-				case "30days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-29 days');
-					break;
-				default:
-					if($date_to != NULL)
-					{
-						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
-						{
-							$data['date_selected'] = "custom";
-							$data['date_from_input'] = $date_from;
-							$data['date_to_input'] = $date_to;
-							$data['params']['date_from'] = $date_from;
-							$data['params']['date_to'] = $date_to;
-							$data['uri_date'] .= "&date_to=".$date_to;
-							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
-							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
-							break;
-						}
-					}
-					$data['date_selected'] = '';
-					$data['uri_date'] = '';
-					$date_to = NULL;
-					break;
-			}
-		}
-		if($date_to == NULL)
-		{
-			$date_to = (new DateTime());
-			$date_from = clone $date_to;
-			$date_from->modify('-29 days');
-		}
-		$data['date_from_ymd'] = $date_from->format('Y-m-d');
-		$data['date_to_ymd'] = $date_to->format('Y-m-d');
-		$data['date_from'] = $date_from->format("M j, Y");
-		if($data['date_from_ymd'] == $data['date_to_ymd'])
-		{
-			$data['date_to'] = "";
-		}
-		else
-		{
-			$data['date_to'] = $date_to->format("M j, Y");
-		}
+		$this->_process_date($data);
 
 		$this->load->model("Post_model", "post");
 
@@ -278,65 +295,7 @@ class Portal extends MY_Controller {
 			"params" => array()
 		);
 
-		$date_from = $this->input->get("date_from");
-		$date_to = $this->input->get("date_to");
-
-		if($date_from != NULL)
-		{
-			$date_from = strtolower($date_from);
-			switch($date_from)
-			{
-				case "today":
-				case "yesterday":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime($date_from);
-					$date_from = clone $date_to;
-					break;
-				case "7days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-6 days');
-					break;
-				case "30days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-29 days');
-					break;
-				default:
-					if($date_to != NULL)
-					{
-						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
-						{
-							$data['date_selected'] = "custom";
-							$data['date_from_input'] = $date_from;
-							$data['date_to_input'] = $date_to;
-							$data['params']['date_from'] = $date_from;
-							$data['params']['date_to'] = $date_to;
-							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
-							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
-							break;
-						}
-					}
-					$data['date_selected'] = "";
-					$date_to = NULL;
-					break;
-			}
-		}
-		if($date_to == NULL)
-		{
-			$date_to = (new DateTime());
-			$date_from = clone $date_to;
-			$date_from->modify('-29 days');
-		}
-		$data['date_from'] = $date_from->format("M j, Y");
-		$data['date_to'] = $date_to->format("M j, Y");
-		$data['date_from_ymd'] = $date_from->format('Y-m-d');
-		$data['date_to_ymd'] = $date_to->format('Y-m-d');
+		$this->_process_date($data);
 
 		$this->load->model("Post_model", "post");
 
@@ -405,65 +364,7 @@ class Portal extends MY_Controller {
 			$page = 0;
 		$data['params']['page'] = $page;
 
-		$date_from = $this->input->get("date_from");
-		$date_to = $this->input->get("date_to");
-
-		if($date_from != NULL)
-		{
-			$date_from = strtolower($date_from);
-			switch($date_from)
-			{
-				case "today":
-				case "yesterday":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime($date_from);
-					$date_from = clone $date_to;
-					break;
-				case "7days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-6 days');
-					break;
-				case "30days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-29 days');
-					break;
-				default:
-					if($date_to != NULL)
-					{
-						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
-						{
-							$data['date_selected'] = "custom";
-							$data['date_from_input'] = $date_from;
-							$data['date_to_input'] = $date_to;
-							$data['params']['date_from'] = $date_from;
-							$data['params']['date_to'] = $date_to;
-							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
-							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
-							break;
-						}
-					}
-					$data['date_selected'] = "";
-					$date_to = NULL;
-					break;
-			}
-		}
-		if($date_to == NULL)
-		{
-			$date_to = (new DateTime());
-			$date_from = clone $date_to;
-			$date_from->modify('-29 days');
-		}
-		$data['date_from'] = $date_from->format("M j, Y");
-		$data['date_to'] = $date_to->format("M j, Y");
-		$data['date_from_ymd'] = $date_from->format('Y-m-d');
-		$data['date_to_ymd'] = $date_to->format('Y-m-d');
+		$this->_process_date($data);
 
 		$this->load->model("Post_model", "post");
 
