@@ -19,87 +19,8 @@ class Portal extends MY_Controller {
 		$this->user_company = $this->company->get($this->user->company);
 	}
 
-	function index()
+	private function _process_date(&$data)
 	{
-		$this->load->library("google_php_client", $this->user_company);
-
-		$this->parser->data['active_menu_posts'] = TRUE;
-
-		$data = array(
-			"page_title" => "Welcome!",
-			"params" => array()
-		);
-
-		$search_param = array();
-
-		$post_search = $this->input->get("search");
-		if(!empty($post_search))
-		{
-			$data['post_search'] = $post_search;
-			$data['uri_search'] = "search=".$post_search;
-			$data['params']['search'] = $post_search;
-			$search_param['search'] = $post_search;
-		}
-
-		$author = $this->input->get('author_name');
-		if(!empty($author))
-		{
-			$data['author_name'] = $author;
-			$data['uri_author'] = "author_name=".$author;
-			$data['params']['author_name'] = $author;
-			$search_param['author'] = $author;
-		}
-
-		$page = $this->input->get('page');
-		if($page != null && preg_match('/^[0-9]+$/i', $page))
-		{
-			$page = str_replace("page", "", strtolower($page));
-			$page--;
-			if($page < 0)
-			{
-				$page = 0;
-			}
-		}
-		else
-			$page = 0;
-		$data['params']['page'] = $page;
-
-		$sort = $this->input->get('sort');
-		if(isset($sort))
-		{
-			if($sort == 'sessions') {
-				$sort = 'uniqueEvents';
-			} elseif($sort == '-sessions') {
-				$sort = '-uniqueEvents';
-			} elseif($sort == 'pageviews') {
-				$sort = 'totalEvents';
-			} elseif($sort == '-pageviews') {
-				$sort = '-totalEvents';
-			}
-		}
-		else
-		{
-			$sort = '-uniqueEvents';
-		}
-		if($sort == '-uniqueEvents') {
-			$data['sort_sessions'] = 'sessions';
-			$data['sort_pageviews'] = '-pageviews';
-		} elseif($sort == 'uniqueEvents') {
-			$data['sort_sessions'] = '-sessions';
-			$data['sort_pageviews'] = '-pageviews';
-		} elseif($sort == '-totalEvents') {
-			$data['sort_sessions'] = '-sessions';
-			$data['sort_pageviews'] = 'pageviews';
-		} elseif($sort == 'totalEvents') {
-			$data['sort_sessions'] = '-sessions';
-			$data['sort_pageviews'] = '-pageviews';
-		}
-		$data['sort_sessions_down'] = $sort == '-uniqueEvents';
-		$data['sort_sessions_up'] = $sort == 'uniqueEvents';
-		$data['sort_pageviews_down'] = $sort == '-totalEvents';
-		$data['sort_pageviews_up'] = $sort == 'totalEvents';
-
-
 		$date_from = $this->input->get("date_from");
 		$date_to = $this->input->get("date_to");
 
@@ -154,9 +75,22 @@ class Portal extends MY_Controller {
 		}
 		if($date_to == NULL)
 		{
-			$date_to = (new DateTime());
-			$date_from = clone $date_to;
-			$date_from->modify('-29 days');
+			if(isset($_SESSION['date_to']) && isset($_SESSION['date_from']))
+			{
+				$date_to = $_SESSION['date_to'];
+				$date_from = $_SESSION['date_from'];
+			}
+			else
+			{
+				$date_to = (new DateTime());
+				$date_from = clone $date_to;
+				$date_from->modify('-29 days');
+			}
+		}
+		else
+		{
+			$_SESSION['date_to'] = $date_to;
+			$_SESSION['date_from'] = $date_from;
 		}
 		$data['date_from_ymd'] = $date_from->format('Y-m-d');
 		$data['date_to_ymd'] = $date_to->format('Y-m-d');
@@ -169,6 +103,89 @@ class Portal extends MY_Controller {
 		{
 			$data['date_to'] = $date_to->format("M j, Y");
 		}
+	}
+
+	function index()
+	{
+		$this->load->library("google_php_client", $this->user_company);
+
+		$this->parser->data['active_menu_posts'] = TRUE;
+
+		$data = array(
+			"page_title" => "Welcome!",
+			"params" => array()
+		);
+
+		$search_param = array();
+
+		$post_search = $this->input->get("search");
+		if(!empty($post_search))
+		{
+			$data['post_search'] = $post_search;
+			$data['uri_search'] = "search=".$post_search;
+			$data['params']['search'] = $post_search;
+			$search_param['search'] = $post_search;
+		}
+
+		$author = $this->input->get('author_name');
+		if(!empty($author))
+		{
+			$data['author_name'] = $author;
+			$data['uri_author'] = "author_name=".$author;
+			$data['params']['author_name'] = $author;
+			$search_param['author'] = $author;
+		}
+
+		$page = $this->input->get('page');
+		if($page != null && preg_match('/^[0-9]+$/i', $page))
+		{
+			$page = str_replace("page", "", strtolower($page));
+			$page--;
+			if($page < 0)
+			{
+				$page = 0;
+			}
+		}
+		else
+			$page = 0;
+		$data['params']['page'] = $page;
+		
+		$sort = $this->input->get('sort');
+		if(isset($sort))
+		{
+			if($sort == 'sessions') {
+				$sort = 'uniqueEvents';
+			} elseif($sort == '-sessions') {
+				$sort = '-uniqueEvents';
+			} elseif($sort == 'pageviews') {
+				$sort = 'totalEvents';
+			} elseif($sort == '-pageviews') {
+				$sort = '-totalEvents';
+			}
+		}
+		else
+		{
+			$sort = '-uniqueEvents';
+		}
+		if($sort == '-uniqueEvents') {
+			$data['sort_sessions'] = 'sessions';
+			$data['sort_pageviews'] = '-pageviews';
+		} elseif($sort == 'uniqueEvents') {
+			$data['sort_sessions'] = '-sessions';
+			$data['sort_pageviews'] = '-pageviews';
+		} elseif($sort == '-totalEvents') {
+			$data['sort_sessions'] = '-sessions';
+			$data['sort_pageviews'] = 'pageviews';
+		} elseif($sort == 'totalEvents') {
+			$data['sort_sessions'] = '-sessions';
+			$data['sort_pageviews'] = '-pageviews';
+		}
+		$data['sort_sessions_down'] = $sort == '-uniqueEvents';
+		$data['sort_sessions_up'] = $sort == 'uniqueEvents';
+		$data['sort_pageviews_down'] = $sort == '-totalEvents';
+		$data['sort_pageviews_up'] = $sort == 'totalEvents';
+
+		$this->_process_date($data);
 
 		$this->load->model("Post_model", "post");
 
@@ -261,6 +278,63 @@ class Portal extends MY_Controller {
 		$this->parser->parse("portal/home", $data);
 	}
 
+	function authors()
+	{
+
+		if(!$this->ion_auth->is_manager())
+		{
+			redirect('/portal/');
+		}
+
+		$this->parser->data['active_menu_authors'] = TRUE;
+
+		$this->load->library("google_php_client", $this->user_company);
+
+		$data = array(
+			"page_title" => "Author Stats!",
+			"params" => array()
+		);
+
+		$this->_process_date($data);
+
+		$this->load->model("Post_model", "post");
+
+		$this->user = $this->ion_auth->user()->row();
+
+		$rows = $this->google_php_client->get_authors_stats($data['date_to_ymd'], $data['date_from_ymd']);
+
+		$data['rows'] = array();
+		foreach($rows as $index => $row)
+		{
+			$ar = array(
+				"n" => $index+1,
+				"author" => $row[0],
+				"sessions" => $row[1],
+				"pageviews" => $row[2]
+			);
+
+			$data['rows'][] = $ar;
+		}
+
+		$rows = $this->db->from('post_stats')->
+			select_max('date_updated')->get()->result_array();
+		$data['last_updated'] = $rows[0]['date_updated'];
+
+		//Total Stats
+		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
+		$rows = $this->google_php_client->get_stats($data['date_to_ymd'], $data['date_from_ymd']);
+		if($rows)
+		{
+			$data['totals']['sessions'] = number_format($rows[0][0]);
+			$data['totals']['pageviews'] = number_format($rows[0][1]);
+		}
+
+		$query = $data['params'];
+		$data['portal_link'] = http_build_query($query);
+
+		$this->parser->parse("portal/authors", $data);
+	}
+
 	function post()
 	{
 		$this->load->library("google_php_client", $this->user_company);
@@ -290,68 +364,7 @@ class Portal extends MY_Controller {
 			$page = 0;
 		$data['params']['page'] = $page;
 
-		$date_from = $this->input->get("date_from");
-		$date_to = $this->input->get("date_to");
-
-		if($date_from != NULL)
-		{
-			$date_from = strtolower($date_from);
-			$data['uri_date'] = "date_from=".$date_from;
-			switch($date_from)
-			{
-				case "today":
-				case "yesterday":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime($date_from);
-					$date_from = clone $date_to;
-					break;
-				case "7days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-6 days');
-					break;
-				case "30days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-29 days');
-					break;
-				default:
-					if($date_to != NULL)
-					{
-						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
-						{
-							$data['date_selected'] = "custom";
-							$data['date_from_input'] = $date_from;
-							$data['date_to_input'] = $date_to;
-							$data['params']['date_from'] = $date_from;
-							$data['params']['date_to'] = $date_to;
-							$data['uri_date'] .= "&date_to=".$date_to;
-							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
-							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
-							break;
-						}
-					}
-					$data['date_selected'] = "";
-					$data['uri_date'] = '';
-					$date_to = NULL;
-					break;
-			}
-		}
-		if($date_to == NULL)
-		{
-			$date_to = (new DateTime());
-			$date_from = clone $date_to;
-			$date_from->modify('-29 days');
-		}
-		$data['date_from'] = $date_from->format("M j, Y");
-		$data['date_to'] = $date_to->format("M j, Y");
-		$data['date_from_ymd'] = $date_from->format('Y-m-d');
-		$data['date_to_ymd'] = $date_to->format('Y-m-d');
+		$this->_process_date($data);
 
 		$this->load->model("Post_model", "post");
 
