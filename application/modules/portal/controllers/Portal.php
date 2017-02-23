@@ -145,6 +145,7 @@ class Portal extends MY_Controller {
 		else
 			$page = 0;
 		$data['params']['page'] = $page;
+		$search_param['page'] = $page;
 
 		$sort = $this->input->get('sort');
 		if(isset($sort))
@@ -200,10 +201,12 @@ class Portal extends MY_Controller {
 		//$date_from_compare = clone $date_from;
 		//$date_from_compare->modify("-".$day_diff." days")->format("Y-m-d");
 
-		$rows = $this->google_php_client->get_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd'], 'eventLabel', $sort, 10);
+		$res = $this->google_php_client->get_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd'], 'eventLabel', $sort, 10);
+		$rows = $res->getRows();
 
-		//$count = Post_model::get_posts_count($search_param, $date_to, $date_from);
-		$more_available = 0;//$count['count']/10 > $page + 1;
+		$data['results_count'] = (1 + $page * 10)." - ".min($res['totalResults'], (1 + $page) * 10)." of ".$res['totalResults'];
+		$more_available = !empty($res['nextLink']);
+		//print_r($res);
 
 		$rows_prev = array();
 		//$rows_prev = Post_model::get_posts($search_param, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
@@ -250,7 +253,7 @@ class Portal extends MY_Controller {
 
 		$rows = null;
 		try {
-			$rows = $this->google_php_client->get_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd']);
+			$rows = $this->google_php_client->get_stats($search_param, $data['date_to_ymd'], $data['date_from_ymd'])->getRows();
 		}
 		catch(Exception $e) {
 		}
@@ -259,8 +262,6 @@ class Portal extends MY_Controller {
 			$data['totals']['sessions'] = number_format($rows[0][0]);
 			$data['totals']['pageviews'] = number_format($rows[0][1]);
 		}
-
-		//$data['results_count'] = (1+$page*10)." - ".min($count['count'], (1+$page)*10)." of ".$count['count'];
 
 		$query = $data['params'];
 		$data['prev_link'] = $page == 0 ? "" : "/portal/?".http_build_query($query);
@@ -334,7 +335,7 @@ class Portal extends MY_Controller {
 		$data['last_updated'] = date(DATE_RFC2822);
 
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
-		$rows = $this->google_php_client->get_stats(array('post_url' => $data['post_url']), $data['date_to_ymd'], $data['date_from_ymd']);
+		$rows = $this->google_php_client->get_stats(array('post_url' => $data['post_url']), $data['date_to_ymd'], $data['date_from_ymd'])->getRows();
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
@@ -389,7 +390,7 @@ class Portal extends MY_Controller {
 
 		//Total Stats
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
-		$rows = $this->google_php_client->get_stats($data['date_to_ymd'], $data['date_from_ymd']);
+		$rows = $this->google_php_client->get_stats($data['date_to_ymd'], $data['date_from_ymd'])->getRows();
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);

@@ -206,6 +206,7 @@ class Google_php_client
 		$analytics = new Google_Service_Analytics($client);
 
 		$filters = 'ga:eventCategory==Author';
+		$page = 0;
 		if(is_array($search_param))
 		{
 			if(!empty($search_param['post_url']))
@@ -219,6 +220,10 @@ class Google_php_client
 			if(!empty($search_param['author']))
 			{
 				$filters .= ';ga:eventAction=='.$search_param['author'];
+			}
+			if(!empty($search_param['page']))
+			{
+				$page = intval($search_param['page']);
 			}
 		}
 
@@ -260,6 +265,7 @@ class Google_php_client
 				'dimensions' => $dimension,
 				'sort' => $sort,
 				'filters' => $filters,
+				'start-index' => $page * (is_numeric($limit) ? $limit : 0) + 1,
 				'max-results' => $limit ? (is_numeric($limit) ? $limit : 25) : 10000
 			)
 		);
@@ -274,10 +280,12 @@ class Google_php_client
 		$analytics = new Google_Service_Analytics($client);
 		$res = call_user_func_array(array($analytics->data_ga, 'get'), $params);
 
-		$data = $res->getRows();
-		$this->ci->cache->save($key, $data, 600);
+		//print_r($res);
 
-		return $data;
+		//$data = $res->getRows();
+		//$this->ci->cache->save($key, $data, 600);
+
+		return $res;
 	}
 
 	public function get_graph_data($search_params = array(), $date_start = 'yesterday', $date_end = 'yesterday')

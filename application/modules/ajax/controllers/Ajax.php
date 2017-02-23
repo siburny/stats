@@ -67,7 +67,7 @@ class Ajax extends CI_Controller {
 			$search_param['search'] = $this->input->get("search");
 		}
 
-		$rows = $this->google_php_client->get_stats($search_param, $date_to, $date_from, 'date');
+		$rows = $this->google_php_client->get_stats($search_param, $date_to, $date_from, 'date')->getRows();
 
 			$data = 'x,Views'.PHP_EOL;
 			if($date_to == $date_from)
@@ -123,7 +123,7 @@ class Ajax extends CI_Controller {
 		$data = 'x,Views'.PHP_EOL;
 		if(!empty($url))
 		{
-			$rows = $this->google_php_client->get_stats(array('post_url' => $url), 'yesterday', '7daysAgo', 'date');
+			$rows = $this->google_php_client->get_stats(array('post_url' => $url), 'yesterday', '7daysAgo', 'date')->getRows();
 
 			foreach($rows as $row)
 			{
