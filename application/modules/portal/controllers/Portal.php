@@ -687,14 +687,6 @@ class Portal extends MY_Controller {
 		$this->parser->parse("portal/ga_code", $data);
 	}
 
-	function data() {
-		$this->parser->data['active_menu_data'] = TRUE;
-
-		$data = array('page_title' => 'Data Settings');
-
-		$this->parser->parse('portal/data', $data);
-	}
-
 	function invite()
 	{
 		$this->parser->data['active_menu_users'] = TRUE;

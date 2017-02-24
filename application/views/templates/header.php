@@ -108,9 +108,7 @@
 		<ul id="menu">
 			<li{{#active_menu_posts}} class="active"{{/active_menu_posts}}><a href="/portal/">Posts</a></li>
 			<li{{#active_menu_authors}} class="active"{{/active_menu_authors}}><a href="/portal/authors/">Authors</a></li>
-			<li{{#active_menu_account}} class="active"{{/active_menu_account}}><a href="#" onclick="alert('no yet'); return false;">Account Settings</a></li>
-			<li{{#active_menu_data}} class="active"{{/active_menu_data}}><a href="/portal/data/">Data Settings</a></li>
-			<li{{#active_menu_billing}} class="active"{{/active_menu_billing}}><a href="/" onclick="alert('no yet'); return false;">Billing Settings</a></li>
+			<li{{#active_menu_settings}} class="active"{{/active_menu_settings}}><a href="/settings/">Settings</a></li>
 			<li{{#active_menu_users}} class="active"{{/active_menu_users}}><a href="/portal/invite/">Users</a></li>
 		</ul>
 		<div class="clear"></div>
