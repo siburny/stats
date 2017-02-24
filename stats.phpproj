@@ -49,10 +49,6 @@
     <Folder Include="application\modules\ajax\" />
     <Folder Include="application\modules\cron\" />
     <Folder Include="application\modules\cron\controllers\" />
-    <Folder Include="application\modules\gravatar\" />
-    <Folder Include="application\modules\gravatar\config\" />
-    <Folder Include="application\modules\gravatar\helpers\" />
-    <Folder Include="application\modules\gravatar\libraries\" />
     <Folder Include="application\modules\settings\" />
     <Folder Include="application\modules\settings\controllers\" />
     <Folder Include="application\modules\settings\views\" />
@@ -471,6 +467,7 @@
     <Compile Include="application\config\doctypes.php" />
     <Compile Include="application\config\foreign_chars.php" />
     <Compile Include="application\config\google_client.php" />
+    <Compile Include="application\config\gravatar.php" />
     <Compile Include="application\config\hooks.php" />
     <Compile Include="application\config\ion_auth.php" />
     <Compile Include="application\config\email.php" />
@@ -484,8 +481,10 @@
     <Compile Include="application\config\testing\google_client.php" />
     <Compile Include="application\config\user_agents.php" />
     <Compile Include="application\core\MY_Controller.php" />
+    <Compile Include="application\helpers\gravatar_helper.php" />
     <Compile Include="application\libraries\Cache\MY_Cache.php" />
-    <Compile Include="application\migrations\010_add_post_hash_to_posts - Copy.php" />
+    <Compile Include="application\libraries\Gravatar.php" />
+    <Compile Include="application\migrations\010_add_gravatar.php" />
     <Compile Include="application\migrations\009_add_post_hash_to_posts.php" />
     <Compile Include="application\migrations\008_add_author_name_to_users.php" />
     <Compile Include="application\migrations\007_add_post_stats_table.php" />
@@ -496,9 +495,6 @@
     <Compile Include="application\modules\ajax\controllers\Ajax.php" />
     <Compile Include="application\modules\auth\views\invitation_password.php" />
     <Compile Include="application\modules\cron\controllers\Cron.php" />
-    <Compile Include="application\modules\gravatar\config\gravatar.php" />
-    <Compile Include="application\modules\gravatar\helpers\gravatar_helper.php" />
-    <Compile Include="application\modules\gravatar\libraries\Gravatar.php" />
     <Compile Include="application\modules\portal\views\authors.php" />
     <Compile Include="application\modules\settings\views\account.php" />
     <Compile Include="application\modules\settings\views\data.php" />
@@ -5715,11 +5711,6 @@
     <Content Include="application\libraries\index.html" />
     <Content Include="application\logs\index.html" />
     <Content Include="application\models\index.html" />
-    <Content Include="application\modules\gravatar\config\index.html" />
-    <Content Include="application\modules\gravatar\helpers\index.html" />
-    <Content Include="application\modules\gravatar\libraries\index.html" />
-    <Content Include="application\modules\gravatar\LICENSE.txt" />
-    <Content Include="application\modules\gravatar\README.md" />
     <Content Include="application\third_party\google-api-php-client-2.1.1\.gitattributes" />
     <Content Include="application\third_party\google-api-php-client-2.1.1\composer.json" />
     <Content Include="application\third_party\google-api-php-client-2.1.1\composer.lock" />

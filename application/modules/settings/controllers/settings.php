@@ -33,11 +33,33 @@ class Settings extends MY_Controller
 	}
 
 	function account() {
-		$this->load->library('gravatar');
+		//$this->load->library('gravatar');
+		//$data['gravatar'] = $this->gravatar->get('siburny@gmail.com');
 
 		$data = array('page_title' => 'Data Settings');
-		$data['gravatar'] = $this->gravatar->get('siburny@gmail.com');
 
-		$this->parser->parse('settings/account', $data);
+		$this->form_validation->set_rules('firstname', 'First Name', 'required');
+		$this->form_validation->set_rules('lastname', 'Last Name', 'required');
+
+		if($this->form_validation->run() == FALSE)
+		{
+			$data = array('page_title' => 'User Invitation');
+			$data['errors'] = validation_errors('<li>', '</li>');
+
+			$data['firstname'] = set_value('firstname');
+			$data['lastname'] = set_value('lastname');
+			$data['position'] = set_value('position');
+
+			$this->parser->parse('settings/account', $data);
+		}
+		else
+		{
+			$this->load->library("ion_auth");
+			
+			print_r($this->ion_auth_model);
+			//$this->ion_auth_model->update();
+
+			//redirect('/settings/account/?done='.time());
+		}
 	}
 }
