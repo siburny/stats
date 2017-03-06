@@ -9,7 +9,7 @@
 <div style="float:right;width:300px;">
 	<div style="padding:10px 10px 10px 30px;font-size:1.5em;line-height:200%;">
 		{{#totals}}
-		Visits: {{sessions}}<br />
+		Sessions: {{sessions}}<br />
 		Pageviews: {{pageviews}}<br />
 		{{/totals}}
 	</div>

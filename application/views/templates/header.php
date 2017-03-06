@@ -101,7 +101,10 @@
 <body>
 
 <div id="container">
-	{{#is_logged_in}}<a href="/auth/logout" style="float:right;margin: 10px 10px 0 0;">Log out</a>{{/is_logged_in}}
+  <div style="float:right;margin: 10px 10px 0 0;">
+    {{#profile}} Welcome, <img src="{{picture}}" style="margin-bottom: -0.75em;" /> {{username}} {{/profile}}
+    {{#is_logged_in}}<a href="/auth/logout" style="">[Log out]</a>{{/is_logged_in}}
+	</div>
 	<h1>{{page_title}}</h1>
 
 	<div id="body">

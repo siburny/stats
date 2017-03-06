@@ -1,22 +1,12 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Portal extends MY_Controller {
-	private $user = NULL;
-	private $user_company = NULL;
-
 	function __construct()
 	{
 		parent::__construct();
-		$this->load->database();
-
-		$this->lang->load('auth');
-		$this->load->model("Company_model", "company");
 
 		if(!$this->ion_auth->logged_in())
 			redirect("/auth/");
-
-		$this->user = $this->ion_auth->user()->row();
-		$this->user_company = $this->company->get($this->user->company);
 	}
 
 	private function _process_date(&$data)

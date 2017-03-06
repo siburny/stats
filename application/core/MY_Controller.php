@@ -43,13 +43,38 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @property Google_php_client $google_php_client	Google PHP Client
  */
 class MY_Controller extends CI_Controller {
+	protected $user = null;
+	protected $user_company = null;
+
 	function __construct()
 	{
 		parent::__construct();
 
 		if($this->ion_auth->logged_in())
 		{
+			$this->load->model("Company_model", "company");
+
+			$this->user = $this->ion_auth->user()->row();
+			$this->user_company = $this->company->get($this->user->company);
+
 			$this->parser->data['is_logged_in'] = TRUE;
+			if(!empty($this->user->gravatar))
+			{
+				$this->load->library('gravatar');
+
+				$profile = $this->gravatar->get_profile_data('siburny@gmail.com');
+				if(!empty($profile))
+				{
+					$this->parser->data['profile']['username'] = $profile['displayName'];
+					$this->parser->data['profile']['picture'] = $profile['thumbnailUrl'].'?s=30';
+				}
+			}
+
+			if(empty($this->parser->data['profile']))
+			{
+				$this->parser->data['profile']['username'] = $this->user->first_name.' '.$this->user->last_name;
+				$this->parser->data['profile']['picture'] = '/images/00000000000000000000000000000000.png';
+			}
 		}
 	}
 }

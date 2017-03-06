@@ -41,9 +41,6 @@ class Settings extends MY_Controller
 	}
 
 	function account() {
-		//$this->load->library('gravatar');
-		//$data['gravatar'] = $this->gravatar->get('siburny@gmail.com');
-
 		$data = array('page_title' => 'Data Settings');
 
 		$errors = "errors";

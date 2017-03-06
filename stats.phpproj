@@ -5912,6 +5912,7 @@
     <Content Include="public\css\images\ui-icons_fadc7a_256x240.png" />
     <Content Include="public\css\images\ui-icons_ffe180_256x240.png" />
     <Content Include="public\css\jquery-ui.min.css" />
+    <Content Include="public\images\00000000000000000000000000000000.png" />
     <Content Include="public\images\ajax-loader.gif" />
     <Content Include="public\images\arrow_down_red.png" />
     <Content Include="public\images\arrow_up_green.png" />
