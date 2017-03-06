@@ -62,7 +62,7 @@ class MY_Controller extends CI_Controller {
 			{
 				$this->load->library('gravatar');
 
-				$profile = $this->gravatar->get_profile_data('siburny@gmail.com');
+				$profile = $this->gravatar->get_profile_data($this->user->email);
 				if(!empty($profile))
 				{
 					$this->parser->data['profile']['username'] = $profile['displayName'];
