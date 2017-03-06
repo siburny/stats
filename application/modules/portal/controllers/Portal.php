@@ -380,12 +380,18 @@ class Portal extends MY_Controller {
 
 		//Total Stats
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
-		$rows = $this->google_php_client->get_stats($data['date_to_ymd'], $data['date_from_ymd'])->getRows();
+		$rows = null;
+		try {
+			$rows = $this->google_php_client->get_stats(array(), $data['date_to_ymd'], $data['date_from_ymd'])->getRows();
+		}
+		catch(Exception $e) {
+		}
 		if($rows)
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
 			$data['totals']['pageviews'] = number_format($rows[0][1]);
 		}
+
 
 		$this->parser->parse("portal/authors", $data);
 	}
