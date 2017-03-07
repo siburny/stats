@@ -101,4 +101,10 @@ class Settings extends MY_Controller
 			redirect('/settings/account?done='.time());
 		}
 	}
+
+	function preferences()
+	{
+		$data = array('page_title' => 'Preferences');
+		$this->parser->parse('settings/preferences', $data);
+	}
 }

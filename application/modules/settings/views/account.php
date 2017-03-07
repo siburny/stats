@@ -29,7 +29,7 @@
 	<p>
 		<label>
 			<input type="checkbox" name="gravatar" value="1" {{#gravatar}}checked="checked"{{/gravatar}}/>
-			Use Gravatar:
+			Use Gravatar
 		</label>
 	</p>
 	<p>
