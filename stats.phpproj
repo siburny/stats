@@ -490,6 +490,8 @@
     <Compile Include="application\migrations\007_add_post_stats_table.php" />
     <Compile Include="application\migrations\006_add_domain_to_company.php" />
     <Compile Include="application\migrations\005_add_post_table.php" />
+    <Compile Include="application\migrations\011_add_preferences.php" />
+    <Compile Include="application\models\Preferences_model.php" />
     <Compile Include="application\models\Post_stats_model.php" />
     <Compile Include="application\models\Post_model.php" />
     <Compile Include="application\modules\ajax\controllers\Ajax.php" />
@@ -504,6 +506,7 @@
     <Compile Include="application\modules\portal\views\post.php" />
     <Compile Include="application\modules\settings\controllers\settings.php" />
     <Compile Include="application\modules\settings\views\index.php" />
+    <Compile Include="application\modules\settings\views\preferences.php" />
     <Compile Include="application\modules\website\controllers\Main.php" />
     <Compile Include="application\core\MY_Loader.php" />
     <Compile Include="application\core\MY_Router.php" />

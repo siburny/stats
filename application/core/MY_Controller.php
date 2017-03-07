@@ -53,9 +53,11 @@ class MY_Controller extends CI_Controller {
 		if($this->ion_auth->logged_in())
 		{
 			$this->load->model("Company_model", "company");
+			$this->load->model("Preferences_model", "preferences");
 
 			$this->user = $this->ion_auth->user()->row();
 			$this->user_company = $this->company->get($this->user->company);
+			$this->preferences->load($this->user->id);
 
 			$this->parser->data['is_logged_in'] = TRUE;
 			if(!empty($this->user->gravatar))

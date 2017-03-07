@@ -141,9 +141,9 @@ class Portal extends MY_Controller {
 		if(isset($sort))
 		{
 			if($sort == 'sessions') {
-				$sort = 'uniqueEvents';
+				$sort = 'uniqueEventsTemporary';
 			} elseif($sort == '-sessions') {
-				$sort = '-uniqueEvents';
+				$sort = '-uniqueEventsTemporary';
 			} elseif($sort == 'pageviews') {
 				$sort = 'totalEvents';
 			} elseif($sort == '-pageviews') {
@@ -152,12 +152,12 @@ class Portal extends MY_Controller {
 		}
 		else
 		{
-			$sort = '-uniqueEvents';
+			$sort = '-uniqueEventsTemporary';
 		}
-		if($sort == '-uniqueEvents') {
+		if($sort == '-uniqueEventsTemporary') {
 			$data['sort_sessions'] = 'sessions';
 			$data['sort_pageviews'] = '-pageviews';
-		} elseif($sort == 'uniqueEvents') {
+		} elseif($sort == 'uniqueEventsTemporary') {
 			$data['sort_sessions'] = '-sessions';
 			$data['sort_pageviews'] = '-pageviews';
 		} elseif($sort == '-totalEvents') {
@@ -167,8 +167,8 @@ class Portal extends MY_Controller {
 			$data['sort_sessions'] = '-sessions';
 			$data['sort_pageviews'] = '-pageviews';
 		}
-		$data['sort_sessions_down'] = $sort == '-uniqueEvents';
-		$data['sort_sessions_up'] = $sort == 'uniqueEvents';
+		$data['sort_sessions_down'] = $sort == '-uniqueEventsTemporary';
+		$data['sort_sessions_up'] = $sort == 'uniqueEventsTemporary';
 		$data['sort_pageviews_down'] = $sort == '-totalEvents';
 		$data['sort_pageviews_up'] = $sort == 'totalEvents';
 

@@ -5,16 +5,9 @@ class Settings extends MY_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->database();
-
-		$this->lang->load('auth');
-		$this->load->model("Company_model", "company");
 
 		if(!$this->ion_auth->logged_in())
 			redirect("/auth/");
-
-		$this->user = $this->ion_auth->user()->row();
-		$this->user_company = $this->company->get($this->user->company);
 
 		$this->parser->data['active_menu_settings'] = TRUE;
 	}
@@ -98,13 +91,61 @@ class Settings extends MY_Controller
 
 			$this->ion_auth->update($this->user->id, $user);
 
-			redirect('/settings/account?done='.time());
+			redirect('/settings/account/?done='.time());
 		}
 	}
 
 	function preferences()
 	{
 		$data = array('page_title' => 'Preferences');
-		$this->parser->parse('settings/preferences', $data);
+
+		$this->form_validation->set_rules('date_format', 'Date Format', 'required');
+		$this->form_validation->set_rules('date_range', 'Date Range', 'required');
+		$this->form_validation->set_rules('sorting', 'Sorting', 'required');
+
+		if($this->form_validation->run() == FALSE)
+		{
+			$data['errors'] = validation_errors('<li>', '</li>');
+
+			$date_format = array_search($this->preferences->date_format, Preferences_model::DATE_FORMAT);
+			$date_format = set_value('date_format', $date_format);
+			if(!isset(Preferences_model::DATE_FORMAT[$date_format])) $date_format = 0;
+			$data['date_format_'.$date_format] = true;
+
+			$date_range = array_search($this->preferences->date_range, Preferences_model::DATE_RANGE);
+			$date_range = set_value('date_range', $date_range);
+			if(!isset(Preferences_model::DATE_RANGE[$date_range])) $date_range = 0;
+			$data['date_range_'.$date_range] = true;
+
+			$sorting = array_search($this->preferences->sorting, Preferences_model::SORTING);
+			$sorting = set_value('sorting', $sorting);
+			if(!isset(Preferences_model::SORTING[$sorting])) $sorting = 0;
+			$data['sorting_'.$sorting] = true;
+
+			$this->parser->parse('settings/preferences', $data);
+		}
+		else
+		{
+			$date_format = set_value('date_format', 0);
+			if(!isset(Preferences_model::DATE_FORMAT[$date_format])) $date_format = 0;
+
+			$date_range = set_value('date_range', 0);
+			if(!isset(Preferences_model::DATE_RANGE[$date_range])) $date_range = 0;
+
+			$sorting = set_value('sorting', 0);
+			if(!isset(Preferences_model::SORTING[$sorting])) $sorting = 0;
+
+			$data = array(
+				array('user_id' => $this->user->id, 'name' => 'date_format', 'value' => $date_format),
+				array('user_id' => $this->user->id, 'name' => 'date_range', 'value' => $date_range),
+				array('user_id' => $this->user->id, 'name' => 'sorting', 'value' => $sorting)
+			);
+			foreach($data as $value)
+			{
+				$this->preferences->replace_by($value);
+			}
+
+			//redirect('/settings/preferences/?done='.time());
+		}
 	}
 }

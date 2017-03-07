@@ -5,20 +5,19 @@ class Migration_add_preferences extends CI_Migration {
 	public function up()
 	{
 		$this->dbforge->add_field(array(
-			"pref_id" => array(
-				'type' => 'INT',
+			'user_id' => array(
+				'type' => 'MEDIUMINT',
+				'constraint' => '8',
+				'unsigned' => TRUE
+			),
+			'name' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '200',
 				'null' => FALSE
 			),
-			'date' => array(
-				'type' => 'DATE',
-				'null' => FALSE
-			),
-			'sessions' => array(
-				'type' => 'INT',
-				'null' => FALSE
-			),
-			'pageviews' => array(
-				'type' => 'INT',
+			'value' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '200',
 				'null' => FALSE
 			),
 			'date_updated' => array(
@@ -27,7 +26,7 @@ class Migration_add_preferences extends CI_Migration {
 			)
 		));
 
-		$this->dbforge->add_key('post_id', TRUE);
+		$this->dbforge->add_key(array('user_id', 'name'), TRUE);
 		$this->dbforge->create_table('preferences');
 	}
 

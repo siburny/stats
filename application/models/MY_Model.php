@@ -572,51 +572,100 @@ class MY_Model extends CI_Model
      */
     public function update_by()
     {
-        $escape = $this->_check_default_escape(NULL);
+			$escape = $this->_check_default_escape(NULL);
 
-        $args = func_get_args();
-        $data = array_pop($args);
+			$args = func_get_args();
+			$data = array_pop($args);
 
-        if (count($args) < 3)
-        {
-            $this->_set_where($args);
-        }
-        else
-        {
-            $where = array_pop($args);
-            $this->_set_where($where);
-            $escape = $this->_check_default_escape($args);
-        }
+			if (count($args) < 3)
+			{
+				$this->_set_where($args);
+			}
+			else
+			{
+				$where = array_pop($args);
+				$this->_set_where($where);
+				$escape = $this->_check_default_escape($args);
+			}
 
-        $data = $this->trigger('before_update', $data);
+			$data = $this->trigger('before_update', $data);
 
-        if ($this->validate($data) !== FALSE)
-        {
-            if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
-            {
-                $this->_database->where($this->soft_delete_key_full, (bool)$this->_temporary_only_deleted);
-            }
+			if ($this->validate($data) !== FALSE)
+			{
+				if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+				{
+					$this->_database->where($this->soft_delete_key_full, (bool)$this->_temporary_only_deleted);
+				}
 
-            $this->_database->set($data, '', $escape)->limit(1);
+				$this->_database->set($data, '', $escape)->limit(1);
 
-            if ($this->qb_as_sql)
-            {
-                // Return an SQL statement as a result.
-                return $this->_return_sql('update');
-            }
+				if ($this->qb_as_sql)
+				{
+					// Return an SQL statement as a result.
+					return $this->_return_sql('update');
+				}
 
-            $result = $this->_database->update($this->_table);
+				$result = $this->_database->update($this->_table);
 
-            $this->trigger('after_update', array($data, $result));
+				$this->trigger('after_update', array($data, $result));
 
-            $this->_reset_state();
+				$this->_reset_state();
 
-            return $result;
-        }
+				return $result;
+			}
 
-        $this->_reset_state();
+			$this->_reset_state();
 
-        return FALSE;
+			return FALSE;
+    }
+
+    public function replace_by()
+    {
+			$escape = $this->_check_default_escape(NULL);
+
+			$args = func_get_args();
+			$data = array_pop($args);
+
+			if (count($args) < 3)
+			{
+				$this->_set_where($args);
+			}
+			else
+			{
+				$where = array_pop($args);
+				$this->_set_where($where);
+				$escape = $this->_check_default_escape($args);
+			}
+
+			$data = $this->trigger('before_replace', $data);
+
+			if ($this->validate($data) !== FALSE)
+			{
+				if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+				{
+					$this->_database->where($this->soft_delete_key_full, (bool)$this->_temporary_only_deleted);
+				}
+
+				$this->_database->set($data, '', $escape)->limit(1);
+
+				if ($this->qb_as_sql)
+				{
+					// Return an SQL statement as a result.
+					return $this->_return_sql('replace');
+				}
+
+				$result = $this->_database->replace($this->_table);
+
+				$this->trigger('after_replace', array($data, $result));
+
+				$this->_reset_state();
+
+				return $result;
+			}
+
+			$this->_reset_state();
+
+			return FALSE;
     }
 
     /**

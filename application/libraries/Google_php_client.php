@@ -123,10 +123,10 @@ class Google_php_client
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
-			'ga:uniqueEvents,ga:totalEvents',
+			'ga:uniqueEventsTemporary,ga:totalEvents',
 			array(
 				'dimensions' => 'ga:eventLabel',
-				'sort' => '-ga:uniqueEvents',
+				'sort' => '-ga:uniqueEventsTemporary',
 				'filters' => $filters,
 				'max-results' => $limit ? (is_numeric($limit) ? $limit : 25) : 10000
 			));
@@ -150,10 +150,10 @@ class Google_php_client
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
-			'ga:uniqueEvents, ga:totalEvents',
+			'ga:uniqueEventsTemporary, ga:totalEvents',
 			array(
 				'dimensions' => 'ga:channelGrouping',
-				'sort' => ($best ? '-' : '') . 'ga:uniqueEvents',
+				'sort' => ($best ? '-' : '') . 'ga:uniqueEventsTemporary',
 				'filters' => 'ga:eventCategory==Author;ga:eventLabel=='.$url
 			)
 		);
@@ -170,7 +170,7 @@ class Google_php_client
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
-			'ga:uniqueEvents,ga:totalEvents',
+			'ga:uniqueEventsTemporary,ga:totalEvents',
 			array(
 				'dimensions' => 'ga:eventLabel',
 				'filters' => 'ga:eventCategory==Author'
@@ -189,10 +189,10 @@ class Google_php_client
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
-			'ga:uniqueEvents,ga:totalEvents',
+			'ga:uniqueEventsTemporary,ga:totalEvents',
 			array(
 				'dimensions' => 'ga:eventAction',
-				'sort' => '-ga:uniqueEvents',
+				'sort' => '-ga:uniqueEventsTemporary',
 				'filters' => 'ga:eventCategory==Author'
 			)
 		);
@@ -260,7 +260,7 @@ class Google_php_client
 			'ga:' . $this->user_company->view_id,
 			$date_end,
 			$date_start,
-			'ga:uniqueEvents,ga:totalEvents',
+			'ga:uniqueEventsTemporary,ga:totalEvents',
 			array(
 				'dimensions' => $dimension,
 				'sort' => $sort,
