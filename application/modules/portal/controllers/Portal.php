@@ -220,7 +220,7 @@ class Portal extends MY_Controller {
 				"title" => $post->title,
 				"sessions" => number_format($row[1]),
 				"pageviews" => number_format($row[2]),
-				"date_published" => date('M j, Y', strtotime($post->date_published)),
+				"date_published" => date($this->preferences->date_format, strtotime($post->date_published)),
 				"up_down_text" => $prev ? $prev."%" : "",
 				'author' => $post->author
 			);
@@ -236,7 +236,7 @@ class Portal extends MY_Controller {
 			$data['rows'][] = $ar;
 		}
 
-		$data['last_updated'] = date(DATE_RFC2822);
+		$data['last_updated'] = date($this->preferences->date_format);
 
 		//Total Stats
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
@@ -304,7 +304,7 @@ class Portal extends MY_Controller {
 		$data['post_url'] = $post->url;
 		$data['post_author'] = $post->author;
 		$data['post_thumb'] = $post->image;
-		$data['post_date'] = date("F jS, Y", strtotime($post->date_published));
+		$data['post_date'] = date($this->preferences->date_format, strtotime($post->date_published));
 
 		$data['uri_post_url'] = 'url='.$post->url;
 
@@ -322,7 +322,7 @@ class Portal extends MY_Controller {
 			$data['rows'][] = $ar;
 		}
 
-		$data['last_updated'] = date(DATE_RFC2822);
+		$data['last_updated'] = date($this->preferences->date_format);
 
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
 		$rows = $this->google_php_client->get_stats(array('post_url' => $data['post_url']), $data['date_to_ymd'], $data['date_from_ymd'])->getRows();
@@ -514,7 +514,7 @@ class Portal extends MY_Controller {
 				"url" => $row->url,
 				"title" => $row->title,
 				"sessions" => $row->total_pageviews,
-				"date_published" => date('M j, Y', strtotime($row->date_published)),
+				"date_published" => date($this->preferences->date_format, strtotime($row->date_published)),
 				"up_down_text" => $prev ? $prev."%" : "",
 				'author' => $row->author
 			);
@@ -706,7 +706,7 @@ class Portal extends MY_Controller {
 
 		foreach($users as $user)
 		{
-			$user->created_on_format = date("H:i:s m/d/Y", $user->created_on);
+			$user->created_on_format = date($this->preferences->date_format, $user->created_on);
 			$user->role = $this->ion_auth->is_manager($user->id) ? "Manager" : "Author";
 			$user->tracker = $this->ion_auth->is_manager($user->id) ? "" : "Author";
 			$this->ion_auth->is_admin($user->id) && $user->protected = TRUE;

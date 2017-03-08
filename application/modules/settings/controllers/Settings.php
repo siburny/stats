@@ -136,16 +136,16 @@ class Settings extends MY_Controller
 			if(!isset(Preferences_model::SORTING[$sorting])) $sorting = 0;
 
 			$data = array(
-				array('user_id' => $this->user->id, 'name' => 'date_format', 'value' => $date_format),
-				array('user_id' => $this->user->id, 'name' => 'date_range', 'value' => $date_range),
-				array('user_id' => $this->user->id, 'name' => 'sorting', 'value' => $sorting)
+				array('user_id' => $this->user->id, 'name' => 'date_format', 'value' => Preferences_model::DATE_FORMAT[$date_format]),
+				array('user_id' => $this->user->id, 'name' => 'date_range', 'value' => Preferences_model::DATE_RANGE[$date_range]),
+				array('user_id' => $this->user->id, 'name' => 'sorting', 'value' => Preferences_model::SORTING[$sorting])
 			);
 			foreach($data as $value)
 			{
 				$this->preferences->replace_by($value);
 			}
 
-			//redirect('/settings/preferences/?done='.time());
+			redirect('/settings/preferences/?done='.time());
 		}
 	}
 }

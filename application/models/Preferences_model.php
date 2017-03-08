@@ -16,13 +16,25 @@ class Preferences_model extends MY_Model
 		public function load($user_id)
 		{
 			$set = $this->get_many_by('user_id', $user_id);
+			$set = array_column($set, 'value', 'name');
 			if(!empty($set))
 			{
-				//$this->date_format = $set->
-				//return array('date_format' => 'M j, Y', 'date_range' => '30daysAgo', 'sorting' => 'sessions');
+				if(isset($set['date_format']))
+				{
+					$this->date_format = $set['date_format'];
+				}
+				if(isset($set['date_range']))
+				{
+					$this->date_range = $set['date_range'];
+				}
+				if(isset($set['sorting']))
+				{
+					$this->sorting = $set['sorting'];
+				}
 			}
 		}
 
-    //public $before_create = array( 'created_at', 'updated_at' );
-    //public $before_update = array( 'updated_at' );
+    public $before_create = array( 'updated_at' );
+    public $before_update = array( 'updated_at' );
+    public $before_replace = array( 'updated_at' );
 }

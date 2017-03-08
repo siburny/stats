@@ -20,7 +20,7 @@ class Migration_add_preferences extends CI_Migration {
 				'constraint' => '200',
 				'null' => FALSE
 			),
-			'date_updated' => array(
+			'updated_at' => array(
 				'type' => 'DATETIME',
 				'null' => FALSE
 			)
