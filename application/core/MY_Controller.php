@@ -41,6 +41,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @property CI_Utf8 $utf8                        Provides support for UTF-8 environments
  * @property CI_Security $security                Security Class, xss, csrf, etc...
  * @property Google_php_client $google_php_client	Google PHP Client
+ * @property Preferences_model $preferences
  */
 class MY_Controller extends CI_Controller {
 	protected $user = null;

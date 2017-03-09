@@ -3,6 +3,7 @@
 <link href="/css/c3.css" rel="stylesheet" type="text/css">
 <script src="/js/d3.min.js" charset="utf-8"></script>
 <script src="/js/c3.min.js"></script>
+<script src="/js/date.format.min.js"></script>
 <script src="/js/jquery.ajaxMultiQueue.js"></script>
 
 <h2>All views</h2>
@@ -149,7 +150,6 @@
 	</tr>
 {{/rows}}
 </table>
-<div style="float:right;">GA last updated: {{last_updated}}</div>
 
 <script>
 
@@ -157,7 +157,7 @@ $(function () {
 	var chart = c3.generate({
 		bindto: '#chart',
 		data: { x: 'x', type: 'area', url: '/ajax/get_graph_data/?date_from={{date_from_ymd}}&date_to={{date_to_ymd}}', xFormat: '%Y-%m-%d %-H:%M' },
-		axis: { x: { type: 'timeseries' }, y: { padding: { top: 20 }, tick: { } }, },
+		axis: { x: { type: 'timeseries', tick: { format: function(x) { return x.format('{{date_format}}'); } } }, y: { padding: { top: 20 }, tick: { } }, },
 		grid: { y: { show: true } },
 		legend: { show: false },
 		transition: { duration: 1000 },

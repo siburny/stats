@@ -7,6 +7,8 @@ class Portal extends MY_Controller {
 
 		if(!$this->ion_auth->logged_in())
 			redirect("/auth/");
+
+		$this->parser->data['date_format'] = $this->preferences->date_format;
 	}
 
 	private function _process_date(&$data)
@@ -18,6 +20,12 @@ class Portal extends MY_Controller {
 		{
 			$date_from = $_SESSION['date_from'];
 			$date_to = isset($_SESSION['date_to']) ? $_SESSION['date_to'] : null;
+		}
+		else if(empty($date_from) && empty($date_to))
+		{
+			$_SESSION['date_from'] = $this->preferences->date_range;
+			$_SESSION['date_to'] = null;
+			print_r($_SESSION);
 		}
 		else
 		{
@@ -80,14 +88,14 @@ class Portal extends MY_Controller {
 
 		$data['date_from_ymd'] = $date_from->format('Y-m-d');
 		$data['date_to_ymd'] = $date_to->format('Y-m-d');
-		$data['date_from'] = $date_from->format("M j, Y");
+		$data['date_from'] = $date_from->format($this->preferences->date_format);
 		if($data['date_from_ymd'] == $data['date_to_ymd'])
 		{
 			$data['date_to'] = "";
 		}
 		else
 		{
-			$data['date_to'] = $date_to->format("M j, Y");
+			$data['date_to'] = $date_to->format($this->preferences->date_format);
 		}
 	}
 
@@ -236,8 +244,6 @@ class Portal extends MY_Controller {
 			$data['rows'][] = $ar;
 		}
 
-		$data['last_updated'] = date($this->preferences->date_format);
-
 		//Total Stats
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
 
@@ -322,8 +328,6 @@ class Portal extends MY_Controller {
 			$data['rows'][] = $ar;
 		}
 
-		$data['last_updated'] = date($this->preferences->date_format);
-
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
 		$rows = $this->google_php_client->get_stats(array('post_url' => $data['post_url']), $data['date_to_ymd'], $data['date_from_ymd'])->getRows();
 		if($rows)
@@ -376,8 +380,6 @@ class Portal extends MY_Controller {
 			$data['rows'][] = $ar;
 		}
 
-		$data['last_updated'] = date(DATE_RFC2822);
-
 		//Total Stats
 		$data['totals'] = array('pageviews' => 0, 'sessions' => 0);
 		$rows = null;
@@ -396,175 +398,6 @@ class Portal extends MY_Controller {
 		$this->parser->parse("portal/authors", $data);
 	}
 
-
-	/*function _author()
-	{
-		$this->parser->data['active_menu_posts'] = TRUE;
-
-		$data = array(
-			"page_title" => "Welcome!",
-			"params" => array()
-		);
-
-		$author = $this->input->get('author_name');
-		if(empty($author))
-		{
-			redirect('/portal/');
-		}
-		$data['params']['author_name'] = $author;
-
-		$page = $this->input->get('page');
-		if($page != null && preg_match('/^[0-9]+$/i', $page))
-		{
-			$page = str_replace("page", "", strtolower($page));
-			$page--;
-		}
-		else
-			$page = 0;
-		$data['params']['page'] = $page;
-
-		$date_from = $this->input->get("date_from");
-		$date_to = $this->input->get("date_to");
-
-		if($date_from != NULL)
-		{
-			$date_from = strtolower($date_from);
-			switch($date_from)
-			{
-				case "today":
-				case "yesterday":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime($date_from);
-					$date_from = clone $date_to;
-					break;
-				case "7days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-6 days');
-					break;
-				case "30days":
-					$data['date_selected'] = $date_from;
-					$data['params']['date_from'] = $date_from;
-					$date_to = new DateTime("yesterday");
-					$date_from = clone $date_to;
-					$date_from->modify('-29 days');
-					break;
-				default:
-					if($date_to != NULL)
-					{
-						if(preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_from) && preg_match("/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/", $date_to))
-						{
-							$data['date_selected'] = "custom";
-							$data['date_from_input'] = $date_from;
-							$data['date_to_input'] = $date_to;
-							$data['params']['date_from'] = $date_from;
-							$data['params']['date_to'] = $date_to;
-							$date_from = DateTime::createFromFormat("m-d-Y", $date_from);
-							$date_to = DateTime::createFromFormat("m-d-Y", $date_to);
-							break;
-						}
-					}
-					$data['date_selected'] = "";
-					$date_to = NULL;
-					break;
-			}
-		}
-		if($date_to == NULL)
-		{
-			$date_to = (new DateTime());
-			$date_from = clone $date_to;
-			$date_from->modify('-29 days');
-		}
-		$data['date_from'] = $date_from->format("M j, Y");
-		$data['date_to'] = $date_to->format("M j, Y");
-		$data['date_from_ymd'] = $date_from->format('Y-m-d');
-		$data['date_to_ymd'] = $date_to->format('Y-m-d');
-
-		$this->load->model("Post_model", "post");
-
-		$this->user = $this->ion_auth->user()->row();
-
-		if($this->ion_auth->is_manager())
-		{
-			$data["is_admin"] = TRUE;
-		}
-		$company_id = array($this->user_company->company_id, $author);
-
-		$rows = Post_model::get_posts($company_id, $date_to, $date_from, TRUE, TRUE, $page);
-		$day_diff = $date_to->diff($date_from)->days;
-		$rows_prev = Post_model::get_posts($company_id, $date_from->modify('-1 days')->format("Y-m-d"), $date_from->modify("-".$day_diff." days")->format("Y-m-d"), FALSE, FALSE);
-		$rows_prev = array_column((array)$rows_prev, 'total_pageviews', 'url');
-
-		$data['rows'] = array();
-		foreach($rows as $index => $row)
-		{
-			$prev = isset($rows_prev[$row->url]) ? $rows_prev[$row->url] : 0;
-			if($prev && $row->total_pageviews - $prev)
-			{
-				$prev = round(100*($row->total_pageviews - $prev)/$prev, 1);
-			}
-
-			$ar = array(
-				"post_id" => $row->post_id,
-				"n" => $page*10 + $index + 1,
-				"image" => $row->image,
-				"url" => $row->url,
-				"title" => $row->title,
-				"sessions" => $row->total_pageviews,
-				"date_published" => date($this->preferences->date_format, strtotime($row->date_published)),
-				"up_down_text" => $prev ? $prev."%" : "",
-				'author' => $row->author
-			);
-
-			if($prev > 0)
-			{
-				$ar["up_arrow"] = TRUE;
-			}
-			elseif($prev < 0)
-			{
-				$ar["down_arrow"] = TRUE;
-			}
-			$data['rows'][] = $ar;
-		}
-
-		$rows = $this->db->from('post_stats')->
-			select_max('date_updated')->get()->result_array();
-		$data['last_updated'] = $rows[0]['date_updated'];
-
-		//Total Stats
-		$count = $this->db->from('posts')->
-			where('company_id', $this->user_company->company_id)->
-			where('date_published >=', $data['date_from_ymd'])->
-			where('date_published <=', $data['date_to_ymd'])->
-			count_all_results();
-		$count_all = $this->db->from('posts')->
-			where('company_id', $this->user_company->company_id)->
-			count_all_results();
-		$data['totals'] = array('pageviews' => 0, 'sessions' => 0, 'posts' => number_format($count), 'all_posts' => number_format($count_all));
-
-		$this->load->library("google_php_client", $this->user_company);
-		$rows = $this->google_php_client->get_profile_stats($data['date_to_ymd'], $data['date_from_ymd']);
-		if($rows)
-		{
-			$data['totals']['sessions'] = number_format($rows[0][0]);
-			$data['totals']['pageviews'] = number_format($rows[0][1]);
-		}
-
-		$query = $data['params'];
-		$data['prev_link'] = $page == 0 ? "" : "/portal/author/?".http_build_query($query);
-		$query['page']++;
-		$data['portal_link'] = http_build_query($query);
-		$query['page']++;
-		$data['next_link'] = "/portal/author/?".http_build_query($query);
-
-		unset($query['page']);
-		$data['date_link'] = http_build_query($query);
-
-		$this->parser->parse("portal/author", $data);
-	}*/
 
 	function connect()
 	{

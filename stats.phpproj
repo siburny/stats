@@ -5923,6 +5923,7 @@
     <Content Include="public\js\ajaxq.js" />
     <Content Include="public\js\c3.min.js" />
     <Content Include="public\js\d3.min.js" />
+    <Content Include="public\js\date.format.min.js" />
     <Content Include="public\js\jquery-2.2.0.min.js" />
     <Content Include="public\js\jquery-ui.min.js" />
     <Content Include="public\js\jquery.ajaxMultiQueue.js" />

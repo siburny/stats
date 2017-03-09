@@ -107,19 +107,19 @@ class Settings extends MY_Controller
 		{
 			$data['errors'] = validation_errors('<li>', '</li>');
 
-			$date_format = array_search($this->preferences->date_format, Preferences_model::DATE_FORMAT);
+			$date_format = array_search($this->preferences->date_format, Preferences_model::$DATE_FORMAT);
 			$date_format = set_value('date_format', $date_format);
-			if(!isset(Preferences_model::DATE_FORMAT[$date_format])) $date_format = 0;
+			if(!isset(Preferences_model::$DATE_FORMAT[$date_format])) $date_format = 0;
 			$data['date_format_'.$date_format] = true;
 
-			$date_range = array_search($this->preferences->date_range, Preferences_model::DATE_RANGE);
+			$date_range = array_search($this->preferences->date_range, Preferences_model::$DATE_RANGE);
 			$date_range = set_value('date_range', $date_range);
-			if(!isset(Preferences_model::DATE_RANGE[$date_range])) $date_range = 0;
+			if(!isset(Preferences_model::$DATE_RANGE[$date_range])) $date_range = 0;
 			$data['date_range_'.$date_range] = true;
 
-			$sorting = array_search($this->preferences->sorting, Preferences_model::SORTING);
+			$sorting = array_search($this->preferences->sorting, Preferences_model::$SORTING);
 			$sorting = set_value('sorting', $sorting);
-			if(!isset(Preferences_model::SORTING[$sorting])) $sorting = 0;
+			if(!isset(Preferences_model::$SORTING[$sorting])) $sorting = 0;
 			$data['sorting_'.$sorting] = true;
 
 			$this->parser->parse('settings/preferences', $data);
@@ -127,18 +127,18 @@ class Settings extends MY_Controller
 		else
 		{
 			$date_format = set_value('date_format', 0);
-			if(!isset(Preferences_model::DATE_FORMAT[$date_format])) $date_format = 0;
+			if(!isset(Preferences_model::$DATE_FORMAT[$date_format])) $date_format = 0;
 
 			$date_range = set_value('date_range', 0);
-			if(!isset(Preferences_model::DATE_RANGE[$date_range])) $date_range = 0;
+			if(!isset(Preferences_model::$DATE_RANGE[$date_range])) $date_range = 0;
 
 			$sorting = set_value('sorting', 0);
-			if(!isset(Preferences_model::SORTING[$sorting])) $sorting = 0;
+			if(!isset(Preferences_model::$SORTING[$sorting])) $sorting = 0;
 
 			$data = array(
-				array('user_id' => $this->user->id, 'name' => 'date_format', 'value' => Preferences_model::DATE_FORMAT[$date_format]),
-				array('user_id' => $this->user->id, 'name' => 'date_range', 'value' => Preferences_model::DATE_RANGE[$date_range]),
-				array('user_id' => $this->user->id, 'name' => 'sorting', 'value' => Preferences_model::SORTING[$sorting])
+				array('user_id' => $this->user->id, 'name' => 'date_format', 'value' => Preferences_model::$DATE_FORMAT[$date_format]),
+				array('user_id' => $this->user->id, 'name' => 'date_range', 'value' => Preferences_model::$DATE_RANGE[$date_range]),
+				array('user_id' => $this->user->id, 'name' => 'sorting', 'value' => Preferences_model::$SORTING[$sorting])
 			);
 			foreach($data as $value)
 			{
