@@ -25,7 +25,6 @@ class Portal extends MY_Controller {
 		{
 			$_SESSION['date_from'] = $this->preferences->date_range;
 			$_SESSION['date_to'] = null;
-			print_r($_SESSION);
 		}
 		else
 		{
