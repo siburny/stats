@@ -70,17 +70,18 @@
 		}
 	});
 
-	$item = $("#action #date_selector").find("*[value='{{date_selected}}']");
-	if ($item) {
-	    $("#action #date_selector option").removaAttr('selected', '');
-		$item.attr('selected', 'selected');
-	}
-
 	$("#action #date_selector").selectmenu({
 		change: function (event, ui) {
 			$(this).trigger('change');
 		}
 	});
+
+	$item = $("#action #date_selector").find("*[value='{{date_selected}}']");
+	if ($item) {
+    $("#action #date_selector option").removaAttr('selected', '');
+		$item.attr('selected', 'selected');
+		$("#action #date_selector").selectmenu("refresh");
+	}
 
 	$("#action #date_selector").on("change", function (event, param) {
 		switch ($(this).val()) {
