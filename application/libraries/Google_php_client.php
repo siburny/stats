@@ -10,7 +10,7 @@ class Google_php_client
 
 	public static function make_key($params = array())
 	{
-		$keyString = 'oodash::'.md5(__FILE__) . '::' . json_encode($params); // make it unique per install
+		$keyString = 'oodash::gacache::' . json_encode($params); // make it unique per install
 
 		return $keyString;
 	}

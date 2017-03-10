@@ -72,6 +72,7 @@
 
 	$item = $("#action #date_selector").find("*[value='{{date_selected}}']");
 	if ($item) {
+	    $("#action #date_selector option").removaAttr('selected', '');
 		$item.attr('selected', 'selected');
 	}
 

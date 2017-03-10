@@ -101,7 +101,8 @@
 
 	$item = $("#action #date_selector").find("*[value='{{date_selected}}']");
 	if ($item) {
-		$item.attr('selected', 'selected');
+	    $("#action #date_selector option").removeAttr('selected', '');
+	    $item.attr('selected', 'selected');
 	}
 
 	$("#action #date_selector").selectmenu({
