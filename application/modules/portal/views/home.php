@@ -66,7 +66,7 @@
 			<option value="today">Today</option>
 			<option value="yesterday">Yesterday</option>
 			<option value="7days">Last 7 days</option>
-			<option value="30days" selected="selected">Last 30 days</option>
+			<option value="30days">Last 30 days</option>
 			<option value="custom">Custom</option>
 		</select>
 	</div>
@@ -105,12 +105,11 @@
 		}
 	});
 
-	$item = $("#action #date_selector").find("*[value='{{date_selected}}']");
-	if ($item) {
-	    $("#action #date_selector option").removeAttr('selected', '');
-	    $item.attr('selected', 'selected');
-	    $("#action #date_selector").selectmenu("refresh");
-		}
+	var value = '{{date_selected}}';
+	if(value)
+	{
+		$("#action #date_selector").val(value).selectmenu("refresh");
+	}
 
 	$("#action #date_selector").on("change", function (event, param) {
 		switch ($(this).val()) {

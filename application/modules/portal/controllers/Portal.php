@@ -23,8 +23,8 @@ class Portal extends MY_Controller {
 		}
 		else if(empty($date_from) && empty($date_to))
 		{
-			$_SESSION['date_from'] = $this->preferences->date_range;
-			$_SESSION['date_to'] = null;
+			$date_from = $this->preferences->date_range;
+			$date_to = null;
 		}
 		else
 		{

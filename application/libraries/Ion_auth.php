@@ -491,6 +491,7 @@ class Ion_auth
 		}
 		else
 		{
+			session_start();
 			$this->session->sess_regenerate(TRUE);
 		}
 
