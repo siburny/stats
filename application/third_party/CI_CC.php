@@ -80,7 +80,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	* @property Ion_auth            $ion_auth
 	***************** YOUR MODELS *****************
 	* @property Ion_auth_model      ion_auth_model
-	* @property Post_model					posts
+	* @property Post_model          posts
+    * @property Google_php_client   google_php_client
 	*/
 class CI_Controller {
 	public function __construct() {
