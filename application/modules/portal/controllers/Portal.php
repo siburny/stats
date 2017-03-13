@@ -145,22 +145,23 @@ class Portal extends MY_Controller {
 		$search_param['page'] = $page;
 
 		$sort = $this->input->get('sort');
-		if(isset($sort))
+		if(!isset($sort))
 		{
-			if($sort == 'sessions') {
-				$sort = 'uniqueEventsTemporary';
-			} elseif($sort == '-sessions') {
-				$sort = '-uniqueEventsTemporary';
-			} elseif($sort == 'pageviews') {
-				$sort = 'totalEvents';
-			} elseif($sort == '-pageviews') {
-				$sort = '-totalEvents';
-			}
+			$sort = '-'.$this->preferences->sorting;
 		}
-		else
-		{
+
+		if($sort == 'sessions') {
+			$sort = 'uniqueEventsTemporary';
+		} elseif($sort == '-sessions') {
+			$sort = '-uniqueEventsTemporary';
+		} elseif($sort == 'pageviews') {
+			$sort = 'totalEvents';
+		} elseif($sort == '-pageviews') {
+			$sort = '-totalEvents';
+		} else {
 			$sort = '-uniqueEventsTemporary';
 		}
+
 		if($sort == '-uniqueEventsTemporary') {
 			$data['sort_sessions'] = 'sessions';
 			$data['sort_pageviews'] = '-pageviews';
