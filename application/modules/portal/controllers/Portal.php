@@ -117,7 +117,7 @@ class Portal extends MY_Controller {
 			$data['post_search'] = $post_search;
 			$data['uri_search'] = "search=".$post_search;
 			$data['params']['search'] = $post_search;
-			$search_param['search'] = $post_search;
+			$search_param['search'] = str_replace(';', '\;', $post_search);
 		}
 
 		$author = $this->input->get('author_name');
@@ -210,37 +210,40 @@ class Portal extends MY_Controller {
 		//$rows_prev = array_column((array)$rows_prev, 'total_pageviews', 'url');
 
 		$data['rows'] = array();
-		foreach($rows as $index => $row)
+		if(!empty($rows) && is_array($rows))
 		{
-			$prev = isset($rows_prev[$row[0]]) ? $rows_prev[$row[0]] : 0;
-			if($prev && $row->total_pageviews - $prev)
+			foreach($rows as $index => $row)
 			{
-				$prev = round(100*($row->total_pageviews - $prev)/$prev, 1);
-			}
+				$prev = isset($rows_prev[$row[0]]) ? $rows_prev[$row[0]] : 0;
+				if($prev && $row->total_pageviews - $prev)
+				{
+					$prev = round(100*($row->total_pageviews - $prev)/$prev, 1);
+				}
 
-			$post = $this->post->get_by('url', $row[0]);
-			$ar = array(
-				"post_id" => $post->post_id,
-				"n" => $page*10 + $index + 1,
-				"image" => $post->image,
-				"url" => $post->url,
-				"title" => $post->title,
-				"sessions" => number_format($row[1]),
-				"pageviews" => number_format($row[2]),
-				"date_published" => date($this->preferences->date_format, strtotime($post->date_published)),
-				"up_down_text" => $prev ? $prev."%" : "",
-				'author' => $post->author
-			);
+				$post = $this->post->get_by('url', $row[0]);
+				$ar = array(
+					"post_id" => $post->post_id,
+					"n" => $page*10 + $index + 1,
+					"image" => $post->image,
+					"url" => $post->url,
+					"title" => $post->title,
+					"sessions" => number_format($row[1]),
+					"pageviews" => number_format($row[2]),
+					"date_published" => date($this->preferences->date_format, strtotime($post->date_published)),
+					"up_down_text" => $prev ? $prev."%" : "",
+					'author' => $post->author
+				);
 
-			if($prev > 0)
-			{
-				$ar["up_arrow"] = TRUE;
+				if($prev > 0)
+				{
+					$ar["up_arrow"] = TRUE;
+				}
+				elseif($prev < 0)
+				{
+					$ar["down_arrow"] = TRUE;
+				}
+				$data['rows'][] = $ar;
 			}
-			elseif($prev < 0)
-			{
-				$ar["down_arrow"] = TRUE;
-			}
-			$data['rows'][] = $ar;
 		}
 
 		//Total Stats
