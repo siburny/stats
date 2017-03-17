@@ -142,10 +142,11 @@ class Post_model extends MY_Model
 			}
 		}
 
+		// author
 		$author = $qp->find(".author");
 		if($author->count() == 1)
 		{
-			$data['author'] = $author->text();
+			$data['author'] = trim($author->text());
 		}
 
 		if(!isset($data['author']))
@@ -153,7 +154,16 @@ class Post_model extends MY_Model
 			$author = $qp->find("meta[name=author]");
 			if($author->count() == 1)
 			{
-				$data['author'] = $author->attr('content');
+				$data['author'] = trim($author->attr('content'));
+			}
+		}
+
+		if(!isset($data['author']))
+		{
+			$author = $qp->find("*[role='main'] header.entry-header a[rel='author']");
+			if($author->count() == 1)
+			{
+				$data['author'] = trim($author->text());
 			}
 		}
 
@@ -291,7 +301,7 @@ $limit", $params);
 		}
 	}
 
-	static function get_posts_count($search_param, $start = null, $end = null)
+	function get_posts_count($search_param, $start = null, $end = null)
 	{
 		$ci = &get_instance();
 
@@ -299,9 +309,6 @@ $limit", $params);
 		{
 			return;
 		}
-		$company_id = $search_param[0];
-		$user = $search_param[1];
-		$post_search = $search_param[2];
 
 		if($start == null)
 		{
@@ -333,46 +340,25 @@ $limit", $params);
 			$end = $end->format('Y-m-d');
 		}
 
-		$params = array($company_id, $end, $start);
+		//print_r($ci);exit;
 
-		if(!empty($post_search))
+		$params = array($ci->user->company, $end, $start);
+
+		if(!empty($search_param['author']))
 		{
-			$post_search_where = " AND `posts`.`title` LIKE ?";
-			array_push($params, "%".$post_search."%");
-		}
-		else
-		{
-			$post_search_where = "";
+			array_push($params, $search_param['author']);
 		}
 
-		if(!empty($user))
-		{
-			array_splice($params, 1, 0, $user);
-			$res = $ci->db->query("
+		$res = $ci->db->query("
 SELECT count(distinct posts.post_id) as `count`
 FROM `posts`
-LEFT JOIN `post_stats` ON `posts`.`post_id` = `post_stats`.`post_id`
 WHERE `posts`.`company_id` = ?
+AND `date_published` >= ?
+AND `date_published` <= DATE_ADD(?, INTERVAL 1 day)
 AND `posts`.`author` = ?
-AND `date` >= ?
-AND `date` <= ?
-$post_search_where
 ", $params);
-		}
-		else
-		{
-			$res = $ci->db->query("
-SELECT count(distinct posts.post_id) as `count`
-FROM `posts`
-LEFT JOIN `post_stats` ON `posts`.`post_id` = `post_stats`.`post_id`
-WHERE `posts`.`company_id` = ?
-AND `date` >= ?
-AND `date` <= ?
-$post_search_where
-			", $params);
-		}
 
-		return $res->result_array()[0];
+		return $res->result_array()[0]['count'];
 	}
 
 	static function get_post_stats($post_id, $company_id, $start = null, $end = null, $objects = TRUE, $limit = TRUE, $page = 0)

@@ -107,7 +107,7 @@ class Ajax extends CI_Controller {
 		$this->output->set_output($data);
 	}
 
-	function get_post_graph_data()
+	function get_mini_graph_data()
 	{
 		$this->load->library("google_php_client", $this->user_company);
 
@@ -118,12 +118,23 @@ class Ajax extends CI_Controller {
 		}
 
 		$data = "Can't connect to Google";
-		$url = $this->input->get("url");
 
-		$data = 'x,Views'.PHP_EOL;
+		$post_search = array();
+		$url = $this->input->get("url");
 		if(!empty($url))
 		{
-			$rows = $this->google_php_client->get_stats(array('post_url' => $url), 'yesterday', '7daysAgo', 'date')->getRows();
+			$post_search['post_url'] = $url;
+		}
+		$author = $this->input->get("author");
+		if(!empty($author))
+		{
+			$post_search['author'] = $author;
+		}
+
+		$data = 'x,Views'.PHP_EOL;
+		if(count($post_search))
+		{
+			$rows = $this->google_php_client->get_stats($post_search, 'yesterday', '7daysAgo', 'date')->getRows();
 
 			foreach($rows as $row)
 			{

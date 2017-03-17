@@ -44,9 +44,12 @@ class Cron extends CI_Controller
 
 		foreach($companies as $company)
 		{
-            echo "********************************************************************************".PHP_EOL;
-            echo "* Company ID: ".str_pad($company->company_id, 6, ' ')."                                                           *".PHP_EOL;
-            echo "********************************************************************************".PHP_EOL;
+			if($debug)
+			{
+				echo "********************************************************************************".PHP_EOL;
+				echo "* Company ID: ".str_pad($company->company_id, 6, ' ')."                                                           *".PHP_EOL;
+				echo "********************************************************************************".PHP_EOL;
+			}
 			if($company->ga_token && $company->view_id)
 			{
 				$this->google_php_client->set_user_company($company);

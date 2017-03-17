@@ -125,7 +125,10 @@ ORDER BY date ASC
 			", array($end, $start, $company_id, $post_id))->result_array();
 	}
 
-	static function get_post_graph_data($company_id, $url, $start = null, $end = null)
+	/**
+	 * @deprecated DO NOT USE
+	 */
+	static function get_mini_graph_data($company_id, $url, $start = null, $end = null)
 	{
 		if($start == NULL || $end == NULL)
 		{

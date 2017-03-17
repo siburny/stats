@@ -377,7 +377,8 @@ class Portal extends MY_Controller {
 				"n" => $index+1,
 				"author" => $row[0],
 				"sessions" => number_format($row[1]),
-				"pageviews" => number_format($row[2])
+				"pageviews" => number_format($row[2]),
+				'posts_published' => $this->post->get_posts_count(array('author' => $row[0]), $data['date_to_ymd'], $data['date_from_ymd'])
 			);
 
 			$data['rows'][] = $ar;

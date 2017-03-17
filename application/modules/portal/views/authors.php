@@ -23,7 +23,7 @@
 
 <style>
 	#posts {
-		width: 400px;
+		width: 100%;
 		border-spacing: 0px;
 		border-collapse: collapse;
 	}
@@ -37,11 +37,18 @@
 			width: 25px;
 		}
 		#posts td:nth-child(3) {
-			width: 80px;
-			text-align:right;
+			width: 100px;
 		}
 		#posts td:nth-child(4) {
-			width: 80px;
+			width: 120px;
+			text-align:right;
+		}
+		#posts td:nth-child(5) {
+			width: 120px;
+			text-align:right;
+		}
+		#posts td:nth-child(6) {
+			width: 120px;
 			text-align:right;
 		}
 		#action #date_selector {
@@ -138,16 +145,20 @@
 <table style="" id="posts">
 	<tr>
 		<th></th>
-		<th>Author</th>
+		<th style="text-align:left;">Author</th>
+		<th></th>
 		<th>Sessions</th>
 		<th>Pageviews</th>
+		<th>Posts Published</th>
 	</tr>
 {{#rows}}
-	<tr class="{{class}}" data-url="{{url}}">
+	<tr class="{{class}}" data-author="{{author}}">
 		<td>{{n}}</td>
 		<td><a href="/portal/?author_name={{author}}">{{author}}</a></td>
+    <td><div id="chart{{n}}" style="width:100px;height:50px;"></div></td>
 		<td>{{sessions}}</td>
 		<td>{{pageviews}}</td>
+		<td>{{posts_published}}</td>
 	</tr>
 {{/rows}}
 </table>
@@ -163,6 +174,22 @@ $(function () {
 		legend: { show: false },
 		transition: { duration: 1000 },
 		tooltip: { show: false }
+	});
+
+	$("#posts tr:not(:first)").each(function(index, value) {
+		$chart = $(value);
+		var chart = c3.generate({
+			bindto: '#chart'+$chart.find("td:first-child").text(),
+			data: {
+				x: 'x',
+				type: 'bar',
+				url: '/ajax/get_mini_graph_data?author=' + encodeURIComponent($chart.data("author"))
+			},
+			axis: { x: { type: 'timeseries', show: false }, y: { show: false } },
+			legend: { show: false },
+			tooltip: { show: false },
+			bar: { width: { ratio: 0.9 } },
+		});
 	});
 });
 </script>

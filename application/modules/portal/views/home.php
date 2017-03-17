@@ -246,7 +246,7 @@ $(function () {
 			data: {
 				x: 'x',
 				type: 'bar',
-				url: '/ajax/get_post_graph_data?url=' + encodeURIComponent($chart.data("url"))
+				url: '/ajax/get_mini_graph_data?url=' + encodeURIComponent($chart.data("url"))
 			},
 			axis: { x: { type: 'timeseries', show: false }, y: { show: false } },
 			legend: { show: false },

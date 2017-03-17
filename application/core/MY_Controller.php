@@ -44,8 +44,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @property Preferences_model $preferences
  */
 class MY_Controller extends CI_Controller {
-	protected $user = null;
-	protected $user_company = null;
+	public $user = null;
+	public $user_company = null;
 
 	function __construct()
 	{
