@@ -157,6 +157,15 @@
 
 <br />
 
+{{#author_info}}
+<div style="border:1px solid #ccc;width:300px;padding:10px;margin-bottom:1em;">
+		<img src="{{image}}" style="float:left;margin-right:10px;width:64px;" />
+    <b>{{name}}</b><br />
+		Posts publised: {{posts_published}}
+		<div style="clear:both"></div>
+</div>
+{{/author_info}}
+
 <div style="float:right;">Showing stats {{^date_to}}for{{/date_to}}{{#date_to}}from{{/date_to}} {{date_from}}{{#date_to}} to {{.}}{{/date_to}}</div>
 
 {{#prev_link}}<a href="{{.}}">{{/prev_link}}&lt;&nbsp;PREV{{#prev_link}}</a>{{/prev_link}}

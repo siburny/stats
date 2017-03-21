@@ -101,6 +101,7 @@ class Portal extends MY_Controller {
 	function index()
 	{
 		$this->load->library("google_php_client", $this->user_company);
+		$this->load->model("Post_model", "post");
 
 		$this->parser->data['active_menu_posts'] = TRUE;
 
@@ -182,8 +183,6 @@ class Portal extends MY_Controller {
 
 		$this->_process_date($data);
 
-		$this->load->model("Post_model", "post");
-
 		$this->user = $this->ion_auth->user()->row();
 
 		if($this->ion_auth->is_manager())
@@ -260,6 +259,15 @@ class Portal extends MY_Controller {
 		{
 			$data['totals']['sessions'] = number_format($rows[0][0]);
 			$data['totals']['pageviews'] = number_format($rows[0][1]);
+		}
+
+		//Author Info
+		if(!empty($author))
+		{
+			$data['author_info'] = array();
+			$data['author_info']['name'] = $author;
+			$data['author_info']['image'] = '/images/00000000000000000000000000000000.png';
+			$data['author_info']['posts_published'] = $this->post->get_posts_count(array('author' => $author), $data['date_to_ymd'], $data['date_from_ymd']);
 		}
 
 		$query = $data['params'];
